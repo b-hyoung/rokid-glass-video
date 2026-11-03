@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 640">
+  <!-- 안경 너머 현실 흉내: 밝은 실내(벽·창·책상) -->
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c9c4bb"/><stop offset="1" stop-color="#a39d93"/></linearGradient>
+    <linearGradient id="win" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cfe3f2"/><stop offset="1" stop-color="#9fbfd6"/></linearGradient>
+  </defs>
+  <rect width="480" height="640" fill="url(#wall)"/>
+  <rect x="250" y="70" width="190" height="230" rx="4" fill="url(#win)" stroke="#8a857c" stroke-width="8"/>
+  <line x1="345" y1="70" x2="345" y2="300" stroke="#8a857c" stroke-width="6"/>
+  <rect x="40" y="110" width="150" height="100" rx="3" fill="#6f7c6a"/>
+  <rect x="0" y="430" width="480" height="210" fill="#7b5e44"/>
+  <rect x="0" y="420" width="480" height="16" fill="#8f6d4f"/>
+  <rect x="70" y="350" width="170" height="80" rx="4" fill="#2f3338"/>
+  <rect x="140" y="430" width="30" height="10" fill="#2f3338"/>
+  <circle cx="380" cy="400" r="22" fill="#d9d4cb"/>
+</svg>

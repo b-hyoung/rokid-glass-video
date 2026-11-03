@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>안경 화면 미리보기</title>
+<style>
+:root{--g:#3dff5a;--g2:#1fae35;--bg:#1b1d20;--panel:#26292d;--fg:#e8eaed;--muted:#9aa3ad}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,"Malgun Gothic",sans-serif}
+main{max-width:1100px;margin:0 auto;padding:16px;display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start}
+h1{font-size:18px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px;margin:0 0 14px}
+.side{flex:1 1 300px;min-width:280px}
+.ctl{background:var(--panel);border-radius:10px;padding:12px;margin-bottom:12px}
+.ctl b{display:block;font-size:13px;color:var(--muted);font-weight:600;margin-bottom:6px}
+.ctl button{font:inherit;padding:8px 12px;margin:0 6px 6px 0;border:1px solid #3a3f45;border-radius:8px;background:#1f2226;color:var(--fg);cursor:pointer}
+.ctl button[aria-pressed=true]{background:#1f6f3a;border-color:#2c9a52}
+.cues{font-size:13px;color:var(--muted);margin:0;padding-left:18px}.cues li.on{color:var(--g)}
+
+/* 안경 화면: 480x640 그대로. 검정 = 안경에서 투명 */
+.stage{flex:0 0 auto}
+.glass{position:relative;width:480px;height:640px;overflow:hidden;border-radius:6px;outline:1px solid #3a3f45;background:#000}
+.glass.see{background:url("room.svg") center/cover}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;color:var(--g);font-family:"Malgun Gothic",system-ui,sans-serif}
+.glass.see .screen{mix-blend-mode:screen} /* 빛을 더하는 디스플레이 흉내: 검정은 비치고 초록만 얹힌다 */
+.head{height:44px;flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 16px;font-size:17px;color:var(--g2);letter-spacing:.02em}
+.vid{flex:0 0 auto;width:480px;height:324px;display:block;background:#000}
+.text{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center;padding:0 22px;text-align:center}
+.title{font-size:34px;font-weight:800;line-height:1.25;word-break:keep-all}
+.subline{font-size:21px;margin-top:10px;color:var(--g2);word-break:keep-all}
+.dots{flex:0 0 auto;display:flex;gap:8px;justify-content:center;padding:0 0 16px}
+.dots i{width:10px;height:10px;border-radius:50%;border:2px solid var(--g2)}.dots i.on{background:var(--g);border-color:var(--g)}
+/* B: 글씨 위, 영상 아래 */
+.screen.b .text{order:1;padding-top:8px}.screen.b .vid{order:2}.screen.b .dots{order:3;padding-top:14px}.screen.b .head{order:0}
+/* C: 글씨만 */
+.screen.c .vid{display:none}.screen.c .title{font-size:44px}.screen.c .subline{font-size:26px;margin-top:18px}
+@media (max-width:520px){.stage{transform:scale(.7);transform-origin:top left;height:448px}}
+</style>
+</head>
+<body>
+<main>
+  <div class="stage">
+    <div class="glass" id="glass">
+      <div class="screen" id="screen">
+        <div class="head"><span id="head">후백제 VR 〈견훤〉</span><span id="step"></span></div>
+        <video class="vid" id="vid" src="gyeon.mp4" playsinline preload="auto"></video>
+        <div class="text"><div class="title" id="title"></div><div class="subline" id="subline"></div></div>
+        <div class="dots" id="dots"></div>
+      </div>
+    </div>
+  </div>
+  <div class="side">
+    <h1>안경 화면 미리보기</h1>
+    <p class="sub">Rokid 안경 화면(480×640, 초록 단색) 그대로. 검정은 안경에서 투명.</p>
+    <div class="ctl"><b>레이아웃</b>
+      <button data-lay="a" aria-pressed="true">A 영상 위 · 글씨 아래</button>
+      <button data-lay="b" aria-pressed="false">B 글씨 위 · 영상 아래</button>
+      <button data-lay="c" aria-pressed="false">C 글씨만</button>
+    </div>
+    <div class="ctl"><b>배경</b>
+      <button data-bg="black" aria-pressed="true">검정(안경 화면)</button>
+      <button data-bg="see" aria-pressed="false">투명 흉내(현실 위에 겹침)</button>
+    </div>
+    <div class="ctl"><b>재생</b>
+      <button id="play">▶ 재생</button><button id="restart">처음부터</button><label><input type="checkbox" id="mute" checked> 소리 끔</label>
+    </div>
+    <div class="ctl"><b>자막 (시작 초 · 큰 글씨 · 작은 글씨)</b><ol class="cues" id="cues"></ol></div>
+  </div>
+</main>
+<script>
+// 서버 videos.json 에 그대로 옮길 형태
+const ITEM = {
+  key: 'd', header: '후백제 VR 〈견훤〉', file: 'gyeon.mp4',
+  cues: [
+    {t: 0,    title: '호랑이 길잡이와 출발',     sub: '문지기 호랑이의 길 안내'},
+    {t: 6,    title: '리프트 타고 성벽 위로',     sub: '후백제 왕도 전주의 성벽'},
+    {t: 9.5,  title: '후백제 군사를 만나고',     sub: '성벽을 지키는 견훤의 군사'},
+    {t: 14,   title: '눈앞에 펼쳐지는 옛 이야기', sub: '두루마리로 보는 견훤 이야기'},
+    {t: 20,   title: '밤바다에 낚싯대를 드리우면', sub: '배 위에서 기다리는 시간'},
+    {t: 25,   title: '고래가 걸렸다?!',          sub: '밤바다의 고래'},
+  ],
+};
+const $ = id => document.getElementById(id);
+const vid = $('vid'), screen = $('screen');
+$('head').textContent = ITEM.header;
+$('dots').innerHTML = ITEM.cues.map(() => '<i></i>').join('');
+$('cues').innerHTML = ITEM.cues.map(c => `<li>${c.t}초 · ${c.title} · ${c.sub}</li>`).join('');
+let cur = -1;
+function show(i) {
+  if (i === cur) return; cur = i;
+  const c = ITEM.cues[i];
+  $('title').textContent = c.title; $('subline').textContent = c.sub;
+  $('step').textContent = `${i + 1} / ${ITEM.cues.length}`;
+  [...$('dots').children].forEach((d, k) => d.classList.toggle('on', k === i));
+  [...$('cues').children].forEach((d, k) => d.classList.toggle('on', k === i));
+}
+function tick() {
+  let i = 0; ITEM.cues.forEach((c, k) => { if (vid.currentTime >= c.t) i = k; });
+  show(i);
+}
+vid.addEventListener('timeupdate', tick); vid.addEventListener('seeked', tick); show(0);
+vid.muted = true;
+$('mute').onchange = e => vid.muted = e.target.checked;
+$('play').onclick = () => vid.paused ? vid.play() : vid.pause();
+vid.onplay = () => $('play').textContent = '❚❚ 멈춤'; vid.onpause = () => $('play').textContent = '▶ 재생';
+$('restart').onclick = () => { vid.currentTime = 0; vid.play(); };
+[...$('cues').children].forEach((li, k) => { li.style.cursor = 'pointer'; li.onclick = () => { vid.currentTime = ITEM.cues[k].t + .05; }; });
+document.querySelectorAll('[data-lay]').forEach(b => b.onclick = () => {
+  screen.className = 'screen ' + b.dataset.lay;
+  document.querySelectorAll('[data-lay]').forEach(x => x.setAttribute('aria-pressed', x === b));
+});
+document.querySelectorAll('[data-bg]').forEach(b => b.onclick = () => {
+  $('glass').classList.toggle('see', b.dataset.bg === 'see');
+  document.querySelectorAll('[data-bg]').forEach(x => x.setAttribute('aria-pressed', x === b));
+});
+</script>
+</body>
+</html>
