@@ -1,8 +1,9 @@
 """비전 인식 직후 재생할 '상자 열림' 전환 애니메이션을 영상 앞에 붙인다.
 
-    python tools/render_intro.py majubom_layout.mp4 gyeon_layout.mp4
-        → server/videos/majubom_intro.mp4, gyeon_intro.mp4 (원본은 그대로)
-    python tools/render_intro.py --style portal majubom_layout.mp4   → 다른 애니메이션(목록: intro_styles.py)
+    python tools/render_intro.py majubom_layout.mp4            → server/videos/majubom_box.mp4 (원본은 그대로)
+    python tools/render_intro.py --style scan majubom_layout.mp4   → majubom_scan.mp4
+애니메이션 이름: box · scan · envelope · iris · tiles (intro_styles.py)
+평소에는 videos.json에 "intro"를 적고 build_intros.py로 굽는다.
 
 흐름(약 2.4초): 인식 조준 모서리가 가운데로 모임 → 상자가 통통 튀며 등장·흔들림
 → 뚜껑이 열리며 빛줄기와 입자가 슝슝 → 상자에서 화면 틀이 날아올라 커지며 영상 첫 장면으로 이어짐.
@@ -314,9 +315,14 @@ def join(intro, src, out, limit=None):
                     '-c:a', 'aac', '-b:a', '96k', '-movflags', '+faststart', out], check=True)
 
 
+def out_name(name, style):
+    """majubom_layout.mp4 + scan → majubom_scan.mp4"""
+    return name.replace('_layout', '').rsplit('.', 1)[0] + f'_{style}.mp4'
+
+
 def make(name, style='box'):
     src = os.path.join(VID, name)
-    out = os.path.join(VID, name.replace('_layout', '').rsplit('.', 1)[0] + '_intro.mp4')
+    out = os.path.join(VID, out_name(name, style))
     intro = os.path.join(tempfile.mkdtemp(), 'intro.mp4')
     bake_intro(style, first_frame(src), intro)
     join(intro, src, out)

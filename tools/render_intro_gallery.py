@@ -1,4 +1,4 @@
-"""전환 애니메이션 10종 미리보기를 굽고 비교용 HTML을 만든다.
+"""전환 애니메이션 미리보기를 굽고 비교용 HTML을 만든다.
 
     python tools/render_intro_gallery.py            → preview/intros/index.html (+ 01_box.mp4 …)
     python tools/render_intro_gallery.py warp iris  → 일부만 다시 굽기
@@ -44,7 +44,7 @@ def page():
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<title>인식 전환 애니메이션 10종</title>
+<title>인식 전환 애니메이션</title>
 <style>
   body {{ margin: 0; background: #0b0d0c; color: #cfe9d4; font-family: "Malgun Gothic", sans-serif; }}
   header {{ padding: 28px 32px 8px; display: flex; align-items: baseline; gap: 20px; flex-wrap: wrap; }}
@@ -67,7 +67,7 @@ def page():
 </head>
 <body>
 <header>
-  <h1>인식 전환 애니메이션 10종</h1>
+  <h1>인식 전환 애니메이션</h1>
   <p>안경 화면(480×640, 초록 단색, 검정=투명) 그대로 · 애니메이션 뒤에 마주봄 영상 앞 3초 · 화면을 누르면 처음부터 소리와 함께</p>
   <button id="all">전체 처음부터</button>
 </header>
