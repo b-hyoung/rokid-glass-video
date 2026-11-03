@@ -4,9 +4,12 @@
 //   node server/server.mjs            (PORT 기본 8787, TOKEN 을 주면 /play·/stop 에 ?token= 필요)
 import http from 'node:http';
 import {readFileSync, statSync, createReadStream} from 'node:fs';
-import {join, basename} from 'node:path';
+import {join, basename, normalize, extname} from 'node:path';
 
 const DIR = import.meta.dirname;
+const DEMO = join(DIR, '..', 'demo'); // 2412호 3D 데모(/demo/2412/)
+const MIME = {'.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
+  '.glb': 'model/gltf-binary', '.jpg': 'image/jpeg', '.png': 'image/png', '.json': 'application/json; charset=utf-8'};
 const PORT = Number(process.env.PORT ?? 8787);
 const TOKEN = process.env.TOKEN ?? '';
 const HOLD_MS = 25000; // 신호가 없으면 이만큼 붙잡았다가 빈 답을 준다(터널 제한 100초보다 짧게)
@@ -109,6 +112,15 @@ http.createServer((req, res) => {
     return json(res, 200, out);
   }
   if (p.startsWith('/v/')) return serveVideo(req, res, decodeURIComponent(p.slice(3)));
+  if (p === '/demo' || p.startsWith('/demo/')) {
+    let rel = decodeURIComponent(p.slice(6));
+    if (rel === '' || rel.endsWith('/')) rel += 'index.html';
+    const file = normalize(join(DEMO, rel));
+    if (!file.startsWith(DEMO)) { res.writeHead(403); return res.end(); }
+    try { statSync(file); } catch { res.writeHead(404); return res.end(); }
+    res.writeHead(200, {'Content-Type': MIME[extname(file)] ?? 'application/octet-stream', 'Cache-Control': 'no-cache'});
+    return createReadStream(file).pipe(res);
+  }
   if (p === '/') { res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'}); return res.end(PAGE()); }
   res.writeHead(404); res.end();
 }).listen(PORT, () => console.log(`안경 영상 서버 http://localhost:${PORT}`));
