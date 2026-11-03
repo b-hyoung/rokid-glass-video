@@ -63,6 +63,12 @@ http.createServer((req, res) => {
   const url = new URL(req.url, 'http://x');
   const p = url.pathname;
   const authed = !TOKEN || url.searchParams.get('token') === TOKEN;
+  if (process.env.LOG) {
+    const t0 = Date.now();
+    res.on('finish', () => console.log(new Date().toLocaleTimeString('ko-KR'), req.method, req.url, res.statusCode,
+      `${Date.now() - t0}ms`, req.headers.range ?? '', (req.headers['user-agent'] ?? '').slice(0, 40)));
+    req.on('close', () => { if (!res.writableFinished) console.log(new Date().toLocaleTimeString('ko-KR'), '끊김', req.url, `${Date.now() - t0}ms`); });
+  }
 
   // 안경: /next?id=<안경>&after=<마지막 seq>. after 없이 오면 지금 seq 만 알려 준다(켜자마자 옛 신호를 다시 틀지 않게).
   if (p === '/next') {
@@ -90,8 +96,18 @@ http.createServer((req, res) => {
     send({cmd: 'stop'});
     return json(res, 200, {ok: true});
   }
+  if (p === '/log') { // 안경 앱이 보내는 재생 상태(진단용)
+    console.log(new Date().toLocaleTimeString('ko-KR'), '[안경]', url.searchParams.get('m'));
+    return json(res, 200, {ok: true});
+  }
   if (p === '/status') return json(res, 200, {glasses: glasses(), now});
-  if (p === '/videos.json') return json(res, 200, list());
+  if (p === '/videos.json') { // 안경이 미리 받아 두도록 크기·수정시각을 붙여 준다
+    const out = {};
+    for (const [k, v] of Object.entries(list())) {
+      try { const s = statSync(join(DIR, 'videos', basename(v.file))); out[k] = {...v, size: s.size, ver: Math.floor(s.mtimeMs)}; } catch {}
+    }
+    return json(res, 200, out);
+  }
   if (p.startsWith('/v/')) return serveVideo(req, res, decodeURIComponent(p.slice(3)));
   if (p === '/') { res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'}); return res.end(PAGE()); }
   res.writeHead(404); res.end();
