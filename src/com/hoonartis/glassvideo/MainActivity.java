@@ -65,6 +65,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         status = new TextView(this);
         status.setTextColor(Color.GREEN);
         status.setTextSize(16);
+        status.setText("연결 중…");
         root.addView(status, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL));
@@ -158,10 +159,11 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
 
     /**
      * 서버에 "새 신호 있나"를 묻고, 서버는 신호가 생길 때까지(최대 25초) 답을 붙잡는다(롱 폴링).
-     * 처음엔 after 없이 물어 지금 번호만 받아서, 켜자마자 옛 신호를 다시 틀지 않는다. 끊기면 3초 뒤 다시.
+     * 처음엔 after 없이 물어 지금 번호만 받아서, 켜자마자 옛 신호를 다시 틀지 않는다. 끊기면 1초 뒤 다시.
      */
     private void listen() {
         long after = -1;
+        long t0 = System.currentTimeMillis(); int tries = 0;
         boolean online = false;
         while (running) {
             try {
@@ -176,15 +178,17 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
                     while ((line = in.readLine()) != null) body.append(line);
                 }
                 JSONObject m = new JSONObject(body.toString());
-                if (!online) { online = true; say("연결됨 · 신호 대기"); }
+                if (!online) { online = true; say("연결됨 · 신호 대기"); report("연결됨 " + (System.currentTimeMillis() - t0) + "ms, 시도 " + (tries + 1) + "번"); }
                 if (after >= 0 && m.has("cmd")) handle(m);
                 after = m.optLong("seq", after);
                 continue;
             } catch (Exception e) {
+                if (online) { t0 = System.currentTimeMillis(); tries = 0; }
                 online = false;
                 if (running) say("연결 끊김 · 다시 연결 중");
             }
-            if (running) try { Thread.sleep(3000); } catch (InterruptedException ignored) { }
+            tries++;
+            if (running) try { Thread.sleep(1000); } catch (InterruptedException ignored) { }
         }
     }
 
