@@ -2,6 +2,7 @@
 
     python tools/render_intro.py majubom_layout.mp4 gyeon_layout.mp4
         → server/videos/majubom_intro.mp4, gyeon_intro.mp4 (원본은 그대로)
+    python tools/render_intro.py --style portal majubom_layout.mp4   → 다른 애니메이션(목록: intro_styles.py)
 
 흐름(약 2.4초): 인식 조준 모서리가 가운데로 모임 → 상자가 통통 튀며 등장·흔들림
 → 뚜껑이 열리며 빛줄기와 입자가 슝슝 → 상자에서 화면 틀이 날아올라 커지며 영상 첫 장면으로 이어짐.
@@ -220,81 +221,114 @@ def render_frames(first):
             yield fly(img, t, mouth, first)
 
 
-def sound(path):
-    """슝(속도선) → 툭(착지) → 뿅·반짝(열림) → 휘익(날아오름)."""
-    n = int(DUR * SR)
-    t = np.arange(n) / SR
-    rng = np.random.default_rng(3)
-    out = np.zeros(n)
+class Sfx:
+    """효과음 조각을 더해 가는 작은 합성기. 각 애니메이션이 events(fx)로 소리를 놓는다."""
 
-    def whoosh(t0, dur, f0, f1, amp):
+    def __init__(self, dur):
+        self.n = int(dur * SR)
+        self.t = np.arange(self.n) / SR
+        self.out = np.zeros(self.n)
+        self.rng = np.random.default_rng(3)
+
+    def whoosh(self, t0, dur, f0, f1, amp):
+        t = self.t
         m = (t >= t0) & (t < t0 + dur)
         u = (t[m] - t0) / dur
-        noise = rng.standard_normal(m.sum())
+        noise = self.rng.standard_normal(m.sum())
         f = f0 + (f1 - f0) * u
         ph = 2 * np.pi * np.cumsum(f) / SR
-        out[m] += amp * np.sin(np.pi * u) ** 2 * noise * (0.5 + 0.5 * np.sin(ph))
+        self.out[m] += amp * np.sin(np.pi * u) ** 2 * noise * (0.5 + 0.5 * np.sin(ph))
 
-    def tone(t0, dur, f0, f1, amp, decay):
+    def tone(self, t0, dur, f0, f1, amp, decay):
+        t = self.t
         m = (t >= t0) & (t < t0 + dur)
         u = t[m] - t0
         f = f0 + (f1 - f0) * (u / dur)
-        out[m] += amp * np.exp(-u * decay) * np.sin(2 * np.pi * np.cumsum(f) / SR)
+        self.out[m] += amp * np.exp(-u * decay) * np.sin(2 * np.pi * np.cumsum(f) / SR)
 
-    whoosh(0.0, T_LOCK + 0.1, 300, 2500, 0.25)
-    tone(T_LOCK, 0.12, 1800, 2400, 0.25, 30)       # 잠김 '띵'
-    tone(T_BOX, 0.18, 140, 60, 0.6, 25)            # 착지 '툭'
-    tone(T_OPEN, 0.25, 400, 1400, 0.45, 12)        # 열림 '뿅'
-    for k in range(6):                             # 반짝
-        tone(T_OPEN + 0.08 + k * 0.06, 0.15, 2600 + k * 300, 2600 + k * 300, 0.12, 25)
-    whoosh(T_FLY - 0.05, DUR - T_FLY + 0.05, 600, 3500, 0.3)
-    # 아주 가벼운 저역 통과(이동평균)로 노이즈를 부드럽게
-    out = np.convolve(out, np.ones(6) / 6, mode='same')
-    out = np.clip(out / max(1e-6, np.abs(out).max()) * 0.8, -1, 1)
-    with wave.open(path, 'wb') as w:
-        w.setnchannels(1)
-        w.setsampwidth(2)
-        w.setframerate(SR)
-        w.writeframes((out * 32767).astype('<i2').tobytes())
+    def save(self, path):
+        out = np.convolve(self.out, np.ones(6) / 6, mode='same')  # 노이즈를 살짝 부드럽게
+        out = np.clip(out / max(1e-6, np.abs(out).max()) * 0.8, -1, 1)
+        with wave.open(path, 'wb') as w:
+            w.setnchannels(1)
+            w.setsampwidth(2)
+            w.setframerate(SR)
+            w.writeframes((out * 32767).astype('<i2').tobytes())
 
 
-def make(name):
-    src = os.path.join(VID, name)
-    out = os.path.join(VID, name.replace('_layout', '').rsplit('.', 1)[0] + '_intro.mp4')
+def box_sfx(fx):
+    """슝(속도선) → 띵(잠김) → 툭(착지) → 뿅·반짝(열림) → 휘익(날아오름)."""
+    fx.whoosh(0.0, T_LOCK + 0.1, 300, 2500, 0.25)
+    fx.tone(T_LOCK, 0.12, 1800, 2400, 0.25, 30)
+    fx.tone(T_BOX, 0.18, 140, 60, 0.6, 25)
+    fx.tone(T_OPEN, 0.25, 400, 1400, 0.45, 12)
+    for k in range(6):
+        fx.tone(T_OPEN + 0.08 + k * 0.06, 0.15, 2600 + k * 300, 2600 + k * 300, 0.12, 25)
+    fx.whoosh(T_FLY - 0.05, DUR - T_FLY + 0.05, 600, 3500, 0.3)
+
+
+def first_frame(src):
     tmp = tempfile.mkdtemp()
-    first_png = os.path.join(tmp, 'first.png')
-    subprocess.run(['ffmpeg', '-v', 'error', '-y', '-ss', str(SKIP), '-i', src, '-frames:v', '1', first_png], check=True)
-    first = Image.open(first_png).convert('RGB').resize((W, H))
-    intro = os.path.join(tmp, 'intro.mp4')
-    wav = os.path.join(tmp, 'intro.wav')
-    sound(wav)
+    png = os.path.join(tmp, 'first.png')
+    subprocess.run(['ffmpeg', '-v', 'error', '-y', '-ss', str(SKIP), '-i', src, '-frames:v', '1', png], check=True)
+    return Image.open(png).convert('RGB').resize((W, H))
+
+
+def bake_intro(style, first, path):
+    """애니메이션(소리 포함)만 path에 굽는다."""
+    from intro_styles import STYLES
+    st = STYLES[style]
+    wav = path + '.wav'
+    fx = Sfx(st['dur'])
+    st['sfx'](fx)
+    fx.save(wav)
     p = subprocess.Popen(['ffmpeg', '-v', 'error', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgb24',
                           '-s', f'{W}x{H}', '-r', str(FPS), '-i', '-', '-i', wav,
                           '-c:v', 'libx264', '-profile:v', 'baseline', '-crf', '18', '-pix_fmt', 'yuv420p',
-                          '-c:a', 'aac', '-b:a', '96k', '-shortest', intro], stdin=subprocess.PIPE)
-    for f in render_frames(first):
+                          '-c:a', 'aac', '-b:a', '96k', '-shortest', path], stdin=subprocess.PIPE)
+    for f in st['frames'](first):
         p.stdin.write(f.tobytes())
     p.stdin.close()
     if p.wait():
         raise SystemExit('애니메이션 굽기 실패')
+    os.remove(wav)
+
+
+def join(intro, src, out, limit=None):
+    """애니메이션 + 원본(첫 SKIP초 건너뜀, limit초까지)을 이어 붙인다. 원본이 무음이면 빈 소리를 깐다."""
     has_audio = subprocess.run(['ffprobe', '-v', 'error', '-select_streams', 'a', '-show_entries',
                                 'stream=index', '-of', 'csv=p=0', src], capture_output=True, text=True).stdout.strip()
+    dur = float(subprocess.run(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', src],
+                               capture_output=True, text=True).stdout.strip()) - SKIP
+    if limit:
+        dur = min(dur, limit)
+    pre = '' if has_audio else f'anullsrc=r=44100:cl=mono,atrim=0:{dur}[s];'
     a1 = '[1:a]' if has_audio else '[s]'
-    pre = '' if has_audio else 'anullsrc=r=44100:cl=mono[s0];[s0]atrim=0:9999[s];'
-    if not has_audio:  # 무음 영상이면 길이만큼 빈 소리를 만든다
-        dur = subprocess.run(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', src],
-                             capture_output=True, text=True).stdout.strip()
-        pre = f'anullsrc=r=44100:cl=mono,atrim=0:{float(dur) - SKIP}[s];'
-    subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', intro, '-ss', str(SKIP), '-i', src, '-filter_complex',
+    subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', intro, '-ss', str(SKIP), '-t', str(dur), '-i', src,
+                    '-filter_complex',
                     f'{pre}[0:v]fps={FPS},format=yuv420p[v0];[1:v]fps={FPS},scale={W}:{H},format=yuv420p[v1];'
                     f'[0:a]aformat=sample_rates=44100:channel_layouts=mono[a0];'
                     f'{a1}aformat=sample_rates=44100:channel_layouts=mono[a1];'
                     f'[v0][a0][v1][a1]concat=n=2:v=1:a=1[v][a]',
                     '-map', '[v]', '-map', '[a]', '-c:v', 'libx264', '-profile:v', 'baseline', '-crf', '20',
                     '-c:a', 'aac', '-b:a', '96k', '-movflags', '+faststart', out], check=True)
+
+
+def make(name, style='box'):
+    src = os.path.join(VID, name)
+    out = os.path.join(VID, name.replace('_layout', '').rsplit('.', 1)[0] + '_intro.mp4')
+    intro = os.path.join(tempfile.mkdtemp(), 'intro.mp4')
+    bake_intro(style, first_frame(src), intro)
+    join(intro, src, out)
     print(out)
 
 
 if __name__ == '__main__':
-    for name in sys.argv[1:] or ['majubom_layout.mp4']:
-        make(name)
+    args = sys.argv[1:]
+    style = 'box'
+    if '--style' in args:
+        k = args.index('--style')
+        style = args[k + 1]
+        del args[k:k + 2]
+    for name in args or ['majubom_layout.mp4']:
+        make(name, style)

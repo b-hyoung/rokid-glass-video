@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>인식 전환 애니메이션 10종</title>
+<style>
+  body { margin: 0; background: #0b0d0c; color: #cfe9d4; font-family: "Malgun Gothic", sans-serif; }
+  header { padding: 28px 32px 8px; display: flex; align-items: baseline; gap: 20px; flex-wrap: wrap; }
+  h1 { margin: 0; font-size: 24px; color: #3dff5a; }
+  header p { margin: 0; color: #7fa889; font-size: 14px; }
+  button { background: #133318; color: #3dff5a; border: 1px solid #1fae35; border-radius: 6px;
+            padding: 6px 14px; font: inherit; cursor: pointer; }
+  main { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 22px; padding: 20px 32px 40px; }
+  .card { background: #121614; border: 1px solid #1d2a21; border-radius: 10px; overflow: hidden; }
+  .screen { background: #000; display: flex; justify-content: center; padding: 14px 0; }
+  video { width: 240px; height: 320px; background: #000; cursor: pointer; }
+  .meta { padding: 12px 16px 16px; position: relative; }
+  .no { position: absolute; right: 16px; top: 12px; color: #2f5a39; font-size: 22px; font-weight: 700; }
+  h2 { margin: 0 0 6px; font-size: 17px; color: #e6f7ea; }
+  .badge { margin-left: 8px; font-size: 11px; background: #3dff5a; color: #08200d; padding: 2px 6px; border-radius: 4px; vertical-align: middle; }
+  p { margin: 0 0 10px; font-size: 13px; line-height: 1.55; color: #9dbba5; }
+  code { font-size: 12px; color: #3dff5a; background: #0b1a0f; padding: 2px 6px; border-radius: 4px; }
+  .dur { font-size: 12px; color: #6f8f77; margin-left: 6px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>인식 전환 애니메이션 10종</h1>
+  <p>안경 화면(480×640, 초록 단색, 검정=투명) 그대로 · 애니메이션 뒤에 마주봄 영상 앞 3초 · 화면을 누르면 처음부터 소리와 함께</p>
+  <button id="all">전체 처음부터</button>
+</header>
+<main>
+    <article class="card">
+      <div class="screen"><video src="01_box.mp4" autoplay muted loop playsinline></video></div>
+      <div class="meta">
+        <div class="no">01</div>
+        <h2>상자 열림<span class="badge">지금 적용</span></h2>
+        <p>조준 모서리가 모이고, 상자가 통통 튀다 뚜껑이 열리며 빛과 별이 슝슝. 화면 틀이 날아올라 영상이 된다.</p>
+        <code>--style box</code> <span class="dur">2.4초</span>
+      </div>
+    </article>
+    <article class="card">
+      <div class="screen"><video src="02_portal.mp4" autoplay muted loop playsinline></video></div>
+      <div class="meta">
+        <div class="no">02</div>
+        <h2>포털 소용돌이</h2>
+        <p>점선 고리가 엇갈려 돌며 소용돌이가 빨라지고, 가운데 원이 터지듯 넓어지며 영상이 드러난다.</p>
+        <code>--style portal</code> <span class="dur">2.2초</span>
+      </div>
+    </article>
+    <article class="card">
+      <div class="screen"><video src="03_scan.mp4" autoplay muted loop playsinline></video></div>
+      <div class="meta">
+        <div class="no">03</div>
+        <h2>홀로그램 스캔</h2>
+        <p>인식 틀이 잡히고 스캔선이 위에서 아래로 훑으며 격자·글리치와 함께 화면을 그려 낸다. &quot;인식 중 %&quot; 표시.</p>
+        <code>--style scan</code> <span class="dur">2.3초</span>
+      </div>
+    </article>
+    <article class="card">
+      <div class="screen"><video src="04_warp.mp4" autoplay muted loop playsinline></video></div>
+      <div class="meta">
+        <div class="no">04</div>
+        <h2>워프 별빛</h2>
+        <p>별빛이 점점 빠르게 뒤로 날아가는 초광속 이동. 번쩍하는 섬광과 함께 영상에 도착한다.</p>
+        <code>--style warp</code> <span class="dur">2.1초</span>
+      </div>
+    </article>
+    <article class="card">
+      <div class="screen"><video src="05_envelope.mp4" autoplay muted loop playsinline></video></div>
+      <div class="meta">
+        <div class="no">05</div>
+        <h2>편지 봉투</h2>
+        <p>하트 봉인 봉투가 올라와 열리고, 안에서 카드가 쏙 빠져나와 화면 가득 커진다.</p>
+        <code>--style envelope</code> <span class="dur">2.5초</span>
+      </div>
+    </article>
+    <article class="card">
+      <div class="screen"><video src="06_capsule.mp4" autoplay muted loop playsinline></video></div>
+      <div class="meta">
+        <div class="no">06</div>
+        <h2>캡슐 뽑기</h2>
+        <p>뽑기 캡슐이 툭 떨어져 덜덜 흔들리다 뚜껑이 퐁 날아가고, 영상이 튀어나오듯 커진다.</p>
+        <code>--style capsule</code> <span class="dur">2.3초</span>
+      </div>
+    </article>
+    <article class="card">
+      <div class="screen"><video src="07_assemble.mp4" autoplay muted loop playsinline></video></div>
+      <div class="meta">
+        <div class="no">07</div>
+        <h2>입자 모임</h2>
+        <p>사방에서 빛 알갱이 900개가 꼬리를 끌며 날아와 모여 영상 첫 장면의 모양을 그린다.</p>
+        <code>--style assemble</code> <span class="dur">2.3초</span>
+      </div>
+    </article>
+    <article class="card">
+      <div class="screen"><video src="08_iris.mp4" autoplay muted loop playsinline></video></div>
+      <div class="meta">
+        <div class="no">08</div>
+        <h2>카메라 조리개</h2>
+        <p>렌즈 테두리와 조리개 날개가 찰칵찰칵 돌며 열리고, 그 구멍 너머로 영상이 보인다.</p>
+        <code>--style iris</code> <span class="dur">2.0초</span>
+      </div>
+    </article>
+    <article class="card">
+      <div class="screen"><video src="09_tiles.mp4" autoplay muted loop playsinline></video></div>
+      <div class="meta">
+        <div class="no">09</div>
+        <h2>타일 뒤집기</h2>
+        <p>화면을 덮은 타일 48장이 대각선 물결처럼 차례로 뒤집히며 영상으로 바뀐다.</p>
+        <code>--style tiles</code> <span class="dur">2.2초</span>
+      </div>
+    </article>
+    <article class="card">
+      <div class="screen"><video src="10_magic.mp4" autoplay muted loop playsinline></video></div>
+      <div class="meta">
+        <div class="no">10</div>
+        <h2>마법진</h2>
+        <p>원과 눈금, 육망성이 그려지며 점점 빠르게 회전하고, 빛이 모였다가 펑 터지며 영상이 나타난다.</p>
+        <code>--style magic</code> <span class="dur">2.4초</span>
+      </div>
+    </article>
+</main>
+<script>
+  document.querySelectorAll('video').forEach(v => v.addEventListener('click', () => {
+    document.querySelectorAll('video').forEach(o => { if (o !== v) o.muted = true; });
+    v.muted = false; v.currentTime = 0; v.play();
+  }));
+  document.getElementById('all').onclick = () =>
+    document.querySelectorAll('video').forEach(v => { v.muted = true; v.currentTime = 0; v.play(); });
+</script>
+</body>
+</html>
