@@ -394,7 +394,7 @@ function decide(dt, now) {
   if (hold.t === playing) { status = `재생 중: ${playing.label}`; return; }
   const need = playing ? RULE.switchDwell : RULE.dwell;
   status = `${hold.t.label} · ${Math.min(hold.time, need).toFixed(1)} / ${need.toFixed(1)}초` + (playing ? ' (바꾸려면 더 오래)' : '');
-  if (hold.time >= need) { fire(hold.t, now); hold.time = 0; }
+  if (pick && pick.t === hold.t && hold.time >= need) { fire(hold.t, now); hold.time = 0; } // 지금 보고 있을 때만 확정
 }
 function warnOnce(m) { if (m !== lastWarn) { lastWarn = m; log(m, 'warn'); } }
 
@@ -462,6 +462,10 @@ function drawOverlay(now) {
   g2.setLineDash([6, 6]); g2.strokeStyle = 'rgba(61,255,90,.25)'; g2.lineWidth = 1;
   g2.strokeRect(gr.x, gr.y, gr.w, gr.h); g2.setLineDash([]);
   g2.font = '11px "Malgun Gothic"'; g2.fillStyle = 'rgba(61,255,90,.5)'; g2.fillText('안경 화면', gr.x, gr.y - 6);
+  if (fastLabel) {
+    g2.font = '700 14px "Malgun Gothic"'; g2.textAlign = 'right'; g2.fillStyle = GREEN;
+    g2.fillText(fastLabel, gr.x + gr.w, gr.y - 6); g2.textAlign = 'left';
+  }
   if (playing && playing.kind !== 'video') {
     if (playing.kind === 'none') drawCard(gr, {card: {tag: '오류', title: '등록 안 된 대상', lines: ['틀 영상이 없음', '잘못 인식된 예']}}, now - playAt);
     else drawCard(gr, playing, now - playAt);
@@ -505,8 +509,7 @@ function log(m, cls = '') {
 // ───── 녹화(화면 + 안경 화면 + 소리 → webm) ─────
 const comp = document.createElement('canvas'), cg = comp.getContext('2d');
 let rec = null;
-$('#rec').onclick = () => {
-  if (rec) { rec.stop(); return; }
+function startRec(name) {
   ensureAudio();
   comp.width = gl.width; comp.height = gl.height;
   const tracks = [...comp.captureStream(30).getVideoTracks(), ...audio.dest.stream.getAudioTracks()];
@@ -514,17 +517,28 @@ $('#rec').onclick = () => {
   const chunks = [];
   rec = new MediaRecorder(new MediaStream(tracks), {mimeType: type, videoBitsPerSecond: 8e6});
   rec.ondataavailable = e => chunks.push(e.data);
-  rec.onstop = () => {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob(chunks, {type: 'video/webm'}));
-    a.download = '2412_안경데모.webm'; a.click();
-    rec = null; $('#rec').setAttribute('aria-pressed', 'false'); $('#rec').textContent = '녹화';
-    log('녹화 저장: 2412_안경데모.webm');
-  };
+  const done = new Promise(ok => {
+    rec.onstop = async () => {
+      const blob = new Blob(chunks, {type: 'video/webm'});
+      rec = null; $('#rec').setAttribute('aria-pressed', 'false'); $('#rec').textContent = '녹화';
+      try { // 로컬 서버가 저장소 recordings/에 저장(다운로드는 자동 클릭이면 막힐 수 있음)
+        const r = await fetch('/rec?name=' + encodeURIComponent(name), {method: 'POST', body: blob});
+        if (!r.ok) throw new Error(r.status);
+        log('녹화 저장: ' + (await r.json()).path, 'api');
+      } catch {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob); a.download = name; a.click();
+        log('녹화 저장(다운로드): ' + name);
+      }
+      ok();
+    };
+  });
   rec.start(500);
   $('#rec').setAttribute('aria-pressed', 'true'); $('#rec').textContent = '녹화 끝내기';
   log('녹화 시작');
-};
+  return done;
+}
+$('#rec').onclick = () => { if (rec) rec.stop(); else startRec('2412_안경데모.webm'); };
 function compose() {
   if (!rec) return;
   if (comp.width !== gl.width || comp.height !== gl.height) { comp.width = gl.width; comp.height = gl.height; }
@@ -578,6 +592,52 @@ $('#auto').onclick = async () => {
   log('자동 시연 시작');
   for (const s of steps) { if (!alive()) return; await s(); }
   if (alive()) { log('자동 시연 끝'); stopAuto(); }
+};
+
+// ───── 시연 녹화(약 60초): 마주봄 → 견훤 → 애플 비전 프로 → 스마트홈 → 메타 퀘스트 ─────
+// 영상 셋은 처음부터 끝까지 빨리감기로 보여 주고 끝나면 다음으로 넘어간다.
+let fastLabel = '';
+const until = async (ok, max) => { const t0 = performance.now(); while (!ok() && performance.now() - t0 < max * 1000) await wait(0.05); };
+async function watchFull(id, rate) {
+  await until(() => playing?.id === id, 6);
+  if (playing?.id !== id) return;
+  await until(() => video.readyState >= 1, 3);
+  const loop = video.loop;
+  video.loop = false; // 반복 재생이면 빨리감기 중에 끝을 지나쳐 처음으로 돌아가 버린다
+  video.defaultPlaybackRate = video.playbackRate = rate;
+  fastLabel = `▶▶ ${rate}배속`;
+  await until(() => video.ended || playing?.id !== id, 40);
+  video.defaultPlaybackRate = video.playbackRate = 1;
+  video.loop = loop;
+  fastLabel = '';
+  if (playing?.id === id) stopPlay('영상 끝까지 봄');
+}
+$('#show').onclick = async () => {
+  if (autoRun || rec) return;
+  const run = autoRun = Date.now();
+  const alive = () => autoRun === run;
+  const keep = RULE.switchDwell;
+  RULE.switchDwell = 1.0; // 녹화에서는 다음 대상으로 빨리 넘어감
+  stopPlay('시연 시작');
+  const [e0, l0] = VIEWS['교실 뒤에서'];
+  await moveTo(e0, l0, 0.05);
+  const saved = startRec('2412_시연영상.webm');
+  const mid = B(5.45, 5.4, 1.65), devEye = B(6.3, 6.3, 1.6), questEye = B(4.6, 6.3, 1.6);
+  const steps = [
+    async () => { await wait(1.0); },
+    async () => { await moveTo(mid, B(10.44, 5.4, 1.46), 1.2); await watchFull('tv-e', 3); },     // 마주봄: 끝까지 3배속
+    async () => { await moveTo(mid, B(10.44, 7.8, 1.46), 0.8); await watchFull('tv-d', 3); },     // 견훤: 끝까지 3배속
+    async () => { await moveTo(devEye, B(7.2, 7.45, 1.08), 1.4); await watchFull('vision', 5); }, // 비전 프로: 끝까지 5배속
+    async () => { await goTo('스마트홈', 1.4); await wait(3.5); },                     // 스마트홈
+    async () => { await moveTo(questEye, B(2.9, 7.45, 1.08), 1.6); await wait(2.2); }, // 메타 퀘스트
+    async () => { stopPlay('안경 탭'); await goTo('교실 뒤에서', 1.6); await wait(0.8); },
+  ];
+  log('시연 녹화 시작');
+  for (const s of steps) { if (!alive()) { log('시연 녹화 중단(화면 조작)', 'warn'); break; } await s(); }
+  RULE.switchDwell = keep;
+  autoRun = 0;
+  rec?.stop();
+  await saved;
 };
 
 // ───── 반복 ─────

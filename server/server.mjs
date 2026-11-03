@@ -3,7 +3,7 @@
 // SSE 대신 롱 폴링인 이유: Cloudflare 빠른 터널이 스트림 응답을 붙잡아 두어 신호가 안 갔다(11-03 실측).
 //   node server/server.mjs            (PORT 기본 8787, TOKEN 을 주면 /play·/stop 에 ?token= 필요)
 import http from 'node:http';
-import {readFileSync, statSync, createReadStream} from 'node:fs';
+import {readFileSync, statSync, createReadStream, createWriteStream, mkdirSync} from 'node:fs';
 import {join, basename, normalize, extname} from 'node:path';
 
 const DIR = import.meta.dirname;
@@ -112,6 +112,19 @@ http.createServer((req, res) => {
     return json(res, 200, out);
   }
   if (p.startsWith('/v/')) return serveVideo(req, res, decodeURIComponent(p.slice(3)));
+  if (p === '/rec' && req.method === 'POST') { // 데모 녹화 저장(이 PC에서만)
+    const ip = req.socket.remoteAddress ?? '';
+    if (!['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(ip)) return json(res, 403, {error: 'local only'});
+    const name = basename(url.searchParams.get('name') ?? 'rec.webm').replace(/[^\w.\-가-힣]/g, '_');
+    const dir = join(DIR, '..', 'recordings');
+    mkdirSync(dir, {recursive: true});
+    const path = join(dir, name);
+    const out = createWriteStream(path);
+    req.pipe(out);
+    out.on('finish', () => json(res, 200, {ok: true, path}));
+    out.on('error', e => json(res, 500, {error: e.message}));
+    return;
+  }
   if (p === '/demo' || p.startsWith('/demo/')) {
     let rel = decodeURIComponent(p.slice(6));
     if (rel === '' || rel.endsWith('/')) rel += 'index.html';
