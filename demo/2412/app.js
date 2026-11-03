@@ -1,5 +1,5 @@
 // 2412호 데모: 안경 카메라가 본 것을 인식 → 하나 고르기 → 확정 → /play → 안경 화면.
-// 좌표는 블렌더(미터, Z 위)로 적고 B()로 three.js(Y 위)로 바꾼다. 방 배치는 jvision-vr-tour 4층 모델(가정 배치) 기준.
+// 좌표는 블렌더(미터, Z 위)로 적고 B()로 three.js(Y 위)로 바꾼다. 방은 사용자 손그림으로 만든 2412호 모델(room2412.glb).
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 
@@ -29,10 +29,10 @@ renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 const scene = new THREE.Scene();
-scene.background = new THREE.Color('#cfd6d2');
+scene.background = new THREE.Color('#d6e6f2');
 const camera = new THREE.PerspectiveCamera(62, 1, 0.03, 200);
 camera.rotation.order = 'YXZ';
-scene.add(new THREE.HemisphereLight(0xffffff, 0x8f8778, 2.2));
+scene.add(new THREE.HemisphereLight(0xffffff, 0xd8d2c6, 2.6), new THREE.AmbientLight(0xffffff, 0.5));
 const sun = new THREE.DirectionalLight(0xfff4e2, 1.1);
 sun.position.copy(B(2, -6, 12));
 scene.add(sun);
@@ -56,15 +56,15 @@ function textTex(w, h, draw) {
 }
 function face(obj, pos, dir) { obj.position.copy(pos); obj.lookAt(pos.clone().add(dir)); scene.add(obj); obj.updateMatrixWorld(true); return obj; }
 
-// 2412호(모델의 팀플실, x 4~13 · y 1.5~9.5). 웹 모델은 벽을 잘라 두어서 윗벽과 천장을 채운다.
-const wallM = mat(0xe8e4dc, 0.92);
-for (const w of [
-  [4, 7.8, 1.41, 1.59, 1.1, 3.2], [9.2, 13, 1.41, 1.59, 1.1, 3.2], [7.8, 9.2, 1.41, 1.59, 2.1, 3.2], // 복도 쪽 벽(문 8.5)
-  [3.91, 4.09, 1.5, 9.5, 1.1, 3.2], [12.91, 13.09, 1.5, 9.5, 1.1, 3.2],                              // 서쪽·동쪽 벽
-  [4, 13, 9.41, 9.59, 2.69, 3.2],                                                                     // 창 위
-]) occluders.push(box(...w, wallM));
-box(3.9, 13.1, 1.4, 9.6, 3.2, 3.26, new THREE.MeshBasicMaterial({color: 0xdedcd6}));
-for (const x of [6, 8.5, 11]) for (const y of [3.5, 7]) box(x - 0.6, x + 0.6, y - 0.3, y + 0.3, 3.18, 3.2, new THREE.MeshBasicMaterial({color: 0xfffdf6}));
+// 2412호: jvision-vr-tour/tools/room2412/build_room2412.py로 만든 모델(사용자 손그림 배치).
+// 블렌더 좌표 원점 = 방 안쪽 왼쪽 뒤 모서리, +X 오른쪽(문), +Y 앞(스크린). 방 안쪽 10.9 × 12.1 m.
+const room = (await new GLTFLoader().loadAsync('room2412.glb')).scene;
+room.traverse(o => { if (o.isMesh) { occluders.push(o); for (const m of [o.material].flat()) m.metalness = Math.min(m.metalness ?? 0, 0.3); } });
+scene.add(room);
+room.updateMatrixWorld(true);
+$('#loading').hidden = true;
+gl.dataset.ready = 'true';
+const named = n => room.getObjectByName(n);
 
 // ───── 인식 대상 ─────
 const targets = [];
@@ -80,50 +80,59 @@ function target(t) {
   return t;
 }
 const texLoader = new THREE.TextureLoader();
-function tv(key, label, pos, dir, w) {
-  const h = w * 9 / 16, g = new THREE.Group();
-  const bezel = new THREE.Mesh(new THREE.BoxGeometry(w + 0.05, h + 0.05, 0.045), mat(0x111214, 0.4, 0.3));
-  bezel.position.z = -0.025;
+// 화면이 바라보는 방향(블렌더 기준 → three.js): +X, -X, -Y(방 뒤쪽), +Y(앞쪽)
+const FACE_PX = new THREE.Vector3(1, 0, 0), FACE_NX = new THREE.Vector3(-1, 0, 0), FACE_NY = new THREE.Vector3(0, 0, 1), FACE_PY = new THREE.Vector3(0, 0, -1);
+function screenOn(objName, dir, tex, w) { // 모델의 화면 상자 앞면에 그림 판을 붙인다
+  const bb = new THREE.Box3().setFromObject(named(objName));
+  const size = bb.getSize(new THREE.Vector3()), c = bb.getCenter(new THREE.Vector3());
+  const front = c.clone().addScaledVector(dir, (Math.abs(dir.x) ? size.x : size.z) / 2 + 0.003);
+  const p = new THREE.Mesh(new THREE.PlaneGeometry(w, w * 9 / 16), new THREE.MeshBasicMaterial({map: tex, toneMapped: false}));
+  return face(p, front, dir);
+}
+function tv(key, label, objName, dir) {
   const tex = texLoader.load(`posters/${key}.jpg`);
   tex.colorSpace = THREE.SRGBColorSpace;
-  const screen = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({map: tex, toneMapped: false}));
-  screen.position.z = 0.0005;
-  g.add(bezel, screen);
-  face(g, pos, dir);
+  const p = screenOn(objName, dir, tex, 1.62);
   return target(key === 'x'
-    ? {id: 'tv-x', label, kind: 'none', obj: g, normal: dir}
-    : {id: 'tv-' + key, label, kind: 'video', key, obj: g, normal: dir});
+    ? {id: 'tv-x', label, kind: 'none', obj: p, normal: dir}
+    : {id: 'tv-' + key, label, kind: 'video', key, obj: p, normal: dir});
 }
-// 화면이 바라보는 방향. NORTH = 북쪽 벽에 걸려 남쪽(방 안)을 봄, TO_N = 남쪽 벽 앞에서 북쪽을 봄
-const NORTH = new THREE.Vector3(0, 0, 1), WEST = new THREE.Vector3(-1, 0, 0), EAST = new THREE.Vector3(1, 0, 0), TO_N = new THREE.Vector3(0, 0, -1);
-// 북쪽 창가 TV 3대(모델의 화면 자리), 동쪽 벽 TV 3대 = TV 6대
-tv('d', '견훤 TV', B(6.6, 9.08, 1.86), NORTH, 1.9);
-tv('e', '마주봄 TV', B(9.2, 9.08, 1.86), NORTH, 1.9);
-tv('a', '킨텍스 고래 TV', B(11.6, 9.08, 1.86), NORTH, 1.9);
-tv('b', '해저놀이터 TV', B(12.88, 3.0, 1.75), WEST, 1.5);
-tv('c', '언리얼 페스트 TV', B(12.88, 4.9, 1.75), WEST, 1.5);
-tv('x', '준비 중 TV', B(12.88, 6.8, 1.75), WEST, 1.5);
+// 이동식 TV 6대: 왼쪽 벽 L1~L3(앞→뒤), 오른쪽 벽 R1~R3
+tv('d', '견훤 TV', 'TV_L1', FACE_PX);
+tv('e', '마주봄 TV', 'TV_L2', FACE_PX);
+tv('a', '킨텍스 고래 TV', 'TV_L3', FACE_PX);
+tv('b', '해저놀이터 TV', 'TV_R1', FACE_NX);
+tv('c', '언리얼 페스트 TV', 'TV_R2', FACE_NX);
+tv('x', '준비 중 TV', 'TV_R3', FACE_NX);
 
-// 앞쪽(서쪽 벽) 스크린 — 인식 대상 아님
-{
-  const tex = textTex(1600, 900, (c, w, h) => {
-    const gr = c.createLinearGradient(0, 0, w, h);
-    gr.addColorStop(0, '#0e1a2e'); gr.addColorStop(1, '#14324a');
-    c.fillStyle = gr; c.fillRect(0, 0, w, h);
-    c.fillStyle = '#7fd3ff'; c.font = '600 54px "Malgun Gothic"'; c.fillText('2412', 110, 230);
-    c.fillStyle = '#ffffff'; c.font = '700 120px "Malgun Gothic"'; c.fillText('AI컴퓨터학과 작품 전시', 110, 400);
-    c.fillStyle = '#b9d4e6'; c.font = '48px "Malgun Gothic"'; c.fillText('안경을 쓰고 작품과 기기를 바라보면 설명 영상 재생', 110, 520);
-    c.fillStyle = '#3dff5a'; c.fillRect(110, 600, 220, 8);
-  });
-  const g = new THREE.Group();
-  const frame = new THREE.Mesh(new THREE.BoxGeometry(3.5, 2.0, 0.03), mat(0x202226, 0.5));
-  frame.position.z = -0.016;
-  const s = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 1.9125), new THREE.MeshBasicMaterial({map: tex, toneMapped: false}));
-  g.add(frame, s);
-  face(g, B(4.34, 5.6, 1.75), EAST);
-}
+// 앞 벽 화면 3개: 왼쪽·가운데(인식 대상 아님) | 오른쪽(전시 안내)
+screenOn('FrontScreen', FACE_NY, textTex(1600, 900, (c, w, h) => {
+  const gr = c.createLinearGradient(0, 0, w, h);
+  gr.addColorStop(0, '#0e1a2e'); gr.addColorStop(1, '#14324a');
+  c.fillStyle = gr; c.fillRect(0, 0, w, h);
+  c.fillStyle = '#7fd3ff'; c.font = '600 54px "Malgun Gothic"'; c.fillText('2412', 110, 230);
+  c.fillStyle = '#ffffff'; c.font = '700 120px "Malgun Gothic"'; c.fillText('AI컴퓨터학과 작품 전시', 110, 400);
+  c.fillStyle = '#b9d4e6'; c.font = '48px "Malgun Gothic"'; c.fillText('안경을 쓰고 작품과 기기를 바라보면 설명 영상 재생', 110, 520);
+  c.fillStyle = '#3dff5a'; c.fillRect(110, 600, 220, 8);
+}), 1.94);
+screenOn('FrontScreen_L', FACE_NY, textTex(1280, 720, (c, w, h) => {
+  c.fillStyle = '#f4f1fb'; c.fillRect(0, 0, w, h);
+  c.fillStyle = '#6b4fa0'; c.fillRect(0, 0, w, 90);
+  c.fillStyle = '#fff'; c.font = '600 40px "Malgun Gothic"'; c.fillText('2412 · 실습 화면', 40, 60);
+  c.fillStyle = '#333'; c.font = '34px Consolas, monospace';
+  ['import paho.mqtt.client as mqtt', '', 'client = mqtt.Client()', 'client.connect(BROKER, 1883)', 'client.publish("rover/sensor", dist)'].forEach((t, i) => c.fillText(t, 60, 180 + i * 60));
+}), 1.94);
+target({id: 'side-screen', label: '오른쪽 안내 스크린', kind: 'card', normal: FACE_NY,
+  obj: screenOn('SideScreen', FACE_NY, textTex(1280, 720, (c, w, h) => {
+    c.fillStyle = '#10161d'; c.fillRect(0, 0, w, h);
+    c.fillStyle = '#7fd3ff'; c.font = '600 44px "Malgun Gothic"'; c.fillText('전시 안내', 70, 110);
+    c.fillStyle = '#fff'; c.font = '600 52px "Malgun Gothic"';
+    ['① 이동식 TV 6대 · 작품 영상', '② 책상 위 VR·MR 기기 4대', '③ 스마트홈 모형', '④ 뒤쪽 판넬 2개'].forEach((t, i) => c.fillText(t, 70, 230 + i * 110));
+    c.fillStyle = '#3dff5a'; c.fillRect(70, 640, 180, 8);
+  }), 1.94),
+  card: {title: '전시 안내', tag: '오른쪽 스크린', lines: ['TV 6대 · 작품 영상', '책상 위 기기 4대 · 스마트홈', '뒤쪽 판넬 2개']}});
 
-// 판넬(X배너) 2개 — 남쪽 벽 앞, 방 안쪽을 본다
+// 판넬(X배너) 2개 — 뒤쪽 빈 공간 왼쪽, 앞을 본다
 function banner(id, label, pos, title, sub, lines, color, card) {
   const tex = textTex(600, 1600, (c, w, h) => {
     c.fillStyle = '#f7f5f0'; c.fillRect(0, 0, w, h);
@@ -144,14 +153,14 @@ function banner(id, label, pos, title, sub, lines, color, card) {
     leg.position.set(s * 0.3, 0.95, -0.04); leg.rotation.z = s * 0.02; g.add(leg);
   }
   g.add(p);
-  face(g, pos, TO_N);
+  face(g, pos, FACE_PY);
   g.updateMatrixWorld(true);
-  return target({id, label, kind: 'card', card, obj: p, normal: TO_N});
+  return target({id, label, kind: 'card', card, obj: p, normal: FACE_PY});
 }
-banner('banner-dept', '학과 소개 판넬', B(10.4, 1.85, 0), 'AI컴퓨터\n학과', 'VR · AR · 게임 · AI',
+banner('banner-dept', '학과 소개 판넬', B(1.0, 1.0, 0), 'AI컴퓨터\n학과', 'VR · AR · 게임 · AI',
   ['실감 콘텐츠 제작', '게임 엔진 실습', 'AI 서비스 개발'], '#1f6f3a',
   {title: 'AI컴퓨터학과', tag: '학과 소개', lines: ['실감 콘텐츠 제작', '게임 엔진 실습', 'AI 서비스 개발']});
-banner('banner-piuda', '피우다 판넬', B(11.6, 1.85, 0), '피우다\n2026', '글로벌 피우다 프로젝트',
+banner('banner-piuda', '피우다 판넬', B(1.8, 1.0, 0), '피우다\n2026', '글로벌 피우다 프로젝트',
   ['학생 팀 프로젝트', '마주봄 · Team MajuBom', '낙상 예측 연구'], '#2b4a8a',
   {title: '피우다 2026', tag: '팀 프로젝트', lines: ['글로벌 피우다 프로젝트', '마주봄 · Team MajuBom', '낙상 예측 연구']});
 
@@ -199,24 +208,24 @@ function hololens() {
   g.add(band, brow, visor, back);
   return g;
 }
-function device(id, label, make, x, card) {
-  const top = B(x, 6.8, 0.79);
+function device(id, label, make, x, y, dir, card) { // 책상(윗면 0.75 m) 위 거치대에 올림
+  const top = B(x, y, 0.75);
   stand(top);
   const g = make();
-  return target({id, label, kind: 'card', card, obj: face(g, top.clone().add(new THREE.Vector3(0, 0.27, 0)), new THREE.Vector3(0, 0, 1))});
+  return target({id, label, kind: 'card', card, obj: face(g, top.clone().add(new THREE.Vector3(0, 0.27, 0)), dir)});
 }
-device('quest-1', '메타 퀘스트 2 · 1번', quest, 5.9,
+// 퀘스트 2대 = 왼쪽 앞줄 책상, 비전 프로·홀로렌즈 = 오른쪽 앞줄 책상. 둘 다 가운데 통로를 본다
+device('quest-1', '메타 퀘스트 2 · 1번', quest, 2.9, 7.8, FACE_PX,
   {title: '메타 퀘스트 2', tag: 'VR 헤드셋 · 1번', lines: ['단독형 VR 헤드셋', '선 없이 바로 체험', '체험 자리 1번']});
-device('quest-2', '메타 퀘스트 2 · 2번', quest, 6.9,
+device('quest-2', '메타 퀘스트 2 · 2번', quest, 3.7, 7.8, FACE_PX,
   {title: '메타 퀘스트 2', tag: 'VR 헤드셋 · 2번', lines: ['단독형 VR 헤드셋', '선 없이 바로 체험', '체험 자리 2번']});
-device('vision', '애플 비전 프로', visionPro, 10.2,
+device('vision', '애플 비전 프로', visionPro, 7.2, 7.8, FACE_NX,
   {title: '애플 비전 프로', tag: '공간 컴퓨터', lines: ['눈과 손으로 조작', '현실 위에 앱 화면', '체험 1인용']});
-device('hololens', 'MS 홀로렌즈 2', hololens, 11.2,
+device('hololens', 'MS 홀로렌즈 2', hololens, 8.0, 7.8, FACE_NX,
   {title: 'MS 홀로렌즈 2', tag: 'MR 안경', lines: ['투명 렌즈 위 3D 홀로그램', '손 추적 · 공간 인식', '산업·교육용 MR']});
 
-{ // 스마트홈 모형(받침대 위)
-  const base = B(5.6, 3.0, 0);
-  box(5.3, 5.9, 2.7, 3.3, 0, 0.9, mat(0xf3f2ee, 0.7));
+{ // 스마트홈 모형(오른쪽 가운데 책상 위, 통로를 봄)
+  const base = B(7.6, 5.4, 0);
   const h = new THREE.Group();
   const body = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.28, 0.34), mat(0xeadcc4, 0.8)); body.position.y = 0.14;
   const roof = new THREE.Mesh(new THREE.ConeGeometry(0.36, 0.18, 4), mat(0x6e4b3a, 0.7));
@@ -230,25 +239,27 @@ device('hololens', 'MS 홀로렌즈 2', hololens, 11.2,
   const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.03, 16, 12), new THREE.MeshBasicMaterial({color: 0xfff1c0})); lamp.position.set(-0.3, 0.12, 0.08);
   const lampPole = new THREE.Mesh(new THREE.CylinderGeometry(0.004, 0.004, 0.1), mat(0x777777)); lampPole.position.set(-0.3, 0.05, 0.08);
   h.add(body, roof, door, spk, ring, lamp, lampPole);
-  target({id: 'smarthome', label: '스마트홈 모형', kind: 'card', obj: face(h, base.clone().add(new THREE.Vector3(0, 0.9, 0)), EAST),
+  target({id: 'smarthome', label: '스마트홈 모형', kind: 'card', obj: face(h, base.clone().add(new THREE.Vector3(0, 0.75, 0)), FACE_NX),
     card: {title: '스마트홈', tag: 'IoT 모형', lines: ['조명 · 스피커 · 센서 연동', '말로 조명 켜고 끄기', '집 상태를 안경에 표시']}});
 }
 
 // ───── 이동·시점 ─────
-const eye = B(8.5, 2.2, 1.65);
+const eye = B(5.45, 1.0, 1.65);
 let yaw = 0, pitch = 0;
 function lookAt(from, to) {
   const d = to.clone().sub(from);
   return {yaw: Math.atan2(-d.x, -d.z), pitch: Math.asin(d.y / d.length())};
 }
 const VIEWS = {
-  '입구': [B(8.5, 2.2, 1.65), B(9.2, 9.1, 1.8)],
-  'TV 3대 앞': [B(9.2, 5.0, 1.65), B(9.2, 9.1, 1.86)],
-  '퀘스트 2대': [B(6.4, 5.2, 1.55), B(6.4, 6.8, 1.05)],
-  '비전 프로·홀로렌즈': [B(10.7, 5.2, 1.55), B(10.7, 6.8, 1.05)],
-  '스마트홈': [B(7.4, 3.0, 1.6), B(5.6, 3.0, 1.1)],
-  '옆 벽 TV 3대': [B(9.4, 4.9, 1.65), B(12.9, 4.9, 1.75)],
-  '판넬 2개': [B(11.0, 4.6, 1.65), B(11.0, 1.85, 1.2)],
+  '교실 뒤에서': [B(5.45, 1.0, 1.65), B(5.45, 12.1, 1.5)],
+  '문에서': [B(10.2, 10.9, 1.65), B(3.0, 3.0, 1.1)],
+  '앞 화면·교수님 자리': [B(5.45, 6.6, 1.65), B(4.6, 12.1, 1.4)],
+  '왼쪽 TV 3대': [B(5.45, 5.4, 1.65), B(0.45, 5.4, 1.46)],
+  '오른쪽 TV 3대': [B(5.45, 5.4, 1.65), B(10.45, 5.4, 1.46)],
+  '퀘스트 2대': [B(5.3, 7.8, 1.55), B(3.3, 7.8, 1.0)],
+  '비전 프로·홀로렌즈': [B(5.6, 7.8, 1.55), B(7.6, 7.8, 1.0)],
+  '스마트홈': [B(5.6, 5.4, 1.6), B(7.6, 5.4, 1.0)],
+  '판넬 2개': [B(3.2, 3.6, 1.65), B(1.4, 1.0, 1.15)],
 };
 let tween = null;
 function goTo(name, dur = 1.2) {
@@ -262,7 +273,7 @@ function moveTo(e, l, dur) {
   return new Promise(done => { tween = {e0: eye.clone(), e1: e.clone(), y0: yaw, dy, p0: pitch, p1: to.pitch, t: 0, dur, done}; });
 }
 {
-  const v = lookAt(...VIEWS['입구']); yaw = v.yaw; pitch = v.pitch;
+  const v = lookAt(...VIEWS['교실 뒤에서']); yaw = v.yaw; pitch = v.pitch;
   const nav = $('#views');
   for (const name of Object.keys(VIEWS)) {
     const b = document.createElement('button');
@@ -293,8 +304,8 @@ function walk(dt) {
   const v = 1.6 * dt;
   eye.x += (-Math.sin(yaw) * f + Math.cos(yaw) * s) * v;
   eye.z += (-Math.cos(yaw) * f - Math.sin(yaw) * s) * v;
-  eye.x = THREE.MathUtils.clamp(eye.x, 4.4, 12.6);
-  eye.z = THREE.MathUtils.clamp(eye.z, -9.0, -1.8);
+  eye.x = THREE.MathUtils.clamp(eye.x, 0.6, 10.3);
+  eye.z = THREE.MathUtils.clamp(eye.z, -11.6, -0.5);
 }
 
 // ───── 안경 쪽: 영상·카드 ─────
@@ -600,22 +611,26 @@ $('#auto').onclick = async () => {
   const run = autoRun = Date.now();
   $('#auto').setAttribute('aria-pressed', 'true');
   const alive = () => autoRun === run;
+  const L = [B(0.46, 7.8, 1.46), B(0.46, 5.4, 1.46), B(0.46, 3.0, 1.46)];
+  const R = [B(10.44, 7.8, 1.46), B(10.44, 5.4, 1.46), B(10.44, 3.0, 1.46)];
+  const mid = B(5.45, 5.4, 1.65);
   const steps = [
-    async () => { stopPlay('시연 시작'); await goTo('입구', 1.0); await wait(0.6); },
-    async () => { await moveTo(B(8.5, 2.2, 1.65), B(6.6, 9.1, 1.86), 0.8); await moveTo(B(8.5, 2.2, 1.65), B(11.6, 9.1, 1.86), 1.6); }, // 훑기: 스쳐 가면 안 틀림
-    async () => { await moveTo(B(8.5, 2.6, 1.65), B(9.2, 9.1, 1.86), 1.0); await wait(3.5); },                                    // 마주봄 확정
-    async () => { await moveTo(B(8.3, 3.2, 1.65), B(6.6, 9.1, 1.86), 0.7); await wait(1.0); },                                    // 1초만 보면 안 바뀜
-    async () => { await wait(2.6); },                                                                                              // 2초 넘게 보면 견훤으로
-    async () => { await goTo('퀘스트 2대', 1.6); await wait(1.6); },                                                              // 둘 사이 → 애매함
-    async () => { await moveTo(B(6.4, 5.2, 1.55), B(5.9, 6.8, 1.05), 0.8); await wait(2.8); },
-    async () => { await moveTo(B(6.4, 5.2, 1.55), B(6.9, 6.8, 1.05), 0.8); await wait(2.8); },
-    async () => { await moveTo(B(10.7, 5.2, 1.55), B(10.2, 6.8, 1.05), 1.6); await wait(2.8); },
-    async () => { await moveTo(B(10.7, 5.2, 1.55), B(11.2, 6.8, 1.05), 0.8); await wait(2.8); },
-    async () => { await goTo('스마트홈', 1.8); await wait(2.8); },
-    async () => { await moveTo(B(9.4, 4.9, 1.65), B(12.9, 3.0, 1.75), 1.6); await wait(3.0); },
-    async () => { await moveTo(B(9.4, 4.9, 1.65), B(12.9, 6.8, 1.75), 1.0); await wait(2.4); },                                  // 준비 중 TV → 무시
-    async () => { await goTo('판넬 2개', 1.6); await wait(1.2); await moveTo(B(11.0, 4.6, 1.65), B(10.4, 1.85, 1.15), 0.6); await wait(2.8); },
-    async () => { stopPlay('안경 탭'); await goTo('입구', 1.6); },
+    async () => { stopPlay('시연 시작'); await goTo('교실 뒤에서', 1.0); await wait(1.2); },
+    async () => { await moveTo(B(5.45, 3.0, 1.65), L[1], 1.0); await moveTo(B(5.45, 3.0, 1.65), R[1], 1.8); },  // 훑기: 스쳐 가면 안 틀림
+    async () => { await moveTo(mid, L[1], 1.2); await wait(3.5); },                                             // 마주봄 확정
+    async () => { await moveTo(mid, L[0], 0.7); await wait(1.0); },                                             // 1초만 보면 안 바뀜
+    async () => { await wait(2.6); },                                                                            // 2초 넘게 보면 견훤으로
+    async () => { await goTo('퀘스트 2대', 1.6); await wait(1.6); },                                             // 둘 사이 → 애매함
+    async () => { await moveTo(B(5.3, 7.8, 1.55), B(2.9, 7.8, 1.02), 0.8); await wait(2.8); },
+    async () => { await moveTo(B(5.3, 7.8, 1.55), B(3.7, 7.8, 1.02), 0.8); await wait(2.8); },
+    async () => { await moveTo(B(5.6, 7.8, 1.55), B(7.2, 7.8, 1.02), 1.4); await wait(2.8); },
+    async () => { await moveTo(B(5.6, 7.8, 1.55), B(8.0, 7.8, 1.02), 0.8); await wait(2.8); },
+    async () => { await goTo('스마트홈', 1.4); await wait(2.8); },
+    async () => { await moveTo(mid, R[0], 1.4); await wait(3.0); },
+    async () => { await moveTo(mid, R[2], 1.0); await wait(2.4); },                                             // 준비 중 TV → 무시
+    async () => { await moveTo(B(6.5, 8.2, 1.65), B(8.3, 12.1, 1.68), 1.6); await wait(2.8); },                // 오른쪽 안내 스크린
+    async () => { await goTo('판넬 2개', 2.4); await wait(1.2); await moveTo(B(3.2, 3.6, 1.65), B(1.0, 1.0, 1.15), 0.6); await wait(2.8); },
+    async () => { stopPlay('안경 탭'); await goTo('교실 뒤에서', 1.8); },
   ];
   log('자동 시연 시작');
   for (const s of steps) { if (!alive()) return; await s(); }
@@ -646,13 +661,7 @@ function frame() {
   compose();
 }
 
-new GLTFLoader().load('floor4.glb', g => {
-  g.scene.traverse(o => { if (o.isMesh) for (const m of [o.material].flat()) { m.roughness = Math.max(m.roughness ?? 1, 0.6); m.metalness = 0; } });
-  scene.add(g.scene);
-  $('#loading').hidden = true;
-  gl.dataset.ready = 'true';
-  log('2412호 준비 완료 · TV 6대, 판넬 2개, 기기 5대');
-}, undefined, e => { $('#loading').textContent = '모델을 불러오지 못했습니다: ' + e.message; });
+log('2412호 준비 완료 · 이동식 TV 6대, 앞 화면 3개, 판넬 2개, 기기 5대');
 resize();
 frame();
 window.demo = {targets, get playing() { return playing?.id ?? null; }, get status() { return status; }, goTo, RULE};
