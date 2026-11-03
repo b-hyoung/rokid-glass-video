@@ -27,18 +27,17 @@ h1{font-size:18px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px;margin:0
 .screen.d .lay.d{display:grid}.screen:not(.d) .lay.abc{display:flex}
 video{display:block;background:#000}
 
-/* D: 가운데 영상(자막 띠+플레이어 두 화면, 220x338), 왼쪽 작품 설명, 오른쪽 팀·지금 장면 */
-.lay.d{grid-template-columns:130px 220px 130px;grid-template-rows:72px 1fr 64px}
-.lay.d .top{grid-column:1/4;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;letter-spacing:.02em}
-.lay.d .slot{grid-column:2;grid-row:2;align-self:center}
-.lay.d .col{grid-row:2;padding:4px 12px;display:flex;flex-direction:column;justify-content:center;gap:18px;word-break:keep-all;overflow:hidden}
-.lay.d .col.l{grid-column:1;text-align:right;border-right:1px solid var(--g3)}
-.lay.d .col.r{grid-column:3;border-left:1px solid var(--g3)}
-.tag{font-size:13px;color:var(--g2);letter-spacing:.06em;margin-bottom:2px}
+/* D: 왼쪽 영상(자막 띠+플레이어 두 화면, 240x370), 오른쪽에 글씨 전부 */
+.lay.d{grid-template-columns:240px 240px;grid-template-rows:64px 1fr 56px}
+.lay.d .top{grid-column:1/3;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;letter-spacing:.02em}
+.lay.d .slot{grid-column:1;grid-row:2;align-self:center}
+.lay.d .col{grid-column:2;grid-row:2;padding:0 14px 0 16px;display:flex;flex-direction:column;justify-content:center;gap:12px;word-break:keep-all;overflow:hidden}
+.lay.d .now{padding-bottom:12px;border-bottom:1px solid var(--g3)}
+.lay.d .now .big{font-size:22px}
+.tag{font-size:13px;color:var(--g2);letter-spacing:.06em;margin-bottom:1px}
 .big{font-size:20px;font-weight:800;line-height:1.3}
-.small{font-size:16px;line-height:1.4;color:var(--g);white-space:pre-line}
-.now .small{transition:opacity .4s}
-.lay.d .bottom{grid-column:1/4;display:flex;align-items:center;justify-content:center;gap:8px}
+.small{font-size:16px;line-height:1.35;color:var(--g);white-space:pre-line}
+.lay.d .bottom{grid-column:1/3;display:flex;align-items:center;justify-content:center;gap:8px}
 .dots i{display:inline-block;width:9px;height:9px;margin:0 4px;border-radius:50%;border:2px solid var(--g2)}.dots i.on{background:var(--g);border-color:var(--g)}
 
 /* A·B·C: 잘라 낸 영상 + 큰 글씨 */
@@ -61,10 +60,10 @@ video{display:block;background:#000}
       <div class="screen d" id="screen">
         <div class="lay d">
           <div class="top" id="dTop"></div>
-          <div class="col l" id="dLeft"></div>
           <div class="slot" id="dSlot"></div>
-          <div class="col r"><div id="dRight" style="display:flex;flex-direction:column;gap:14px"></div>
-            <div class="now"><div class="tag">지금 장면</div><div class="small" id="dNow"></div></div></div>
+          <div class="col" id="dCol">
+            <div class="now"><div class="tag">지금 장면</div><div class="big" id="dNow"></div></div>
+          </div>
           <div class="bottom dots" id="dDots"></div>
         </div>
         <div class="lay abc">
@@ -80,7 +79,7 @@ video{display:block;background:#000}
     <h1>안경 화면 미리보기</h1>
     <p class="sub">Rokid 안경 화면(480×640, 초록 단색) 그대로. 검정은 안경에서 투명.</p>
     <div class="ctl"><b>레이아웃</b>
-      <button data-lay="d" aria-pressed="true">D 영상 그대로 · 양옆 설명</button>
+      <button data-lay="d" aria-pressed="true">D 영상 왼쪽 · 글씨 오른쪽</button>
       <button data-lay="a" aria-pressed="false">A 영상 위 · 글씨 아래</button>
       <button data-lay="b" aria-pressed="false">B 글씨 위 · 영상 아래</button>
       <button data-lay="c" aria-pressed="false">C 글씨만</button>
@@ -100,16 +99,14 @@ video{display:block;background:#000}
 const ITEM = {
   key: 'd',
   header: '후백제 VR 〈견훤〉',
-  files: {full: 'gyeon_side.mp4', crop: 'gyeon.mp4'}, // D 는 자막 띠+플레이어 두 화면(220x338), A·B 는 플레이어 1 화면만
-  // 양옆 칸 130px(한 줄 7자 안팎). 어색하게 끊기는 곳만 \n 으로 정한다
-  left: [ // 작품 설명
-    {tag: '작품', small: '후백제 왕도\n전주를 담은\nVR 체험'},
-    {tag: '체험', small: '두 사람이\n같은 세계를\n함께 걷는 체험'},
-    {tag: '전시', small: '제28회\n김제지평선축제\nXR 체험존'},
-  ],
-  right: [ // 팀
-    {tag: '만든 팀', big: '훈아티스', small: 'HOONARTIS'},
-    {tag: '기술', small: '위치기반 XR\n언리얼 엔진 5\n무선 HMD'},
+  files: {full: 'gyeon_left.mp4', crop: 'gyeon.mp4'}, // D 는 자막 띠+플레이어 두 화면(240x370), A·B 는 플레이어 1 화면만
+  // D 오른쪽 칸에 '지금 장면' 아래로 차례대로 놓인다(칸 너비 210px, 한 줄 13자 안팎)
+  info: [
+    {tag: '작품', small: '후백제 왕도 전주를 담은\nVR 체험'},
+    {tag: '체험', small: '두 사람이 같은 세계를\n함께 걷는 체험'},
+    {tag: '전시', small: '제28회 김제지평선축제\nXR 체험존'},
+    {tag: '만든 팀', small: '훈아티스 HOONARTIS'},
+    {tag: '기술', small: '위치기반 XR · 언리얼 엔진 5\n무선 HMD'},
   ],
   cues: [
     {t: 0,   title: '호랑이 길잡이와 출발',       sub: '문지기 호랑이의 길 안내'},
@@ -125,8 +122,7 @@ const screen = $('screen');
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
 const block = b => `<div>${b.tag ? `<div class="tag">${esc(b.tag)}</div>` : ''}${b.big ? `<div class="big">${esc(b.big)}</div>` : ''}${b.small ? `<div class="small">${esc(b.small)}</div>` : ''}</div>`;
 $('dTop').textContent = ITEM.header; $('head').textContent = ITEM.header;
-$('dLeft').innerHTML = ITEM.left.map(block).join('');
-$('dRight').innerHTML = ITEM.right.map(block).join('');
+$('dCol').insertAdjacentHTML('beforeend', ITEM.info.map(block).join(''));
 const dots = ITEM.cues.map(() => '<i></i>').join('');
 $('dDots').innerHTML = dots; $('abcDots').innerHTML = dots;
 $('cues').innerHTML = ITEM.cues.map(c => `<li>${c.t}초 · ${esc(c.title)}</li>`).join('');
@@ -136,7 +132,7 @@ vid.playsInline = true; vid.preload = 'auto'; vid.muted = true;
 function place(lay) { // 레이아웃에 맞는 영상 파일·자리로 옮기고 재생 위치는 이어 간다
   const t = vid.currentTime || 0, playing = !vid.paused;
   const d = lay === 'd';
-  vid.width = d ? 220 : 480; vid.height = d ? 338 : 324;
+  vid.width = d ? 240 : 480; vid.height = d ? 370 : 324;
   (d ? $('dSlot') : $('abcSlot')).appendChild(vid);
   const src = d ? ITEM.files.full : ITEM.files.crop;
   if (!vid.src.endsWith(src)) {
