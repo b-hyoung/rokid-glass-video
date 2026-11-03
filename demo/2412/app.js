@@ -215,17 +215,17 @@ function device(id, label, make, x, y, dir, card) { // 책상(윗면 0.75 m) 위
   return target({id, label, kind: 'card', card, obj: face(g, top.clone().add(new THREE.Vector3(0, 0.27, 0)), dir)});
 }
 // 퀘스트 2대 = 왼쪽 앞줄 책상, 비전 프로·홀로렌즈 = 오른쪽 앞줄 책상. 둘 다 가운데 통로를 본다
-device('quest-1', '메타 퀘스트 2 · 1번', quest, 2.9, 7.8, FACE_PX,
+device('quest-1', '메타 퀘스트 2 · 1번', quest, 2.9, 7.45, FACE_PX,
   {title: '메타 퀘스트 2', tag: 'VR 헤드셋 · 1번', lines: ['단독형 VR 헤드셋', '선 없이 바로 체험', '체험 자리 1번']});
-device('quest-2', '메타 퀘스트 2 · 2번', quest, 3.7, 7.8, FACE_PX,
+device('quest-2', '메타 퀘스트 2 · 2번', quest, 3.7, 7.45, FACE_PX,
   {title: '메타 퀘스트 2', tag: 'VR 헤드셋 · 2번', lines: ['단독형 VR 헤드셋', '선 없이 바로 체험', '체험 자리 2번']});
-device('vision', '애플 비전 프로', visionPro, 7.2, 7.8, FACE_NX,
+device('vision', '애플 비전 프로', visionPro, 7.2, 7.45, FACE_NX,
   {title: '애플 비전 프로', tag: '공간 컴퓨터', lines: ['눈과 손으로 조작', '현실 위에 앱 화면', '체험 1인용']});
-device('hololens', 'MS 홀로렌즈 2', hololens, 8.0, 7.8, FACE_NX,
+device('hololens', 'MS 홀로렌즈 2', hololens, 8.0, 7.45, FACE_NX,
   {title: 'MS 홀로렌즈 2', tag: 'MR 안경', lines: ['투명 렌즈 위 3D 홀로그램', '손 추적 · 공간 인식', '산업·교육용 MR']});
 
 { // 스마트홈 모형(오른쪽 가운데 책상 위, 통로를 봄)
-  const base = B(7.6, 5.4, 0);
+  const base = B(7.575, 5.4, 0); // 멀티탭 사이
   const h = new THREE.Group();
   const body = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.28, 0.34), mat(0xeadcc4, 0.8)); body.position.y = 0.14;
   const roof = new THREE.Mesh(new THREE.ConeGeometry(0.36, 0.18, 4), mat(0x6e4b3a, 0.7));
@@ -256,9 +256,9 @@ const VIEWS = {
   '앞 화면·교수님 자리': [B(5.45, 6.6, 1.65), B(4.6, 12.1, 1.4)],
   '왼쪽 TV 3대': [B(5.45, 5.4, 1.65), B(0.45, 5.4, 1.46)],
   '오른쪽 TV 3대': [B(5.45, 5.4, 1.65), B(10.45, 5.4, 1.46)],
-  '퀘스트 2대': [B(5.3, 7.8, 1.55), B(3.3, 7.8, 1.0)],
-  '비전 프로·홀로렌즈': [B(5.6, 7.8, 1.55), B(7.6, 7.8, 1.0)],
-  '스마트홈': [B(5.6, 5.4, 1.6), B(7.6, 5.4, 1.0)],
+  '퀘스트 2대': [B(5.3, 7.8, 1.55), B(3.3, 7.45, 1.0)],
+  '비전 프로·홀로렌즈': [B(5.6, 7.8, 1.55), B(7.6, 7.45, 1.0)],
+  '스마트홈': [B(5.6, 5.4, 1.6), B(7.575, 5.4, 1.0)],
   '판넬 2개': [B(3.2, 3.6, 1.65), B(1.4, 1.0, 1.15)],
 };
 let tween = null;
@@ -621,10 +621,10 @@ $('#auto').onclick = async () => {
     async () => { await moveTo(mid, L[0], 0.7); await wait(1.0); },                                             // 1초만 보면 안 바뀜
     async () => { await wait(2.6); },                                                                            // 2초 넘게 보면 견훤으로
     async () => { await goTo('퀘스트 2대', 1.6); await wait(1.6); },                                             // 둘 사이 → 애매함
-    async () => { await moveTo(B(5.3, 7.8, 1.55), B(2.9, 7.8, 1.02), 0.8); await wait(2.8); },
-    async () => { await moveTo(B(5.3, 7.8, 1.55), B(3.7, 7.8, 1.02), 0.8); await wait(2.8); },
-    async () => { await moveTo(B(5.6, 7.8, 1.55), B(7.2, 7.8, 1.02), 1.4); await wait(2.8); },
-    async () => { await moveTo(B(5.6, 7.8, 1.55), B(8.0, 7.8, 1.02), 0.8); await wait(2.8); },
+    async () => { await moveTo(B(5.3, 7.8, 1.55), B(2.9, 7.45, 1.02), 0.8); await wait(2.8); },
+    async () => { await moveTo(B(5.3, 7.8, 1.55), B(3.7, 7.45, 1.02), 0.8); await wait(2.8); },
+    async () => { await moveTo(B(5.6, 7.8, 1.55), B(7.2, 7.45, 1.02), 1.4); await wait(2.8); },
+    async () => { await moveTo(B(5.6, 7.8, 1.55), B(8.0, 7.45, 1.02), 0.8); await wait(2.8); },
     async () => { await goTo('스마트홈', 1.4); await wait(2.8); },
     async () => { await moveTo(mid, R[0], 1.4); await wait(3.0); },
     async () => { await moveTo(mid, R[2], 1.0); await wait(2.4); },                                             // 준비 중 TV → 무시
