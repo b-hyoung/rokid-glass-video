@@ -1,0 +1,7 @@
+// Cloudflare Workers 정적 배포(2412호 데모 + 안경 영상 + 시연 녹화). 먼저 python tools/build_pages.py 로 dist/ 생성.
+//   npx wrangler deploy
+{
+  "name": "glass-2412",
+  "compatibility_date": "2026-11-01",
+  "assets": { "directory": "./dist", "html_handling": "auto-trailing-slash", "not_found_handling": "none" }
+}
