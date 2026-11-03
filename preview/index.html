@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>안경 화면 미리보기</title>
 <style>
-:root{--g:#3dff5a;--g2:#1fae35;--bg:#1b1d20;--panel:#26292d;--fg:#e8eaed;--muted:#9aa3ad}
+:root{--g:#3dff5a;--g2:#1fae35;--g3:#0f6a20;--bg:#1b1d20;--panel:#26292d;--fg:#e8eaed;--muted:#9aa3ad}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,"Malgun Gothic",sans-serif}
 main{max-width:1100px;margin:0 auto;padding:16px;display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start}
@@ -21,19 +21,36 @@ h1{font-size:18px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px;margin:0
 .stage{flex:0 0 auto}
 .glass{position:relative;width:480px;height:640px;overflow:hidden;border-radius:6px;outline:1px solid #3a3f45;background:#000}
 .glass.see{background:url("room.svg") center/cover}
-.screen{position:absolute;inset:0;display:flex;flex-direction:column;color:var(--g);font-family:"Malgun Gothic",system-ui,sans-serif}
+.screen{position:absolute;inset:0;color:var(--g);font-family:"Malgun Gothic",system-ui,sans-serif}
 .glass.see .screen{mix-blend-mode:screen} /* 빛을 더하는 디스플레이 흉내: 검정은 비치고 초록만 얹힌다 */
-.head{height:44px;flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 16px;font-size:17px;color:var(--g2);letter-spacing:.02em}
-.vid{flex:0 0 auto;width:480px;height:324px;display:block;background:#000}
+.lay{position:absolute;inset:0;display:none}
+.screen.d .lay.d{display:grid}.screen:not(.d) .lay.abc{display:flex}
+video{display:block;background:#000}
+
+/* D: 가운데 원본 영상, 왼쪽 작품 설명, 오른쪽 팀·지금 장면 */
+.lay.d{grid-template-columns:105px 270px 105px;grid-template-rows:80px 480px 80px}
+.lay.d .top{grid-column:1/4;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;letter-spacing:.02em}
+.lay.d .slot{grid-column:2;grid-row:2}
+.lay.d .col{grid-row:2;padding:6px 10px;display:flex;flex-direction:column;gap:14px;word-break:keep-all;overflow:hidden}
+.lay.d .col.l{grid-column:1;text-align:right;border-right:1px solid var(--g3)}
+.lay.d .col.r{grid-column:3;border-left:1px solid var(--g3)}
+.tag{font-size:12px;color:var(--g2);letter-spacing:.06em;margin-bottom:2px}
+.big{font-size:17px;font-weight:800;line-height:1.3}
+.small{font-size:14px;line-height:1.4;color:var(--g);white-space:pre-line}
+.now .small{transition:opacity .4s}
+.lay.d .bottom{grid-column:1/4;display:flex;align-items:center;justify-content:center;gap:8px}
+.dots i{display:inline-block;width:9px;height:9px;margin:0 4px;border-radius:50%;border:2px solid var(--g2)}.dots i.on{background:var(--g);border-color:var(--g)}
+
+/* A·B·C: 잘라 낸 영상 + 큰 글씨 */
+.lay.abc{flex-direction:column}
+.head{height:44px;flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 16px;font-size:17px;color:var(--g2)}
+.lay.abc .slot{flex:0 0 auto;height:324px}
 .text{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center;padding:0 22px;text-align:center}
 .title{font-size:34px;font-weight:800;line-height:1.25;word-break:keep-all}
 .subline{font-size:21px;margin-top:10px;color:var(--g2);word-break:keep-all}
-.dots{flex:0 0 auto;display:flex;gap:8px;justify-content:center;padding:0 0 16px}
-.dots i{width:10px;height:10px;border-radius:50%;border:2px solid var(--g2)}.dots i.on{background:var(--g);border-color:var(--g)}
-/* B: 글씨 위, 영상 아래 */
-.screen.b .text{order:1;padding-top:8px}.screen.b .vid{order:2}.screen.b .dots{order:3;padding-top:14px}.screen.b .head{order:0}
-/* C: 글씨만 */
-.screen.c .vid{display:none}.screen.c .title{font-size:44px}.screen.c .subline{font-size:26px;margin-top:18px}
+.lay.abc .dots{flex:0 0 auto;text-align:center;padding:0 0 16px}
+.screen.b .text{order:1}.screen.b .slot{order:2}.screen.b .dots{order:3;padding-top:14px}
+.screen.c .slot{display:none}.screen.c .title{font-size:44px}.screen.c .subline{font-size:26px;margin-top:18px}
 @media (max-width:520px){.stage{transform:scale(.7);transform-origin:top left;height:448px}}
 </style>
 </head>
@@ -41,11 +58,21 @@ h1{font-size:18px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px;margin:0
 <main>
   <div class="stage">
     <div class="glass" id="glass">
-      <div class="screen" id="screen">
-        <div class="head"><span id="head">후백제 VR 〈견훤〉</span><span id="step"></span></div>
-        <video class="vid" id="vid" src="gyeon.mp4" playsinline preload="auto"></video>
-        <div class="text"><div class="title" id="title"></div><div class="subline" id="subline"></div></div>
-        <div class="dots" id="dots"></div>
+      <div class="screen d" id="screen">
+        <div class="lay d">
+          <div class="top" id="dTop"></div>
+          <div class="col l" id="dLeft"></div>
+          <div class="slot" id="dSlot"></div>
+          <div class="col r"><div id="dRight" style="display:flex;flex-direction:column;gap:14px"></div>
+            <div class="now"><div class="tag">지금 장면</div><div class="small" id="dNow"></div></div></div>
+          <div class="bottom dots" id="dDots"></div>
+        </div>
+        <div class="lay abc">
+          <div class="head"><span id="head"></span><span id="step"></span></div>
+          <div class="slot" id="abcSlot"></div>
+          <div class="text"><div class="title" id="title"></div><div class="subline" id="subline"></div></div>
+          <div class="dots" id="abcDots"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -53,7 +80,8 @@ h1{font-size:18px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px;margin:0
     <h1>안경 화면 미리보기</h1>
     <p class="sub">Rokid 안경 화면(480×640, 초록 단색) 그대로. 검정은 안경에서 투명.</p>
     <div class="ctl"><b>레이아웃</b>
-      <button data-lay="a" aria-pressed="true">A 영상 위 · 글씨 아래</button>
+      <button data-lay="d" aria-pressed="true">D 영상 그대로 · 양옆 설명</button>
+      <button data-lay="a" aria-pressed="false">A 영상 위 · 글씨 아래</button>
       <button data-lay="b" aria-pressed="false">B 글씨 위 · 영상 아래</button>
       <button data-lay="c" aria-pressed="false">C 글씨만</button>
     </div>
@@ -64,49 +92,78 @@ h1{font-size:18px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px;margin:0
     <div class="ctl"><b>재생</b>
       <button id="play">▶ 재생</button><button id="restart">처음부터</button><label><input type="checkbox" id="mute" checked> 소리 끔</label>
     </div>
-    <div class="ctl"><b>자막 (시작 초 · 큰 글씨 · 작은 글씨)</b><ol class="cues" id="cues"></ol></div>
+    <div class="ctl"><b>장면 (시작 초 · 이름)</b><ol class="cues" id="cues"></ol></div>
   </div>
 </main>
 <script>
 // 서버 videos.json 에 그대로 옮길 형태
 const ITEM = {
-  key: 'd', header: '후백제 VR 〈견훤〉', file: 'gyeon.mp4',
+  key: 'd',
+  header: '후백제 VR 〈견훤〉',
+  files: {full: 'gyeon_full.mp4', crop: 'gyeon.mp4'}, // D 는 원본 세로 영상, A·B 는 플레이어 1 화면만 자른 영상
+  // 양옆 칸이 좁아(105px) 줄바꿈은 \n 으로 직접 정한다
+  left: [ // 작품 설명
+    {tag: '작품', small: '후백제 왕도\n전주를 담은\nVR 체험'},
+    {tag: '체험', small: '두 사람이\n같은 세계를\n함께 걷는\n체험'},
+    {tag: '전시', small: '제28회\n김제지평선\n축제\nXR 체험존'},
+  ],
+  right: [ // 팀
+    {tag: '만든 팀', big: '훈아티스', small: 'HOONARTIS'},
+    {tag: '기술', small: '위치기반 XR\n언리얼\n엔진 5\n무선 HMD'},
+  ],
   cues: [
-    {t: 0,    title: '호랑이 길잡이와 출발',     sub: '문지기 호랑이의 길 안내'},
-    {t: 6,    title: '리프트 타고 성벽 위로',     sub: '후백제 왕도 전주의 성벽'},
-    {t: 9.5,  title: '후백제 군사를 만나고',     sub: '성벽을 지키는 견훤의 군사'},
-    {t: 14,   title: '눈앞에 펼쳐지는 옛 이야기', sub: '두루마리로 보는 견훤 이야기'},
-    {t: 20,   title: '밤바다에 낚싯대를 드리우면', sub: '배 위에서 기다리는 시간'},
-    {t: 25,   title: '고래가 걸렸다?!',          sub: '밤바다의 고래'},
+    {t: 0,   title: '호랑이 길잡이와 출발',       sub: '문지기 호랑이의 길 안내'},
+    {t: 6,   title: '리프트 타고 성벽 위로',       sub: '후백제 왕도 전주의 성벽'},
+    {t: 9.5, title: '후백제 군사를 만나고',       sub: '성벽을 지키는 견훤의 군사'},
+    {t: 14,  title: '눈앞에 펼쳐지는 옛 이야기',   sub: '두루마리로 보는 견훤 이야기'},
+    {t: 20,  title: '밤바다에 낚싯대를 드리우면', sub: '배 위에서 기다리는 시간'},
+    {t: 25,  title: '고래가 걸렸다?!',            sub: '밤바다의 고래'},
   ],
 };
 const $ = id => document.getElementById(id);
-const vid = $('vid'), screen = $('screen');
-$('head').textContent = ITEM.header;
-$('dots').innerHTML = ITEM.cues.map(() => '<i></i>').join('');
-$('cues').innerHTML = ITEM.cues.map(c => `<li>${c.t}초 · ${c.title} · ${c.sub}</li>`).join('');
+const screen = $('screen');
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+const block = b => `<div>${b.tag ? `<div class="tag">${esc(b.tag)}</div>` : ''}${b.big ? `<div class="big">${esc(b.big)}</div>` : ''}${b.small ? `<div class="small">${esc(b.small)}</div>` : ''}</div>`;
+$('dTop').textContent = ITEM.header; $('head').textContent = ITEM.header;
+$('dLeft').innerHTML = ITEM.left.map(block).join('');
+$('dRight').innerHTML = ITEM.right.map(block).join('');
+const dots = ITEM.cues.map(() => '<i></i>').join('');
+$('dDots').innerHTML = dots; $('abcDots').innerHTML = dots;
+$('cues').innerHTML = ITEM.cues.map(c => `<li>${c.t}초 · ${esc(c.title)}</li>`).join('');
+
+const vid = document.createElement('video');
+vid.playsInline = true; vid.preload = 'auto'; vid.muted = true;
+function place(lay) { // 레이아웃에 맞는 영상 파일·자리로 옮기고 재생 위치는 이어 간다
+  const t = vid.currentTime || 0, playing = !vid.paused;
+  const d = lay === 'd';
+  vid.width = d ? 270 : 480; vid.height = d ? 480 : 324;
+  (d ? $('dSlot') : $('abcSlot')).appendChild(vid);
+  const src = d ? ITEM.files.full : ITEM.files.crop;
+  if (!vid.src.endsWith(src)) {
+    vid.src = src;
+    vid.addEventListener('loadedmetadata', () => { vid.currentTime = t; if (playing) vid.play(); }, {once: true});
+  }
+}
 let cur = -1;
 function show(i) {
   if (i === cur) return; cur = i;
   const c = ITEM.cues[i];
   $('title').textContent = c.title; $('subline').textContent = c.sub;
+  $('dNow').textContent = c.title;
   $('step').textContent = `${i + 1} / ${ITEM.cues.length}`;
-  [...$('dots').children].forEach((d, k) => d.classList.toggle('on', k === i));
+  document.querySelectorAll('.dots').forEach(g => [...g.children].forEach((d, k) => d.classList.toggle('on', k === i)));
   [...$('cues').children].forEach((d, k) => d.classList.toggle('on', k === i));
 }
-function tick() {
-  let i = 0; ITEM.cues.forEach((c, k) => { if (vid.currentTime >= c.t) i = k; });
-  show(i);
-}
-vid.addEventListener('timeupdate', tick); vid.addEventListener('seeked', tick); show(0);
-vid.muted = true;
+function tick() { let i = 0; ITEM.cues.forEach((c, k) => { if (vid.currentTime >= c.t) i = k; }); show(i); }
+vid.addEventListener('timeupdate', tick); vid.addEventListener('seeked', tick);
+place('d'); show(0);
 $('mute').onchange = e => vid.muted = e.target.checked;
 $('play').onclick = () => vid.paused ? vid.play() : vid.pause();
 vid.onplay = () => $('play').textContent = '❚❚ 멈춤'; vid.onpause = () => $('play').textContent = '▶ 재생';
 $('restart').onclick = () => { vid.currentTime = 0; vid.play(); };
 [...$('cues').children].forEach((li, k) => { li.style.cursor = 'pointer'; li.onclick = () => { vid.currentTime = ITEM.cues[k].t + .05; }; });
 document.querySelectorAll('[data-lay]').forEach(b => b.onclick = () => {
-  screen.className = 'screen ' + b.dataset.lay;
+  screen.className = 'screen ' + b.dataset.lay; place(b.dataset.lay);
   document.querySelectorAll('[data-lay]').forEach(x => x.setAttribute('aria-pressed', x === b));
 });
 document.querySelectorAll('[data-bg]').forEach(b => b.onclick = () => {
