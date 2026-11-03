@@ -29,5 +29,12 @@
     "loop": true,
     "src": "majubom_layout.mp4",
     "intro": "box"
+  },
+  "v": {
+    "title": "애플 비전 프로 · 체험 미리보기(임시)",
+    "file": "visionpro_scan.mp4",
+    "loop": true,
+    "src": "visionpro_layout.mp4",
+    "intro": "scan"
   }
 }
