@@ -2,8 +2,6 @@
 앱은 영상만 틀 줄 알면 되므로, 레이아웃을 바꿔도 앱을 다시 설치할 필요가 없다.
 
     python tools/render_layout.py            → server/videos/gyeon_layout.mp4
-
-다른 작품은 render()에 왼쪽 영상(240x370)과 문구만 바꿔 넘긴다(예: render_majubom.py).
 """
 import os
 import subprocess
@@ -38,8 +36,7 @@ X = 256        # 오른쪽 칸 왼쪽 끝
 VIDEO_Y = 139  # 영상 위치(가운데 줄 64~584 안에서 세로 가운데)
 
 
-def render(src, out, dur, header, cues, info):
-    """src: 240x370 초록 영상, cues: [(시작 초, 장면 문구)], info: [(제목, 내용)]"""
+def main():
     tmp = tempfile.mkdtemp()
     n = 0
 
@@ -58,18 +55,18 @@ def render(src, out, dur, header, cues, info):
                 f":fontcolor={color}:line_spacing=4{e}")
 
     f = [f"[0][1]overlay=0:{VIDEO_Y}:shortest=1"]
-    f.append(text(header, 0, 18, 24, G, BOLD, center=True))
+    f.append(text(HEADER, 0, 18, 24, G, BOLD, center=True))
     y = 112
     f.append(text('지금 장면', X, y, 14, G2))
-    for i, (t, s) in enumerate(cues):
-        end = cues[i + 1][0] if i + 1 < len(cues) else dur + 1
+    for i, (t, s) in enumerate(CUES):
+        end = CUES[i + 1][0] if i + 1 < len(CUES) else DUR + 1
         f.append(text(s, X, y + 22, 22, G, BOLD, enable=f'between(t,{t},{end})'))
-        dots = ' '.join('●' if k == i else '○' for k in range(len(cues)))
+        dots = ' '.join('●' if k == i else '○' for k in range(len(CUES)))
         f.append(text(dots, 0, 606, 14, G, REG, enable=f'between(t,{t},{end})', center=True))
     y += 22 + 64
     f.append(f"drawbox=x={X}:y={y}:w=210:h=1:color={G3}:t=fill")
     y += 16
-    for tag, body in info:
+    for tag, body in INFO:
         lines = body.count('\n') + 1
         f.append(text(tag, X, y, 14, G2))
         f.append(text(body, X, y + 20, 17, G))
@@ -81,17 +78,13 @@ def render(src, out, dur, header, cues, info):
         fh.write(chain + ',format=yuv420p[v]')
     subprocess.run([
         'ffmpeg', '-v', 'error', '-y',
-        '-f', 'lavfi', '-i', f'color=c=black:s=480x640:r=24:d={dur}',
-        '-i', src,
+        '-f', 'lavfi', '-i', f'color=c=black:s=480x640:r=24:d={DUR}',
+        '-i', SRC,
         '-/filter_complex', script, '-map', '[v]', '-map', '1:a?',  # ffmpeg 7+ 에서 파일로 필터 읽기
         '-c:v', 'libx264', '-profile:v', 'baseline', '-crf', '22',
-        '-c:a', 'aac', '-b:a', '96k', '-movflags', '+faststart', out,
+        '-c:a', 'aac', '-b:a', '96k', '-movflags', '+faststart', OUT,
     ], check=True)
-    print(out)
-
-
-def main():
-    render(SRC, OUT, DUR, HEADER, CUES, INFO)
+    print(OUT)
 
 
 if __name__ == '__main__':

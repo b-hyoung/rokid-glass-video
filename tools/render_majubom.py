@@ -1,45 +1,48 @@
-"""마주봄(비접촉 낙상 예방)을 견훤 d와 같은 레이아웃으로 굽는다.
-왼쪽 영상은 PPT 첫 장과 저장소(b-hyoung/Majubom) 화면 캡처를 천천히 훑는 슬라이드다.
+"""마주봄(비접촉 낙상 예방)을 위·아래 레이아웃 480x640 영상으로 굽는다.
+위: 이미지 칸(480x300)에 캡처를 통째로 정지 화면으로, 아래: 지금 장면 + 작품 정보.
 
-    python tools/render_majubom.py   → preview/majubom_left.mp4, server/videos/majubom_layout.mp4
+    python tools/render_majubom.py   → server/videos/majubom_layout.mp4
 
-캡처 원본: tools/majubom_src/ (PPT-List/majubom/thumbnail.png, Majubom/docs/captures/2026-10-11)
+캡처 원본: tools/majubom_src/ (b-hyoung/Majubom docs/captures/2026-10-11)
 """
 import os
 import subprocess
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
-from render_layout import ROOT, render
-
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC_DIR = os.path.join(ROOT, 'tools', 'majubom_src')
-LEFT = os.path.join(ROOT, 'preview', 'majubom_left.mp4')
 OUT = os.path.join(ROOT, 'server', 'videos', 'majubom_layout.mp4')
-W, H, FPS = 240, 370, 24
+W, H, FPS = 480, 640, 24
+IMG_Y, IMG_H = 60, 300   # 이미지 칸
 SCENE = 5.0   # 장면 하나 길이(초)
-FADE = 0.4    # 장면 사이 검정으로 사라졌다 나타나는 시간
+FADE = 0.4    # 장면이 바뀔 때 이미지·문구가 사라졌다 나타나는 시간
 
-# (파일, 잘라 볼 영역(왼, 위, 오른, 아래), 훑는 방향, 지금 장면 문구)
-# 영역의 세로를 370에 맞추고 남는 가로를 왼→오(또는 위→아래)로 천천히 훑는다.
-# 'TITLE'은 캡처 대신 PPT 첫 장 문구를 안경 화면 크기에 맞춰 직접 그린다.
+G, G2, G3 = (0x3d, 0xff, 0x5a), (0x1f, 0xae, 0x35), (0x0f, 0x6a, 0x20)
+REG = 'C:/Windows/Fonts/malgun.ttf'
+BOLD = 'C:/Windows/Fonts/malgunbd.ttf'
+
+# (파일, 보여 줄 영역(왼, 위, 오른, 아래), 지금 장면 문구). 'TITLE'은 표지를 직접 그린다.
 SCENES = [
-    ('TITLE', None, None, '몸에 아무것도\n붙이지 않는다'),
-    ('00_system_architecture.png', (68, 428, 720, 900), 'x', '침대 옆\n센서 두 종류'),
-    ('03a_raw_tof_grid.png', (30, 470, 712, 905), 'x', 'ToF가\n몸의 위치를'),
-    ('06_dashboard_mobile_web.png', (30, 1160, 794, 1830), 'x', '자세·침상 이탈을\n바로 판정'),
-    ('06_dashboard_mobile_web.png', (16, 190, 516, 960), 'y', '평소와 다르면\n위험도 4단계로'),
-    ('05b_dashboard_fall_alert_sim.png', (514, 352, 926, 550), 'x', '간호사 화면에\n바로 알림'),
+    ('TITLE', None, '몸에 아무것도 붙이지 않는다'),
+    ('00_system_architecture.png', (68, 428, 720, 836), '침대 옆 센서 두 종류'),
+    ('03a_raw_tof_grid.png', (24, 470, 712, 900), 'ToF가 몸의 위치를 읽고'),
+    ('06_dashboard_mobile_web.png', (30, 1160, 794, 1490), '자세·침상 이탈을 바로 판정'),
+    ('06_dashboard_mobile_web.png', (16, 190, 808, 680), '평소와 다르면 위험도 4단계로'),
+    ('05b_dashboard_fall_alert_sim.png', (514, 352, 926, 550), '간호사 화면에 바로 알림'),
 ]
-FONT = 'C:/Windows/Fonts/malgun.ttf'
-FONT_B = 'C:/Windows/Fonts/malgunbd.ttf'
 HEADER = '비접촉 낙상 예방 〈마주봄〉'
 INFO = [  # 출처: PPT-List/majubom, Majubom README
-    ('작품', '치매 환자를 위한\n비접촉 낙상 예방'),
-    ('측정', 'ToF · mmWave 센서\n카메라·웨어러블 없음'),
-    ('판정', '평소 대비 z-score\n위험도 4단계'),
-    ('대회', '2026 글로벌 피우다\n프로젝트 본선'),
+    ('작품', '치매 환자를 위한 비접촉 낙상 예방'),
+    ('측정', 'ToF · mmWave 센서, 카메라 없음'),
+    ('판정', '평소 대비 z-score, 위험도 4단계'),
+    ('대회', '2026 글로벌 피우다 프로젝트 본선'),
     ('만든 팀', '팀 마주봄'),
 ]
+
+
+def font(path, size):
+    return ImageFont.truetype(path, size)
 
 
 def green(img):
@@ -54,69 +57,80 @@ def green(img):
 
 
 def title_card():
-    img = Image.new('RGB', (W, H), 'black')
+    img = Image.new('RGB', (W, IMG_H), 'black')
     d = ImageDraw.Draw(img)
-    hi, mid, lo = (0, 255, 90), (0, 190, 60), (0, 120, 40)
-    y = 60
-    for text, size, font, color, gap in [
-        ('MAJUBOM · 2026', 13, FONT, lo, 14),
-        ('마주봄.', 46, FONT_B, hi, 18),
-        ('치매 환자를 위한', 24, FONT_B, mid, 6),
-        ('비접촉', 24, FONT_B, mid, 6),
-        ('낙상 예방 모니터링', 24, FONT_B, mid, 22),
-        ('침대 옆 센서가', 15, FONT, mid, 4),
-        ('일어서려는 순간을 읽고', 15, FONT, mid, 4),
-        ('넘어지기 전에', 15, FONT, mid, 4),
-        ('간호사를 부른다', 15, FONT, mid, 0),
-    ]:
-        f = ImageFont.truetype(font, size)
-        d.text((18, y), text, font=f, fill=color)
-        y += f.getbbox(text)[3] + gap
+    d.text((32, 40), 'MAJUBOM · 글로벌 피우다 프로젝트 2026', font=font(REG, 14), fill=G3)
+    d.text((32, 66), '마주봄.', font=font(BOLD, 56), fill=G)
+    d.text((32, 146), '치매 환자를 위한 비접촉', font=font(BOLD, 28), fill=G2)
+    d.text((32, 184), '낙상 예방 모니터링', font=font(BOLD, 28), fill=G2)
+    d.text((32, 238), '침대 옆 센서가 일어서려는 순간을 읽고,', font=font(REG, 16), fill=G2)
+    d.text((32, 262), '넘어지기 전에 간호사를 부른다.', font=font(REG, 16), fill=G2)
     return img
 
 
-def frames(name, box, axis):
+def picture(name, box):
+    """이미지 칸에 통째로 맞춰 넣는다(잘라 내지 않고, 남는 곳은 검정)."""
     if name == 'TITLE':
-        src, axis = title_card(), 'x'
-    else:
-        src = green(Image.open(os.path.join(SRC_DIR, name)).convert('RGB').crop(box))
-    if axis == 'x':  # 세로를 화면에 맞추고 가로로 훑기
-        img = src.resize((max(W, round(src.width * H / src.height)), H), Image.LANCZOS)
-    else:            # 가로를 화면에 맞추고 세로로 훑기
-        img = src.resize((W, max(H, round(src.height * W / src.width))), Image.LANCZOS)
-    span = (img.width - W) if axis == 'x' else (img.height - H)
-    n = round(SCENE * FPS)
-    for i in range(n):
-        t = i / (n - 1)
-        t = t * t * (3 - 2 * t)  # 처음과 끝은 천천히
-        o = round(span * t)
-        f = img.crop((o, 0, o + W, H) if axis == 'x' else (0, o, W, o + H))
-        k = min(1.0, i / (FADE * FPS), (n - 1 - i) / (FADE * FPS))
-        if k < 1:
-            f = Image.eval(f, lambda v, k=k: int(v * k))
-        yield f.tobytes()
+        return title_card()
+    src = green(Image.open(os.path.join(SRC_DIR, name)).convert('RGB').crop(box))
+    s = min(W / src.width, IMG_H / src.height)
+    src = src.resize((round(src.width * s), round(src.height * s)), Image.LANCZOS)
+    img = Image.new('RGB', (W, IMG_H), 'black')
+    img.paste(src, ((W - src.width) // 2, (IMG_H - src.height) // 2))
+    return img
 
 
-def make_left():
-    p = subprocess.Popen([
-        'ffmpeg', '-v', 'error', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgb24',
-        '-s', f'{W}x{H}', '-r', str(FPS), '-i', '-',
-        '-c:v', 'libx264', '-profile:v', 'baseline', '-crf', '18', '-pix_fmt', 'yuv420p',
-        '-movflags', '+faststart', LEFT,
-    ], stdin=subprocess.PIPE)
-    for name, box, axis, _ in SCENES:
-        for b in frames(name, box, axis):
-            p.stdin.write(b)
-    p.stdin.close()
-    if p.wait():
-        raise SystemExit('왼쪽 영상 굽기 실패')
-    print(LEFT)
+def center(d, y, text, f, color):
+    d.text(((W - d.textlength(text, font=f)) / 2, y), text, font=f, fill=color)
+
+
+def base(i):
+    """장면이 바뀌어도 그대로인 부분(제목·정보·진행 점)."""
+    img = Image.new('RGB', (W, H), 'black')
+    d = ImageDraw.Draw(img)
+    center(d, 16, HEADER, font(BOLD, 24), G)
+    d.text((24, IMG_Y + IMG_H + 14), '지금 장면', font=font(REG, 14), fill=G2)
+    y = IMG_Y + IMG_H + 78
+    d.rectangle((24, y, W - 24, y), fill=G3)
+    y += 14
+    for tag, body in INFO:
+        d.text((24, y + 2), tag, font=font(REG, 14), fill=G2)
+        d.text((92, y), body, font=font(REG, 17), fill=G)
+        y += 30
+    dots = ' '.join('●' if k == i else '○' for k in range(len(SCENES)))
+    center(d, 606, dots, font(REG, 14), G)
+    return img
+
+
+def layer(name, box, cue):
+    """장면마다 바뀌어 페이드되는 부분(이미지·지금 장면 문구)."""
+    img = Image.new('RGB', (W, H), 'black')
+    img.paste(picture(name, box), (0, IMG_Y))
+    ImageDraw.Draw(img).text((24, IMG_Y + IMG_H + 34), cue, font=font(BOLD, 24), fill=G)
+    return img
 
 
 def main():
-    make_left()
-    cues = [(i * SCENE, s[3]) for i, s in enumerate(SCENES)]
-    render(LEFT, OUT, len(SCENES) * SCENE, HEADER, cues, INFO)
+    p = subprocess.Popen([
+        'ffmpeg', '-v', 'error', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgb24',
+        '-s', f'{W}x{H}', '-r', str(FPS), '-i', '-',
+        '-c:v', 'libx264', '-profile:v', 'baseline', '-crf', '20', '-pix_fmt', 'yuv420p',
+        '-movflags', '+faststart', OUT,
+    ], stdin=subprocess.PIPE)
+    n = round(SCENE * FPS)
+    for i, (name, box, cue) in enumerate(SCENES):
+        b, top = base(i), layer(name, box, cue)
+        cache = {}
+        for j in range(n):
+            k = round(min(1.0, j / (FADE * FPS), (n - 1 - j) / (FADE * FPS)), 2)
+            if k not in cache:
+                faded = top if k >= 1 else Image.eval(top, lambda v, k=k: int(v * k))
+                cache[k] = Image.composite(faded, b, top.convert('L').point(lambda v: 255 if v else 0)).tobytes()
+            p.stdin.write(cache[k])
+    p.stdin.close()
+    if p.wait():
+        raise SystemExit('굽기 실패')
+    print(OUT)
 
 
 if __name__ == '__main__':
