@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">글래스 영상</string>
+    <!-- 기본 서버 주소. 빠른 터널은 켤 때마다 바뀌니 build.sh 가 SERVER 로 덮어쓴다. -->
+    <string name="default_server" translatable="false">https://parents-substantially-processor-blind.trycloudflare.com</string>
 </resources>
