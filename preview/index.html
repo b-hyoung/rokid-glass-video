@@ -27,16 +27,16 @@ h1{font-size:18px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px;margin:0
 .screen.d .lay.d{display:grid}.screen:not(.d) .lay.abc{display:flex}
 video{display:block;background:#000}
 
-/* D: 가운데 원본 영상, 왼쪽 작품 설명, 오른쪽 팀·지금 장면 */
-.lay.d{grid-template-columns:105px 270px 105px;grid-template-rows:80px 480px 80px}
-.lay.d .top{grid-column:1/4;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;letter-spacing:.02em}
-.lay.d .slot{grid-column:2;grid-row:2}
-.lay.d .col{grid-row:2;padding:6px 10px;display:flex;flex-direction:column;gap:14px;word-break:keep-all;overflow:hidden}
+/* D: 가운데 영상(자막 띠+플레이어 두 화면, 220x338), 왼쪽 작품 설명, 오른쪽 팀·지금 장면 */
+.lay.d{grid-template-columns:130px 220px 130px;grid-template-rows:72px 1fr 64px}
+.lay.d .top{grid-column:1/4;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;letter-spacing:.02em}
+.lay.d .slot{grid-column:2;grid-row:2;align-self:center}
+.lay.d .col{grid-row:2;padding:4px 12px;display:flex;flex-direction:column;justify-content:center;gap:18px;word-break:keep-all;overflow:hidden}
 .lay.d .col.l{grid-column:1;text-align:right;border-right:1px solid var(--g3)}
 .lay.d .col.r{grid-column:3;border-left:1px solid var(--g3)}
-.tag{font-size:12px;color:var(--g2);letter-spacing:.06em;margin-bottom:2px}
-.big{font-size:17px;font-weight:800;line-height:1.3}
-.small{font-size:14px;line-height:1.4;color:var(--g);white-space:pre-line}
+.tag{font-size:13px;color:var(--g2);letter-spacing:.06em;margin-bottom:2px}
+.big{font-size:20px;font-weight:800;line-height:1.3}
+.small{font-size:16px;line-height:1.4;color:var(--g);white-space:pre-line}
 .now .small{transition:opacity .4s}
 .lay.d .bottom{grid-column:1/4;display:flex;align-items:center;justify-content:center;gap:8px}
 .dots i{display:inline-block;width:9px;height:9px;margin:0 4px;border-radius:50%;border:2px solid var(--g2)}.dots i.on{background:var(--g);border-color:var(--g)}
@@ -100,16 +100,16 @@ video{display:block;background:#000}
 const ITEM = {
   key: 'd',
   header: '후백제 VR 〈견훤〉',
-  files: {full: 'gyeon_full.mp4', crop: 'gyeon.mp4'}, // D 는 원본 세로 영상, A·B 는 플레이어 1 화면만 자른 영상
-  // 양옆 칸이 좁아(105px) 줄바꿈은 \n 으로 직접 정한다
+  files: {full: 'gyeon_side.mp4', crop: 'gyeon.mp4'}, // D 는 자막 띠+플레이어 두 화면(220x338), A·B 는 플레이어 1 화면만
+  // 양옆 칸 130px(한 줄 7자 안팎). 어색하게 끊기는 곳만 \n 으로 정한다
   left: [ // 작품 설명
     {tag: '작품', small: '후백제 왕도\n전주를 담은\nVR 체험'},
-    {tag: '체험', small: '두 사람이\n같은 세계를\n함께 걷는\n체험'},
-    {tag: '전시', small: '제28회\n김제지평선\n축제\nXR 체험존'},
+    {tag: '체험', small: '두 사람이\n같은 세계를\n함께 걷는 체험'},
+    {tag: '전시', small: '제28회\n김제지평선축제\nXR 체험존'},
   ],
   right: [ // 팀
     {tag: '만든 팀', big: '훈아티스', small: 'HOONARTIS'},
-    {tag: '기술', small: '위치기반 XR\n언리얼\n엔진 5\n무선 HMD'},
+    {tag: '기술', small: '위치기반 XR\n언리얼 엔진 5\n무선 HMD'},
   ],
   cues: [
     {t: 0,   title: '호랑이 길잡이와 출발',       sub: '문지기 호랑이의 길 안내'},
@@ -136,7 +136,7 @@ vid.playsInline = true; vid.preload = 'auto'; vid.muted = true;
 function place(lay) { // 레이아웃에 맞는 영상 파일·자리로 옮기고 재생 위치는 이어 간다
   const t = vid.currentTime || 0, playing = !vid.paused;
   const d = lay === 'd';
-  vid.width = d ? 270 : 480; vid.height = d ? 480 : 324;
+  vid.width = d ? 220 : 480; vid.height = d ? 338 : 324;
   (d ? $('dSlot') : $('abcSlot')).appendChild(vid);
   const src = d ? ITEM.files.full : ITEM.files.crop;
   if (!vid.src.endsWith(src)) {
