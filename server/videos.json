@@ -1,5 +1,19 @@
 {
-  "a": {"title": "킨텍스 고래", "file": "whale.mp4"},
-  "b": {"title": "해저놀이터", "file": "sea.mp4"},
-  "c": {"title": "언리얼 페스트", "file": "fest.mp4"}
+  "a": {
+    "title": "킨텍스 고래",
+    "file": "whale.mp4"
+  },
+  "b": {
+    "title": "해저놀이터",
+    "file": "sea.mp4"
+  },
+  "c": {
+    "title": "언리얼 페스트",
+    "file": "fest.mp4"
+  },
+  "t": {
+    "title": "화면 눈금 확인",
+    "file": "pattern.mp4",
+    "loop": true
+  }
 }
