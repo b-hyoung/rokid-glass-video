@@ -20,5 +20,10 @@
     "title": "견훤 · 영상+설명",
     "file": "gyeon_layout.mp4",
     "loop": true
+  },
+  "e": {
+    "title": "마주봄 · 영상+설명",
+    "file": "majubom_layout.mp4",
+    "loop": true
   }
 }
