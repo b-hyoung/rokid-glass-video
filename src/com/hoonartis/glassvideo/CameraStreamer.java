@@ -202,6 +202,9 @@ final class CameraStreamer {
     /** 원하는 속도를 넘는 범위 중 가장 낮은 것(쓸데없이 빨리 찍지 않게 → 발열·전력 줄임). */
     private static Range<Integer> pickRange(Range<Integer>[] ranges, int fps) {
         if (ranges == null) return null;
+        // 정확히 [fps, fps] 고정 범위가 있으면 그것: [14, 60] 같은 자동 범위는 조금만 어두워도 장 수를 스스로 낮춘다
+        // (60장 설정에 실제 43.7장, 11-04 실측). 고정이면 어두울 때 장 수 대신 화면이 어두워진다.
+        for (Range<Integer> r : ranges) if (r.getLower() == fps && r.getUpper() == fps) return r;
         Range<Integer> best = null;
         for (Range<Integer> r : ranges) {
             if (r.getUpper() < fps) continue;

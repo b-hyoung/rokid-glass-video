@@ -105,13 +105,14 @@ export function camRoutes({dir, send, json}) {
   }
 
   // 실시간 화면(/cam/live.mjpg): 동영상은 0.25초 조각으로 몰려 오므로, 받은 장면을 줄 세워 초당 N장 간격으로 고르게 내보낸다.
-  // 줄이 0.15초 분량보다 길어지면 오래된 장면을 버려 늦어지지 않게 한다(0.5초였을 때 화면이 0.5~0.7초 늦었음).
+  // 줄이 0.3초 분량보다 길어지면 오래된 장면을 버린다. 0.5초면 0.5~0.7초 늦고, 0.15초면 와이파이가 잠깐 막힐 때마다
+  // 멈춰 보여서(11-04 실측) 중간값.
   // 이 줄은 웹으로 지켜볼 때만 쓰고, 인식은 장면이 들어오는 대로 본다.
   const queue = [], viewers = new Set();
   let nextOut = 0;
   setInterval(() => {
     const rate = test && !test.done ? Math.max(1, test.fps) : 30, gap = 1000 / rate, t = now();
-    const keep = Math.max(2, Math.ceil(rate * 0.15));
+    const keep = Math.max(2, Math.ceil(rate * 0.3));
     if (queue.length > keep) queue.splice(0, queue.length - keep);
     if (!queue.length || t < nextOut) return;
     nextOut = Math.max(nextOut + gap, t - gap);
