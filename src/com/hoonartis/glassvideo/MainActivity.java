@@ -199,8 +199,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
                 prefs.edit().putString("server", server).apply();
                 report("서버 주소 자동 설정 " + server);
             }
-        } catch (Exception e) { say("서버 주소(server.txt) 확인 실패
-" + why(e)); report("server.txt 실패 " + e); }
+        } catch (Exception e) { say("서버 주소(server.txt) 확인 실패\n" + why(e)); report("server.txt 실패 " + e); }
     }
 
     private void listen() {
@@ -228,9 +227,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
             } catch (Exception e) {
                 if (online) { t0 = System.currentTimeMillis(); tries = 0; }
                 online = false;
-                if (running) say("연결 끊김 · 다시 연결 중 (" + tries + ")
-" + host(server) + "
-" + why(e)); // 어디로 붙으려는지·왜 안 되는지 화면에
+                if (running) say("연결 끊김 · 다시 연결 중 (" + tries + ")\n" + host(server) + "\n" + why(e)); // 어디로 붙으려는지·왜 안 되는지 화면에
             }
             tries++;
             if (tries % 3 == 0) { resolve(); after = -1; } // 터널을 다시 켜 주소가 바뀌었을 수 있음(새 서버는 번호가 처음부터)
