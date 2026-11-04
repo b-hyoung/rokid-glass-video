@@ -71,7 +71,8 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         status = new TextView(this);
         status.setTextColor(Color.GREEN);
         status.setTextSize(16);
-        status.setText("연결 중…");
+        status.setText("연결 중… (v0.2.1)");
+        status.setGravity(Gravity.CENTER);
         root.addView(status, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL));
@@ -93,6 +94,15 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         });
         if (checkSelfPermission(android.Manifest.permission.CAMERA) != android.content.pm.PackageManager.PERMISSION_GRANTED)
             requestPermissions(new String[]{android.Manifest.permission.CAMERA}, 1);
+    }
+
+    private static String host(String url) {
+        try { return new URL(url).getHost(); } catch (Exception e) { return url; }
+    }
+
+    private static String why(Exception e) {
+        String m = e.getMessage();
+        return e.getClass().getSimpleName() + (m == null ? "" : ": " + (m.length() > 60 ? m.substring(0, 60) : m));
     }
 
     private static String trim(String s) {
@@ -189,7 +199,8 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
                 prefs.edit().putString("server", server).apply();
                 report("서버 주소 자동 설정 " + server);
             }
-        } catch (Exception e) { say("서버 주소 확인 실패 · 이전 주소로 시도"); }
+        } catch (Exception e) { say("서버 주소(server.txt) 확인 실패
+" + why(e)); report("server.txt 실패 " + e); }
     }
 
     private void listen() {
@@ -217,7 +228,9 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
             } catch (Exception e) {
                 if (online) { t0 = System.currentTimeMillis(); tries = 0; }
                 online = false;
-                if (running) say("연결 끊김 · 다시 연결 중");
+                if (running) say("연결 끊김 · 다시 연결 중 (" + tries + ")
+" + host(server) + "
+" + why(e)); // 어디로 붙으려는지·왜 안 되는지 화면에
             }
             tries++;
             if (tries % 3 == 0) { resolve(); after = -1; } // 터널을 다시 켜 주소가 바뀌었을 수 있음(새 서버는 번호가 처음부터)
