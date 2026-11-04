@@ -40,6 +40,8 @@
   #live canvas { flex: none; }
   .viewbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 12px; color: #8fb39a; }
   .viewbar small { color: #6f8a78; }
+  .clockbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 12px; color: #8fb39a; }
+  .clockbar b { font: 700 56px/1 Consolas, monospace; color: #fff; background: #000; padding: 6px 14px; border-radius: 8px; letter-spacing: 2px; }
   .viewbar .seg button { padding: 5px 10px; font-size: 12px; white-space: nowrap; }
   #live .empty { color: #556; }
   #now { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
@@ -120,6 +122,7 @@
         <button data-rot="0">0°</button><button data-rot="270">왼쪽 90°</button><button data-rot="180">180°</button><button data-rot="90">오른쪽 90°</button>
       </div></div>
     <div id="live"><canvas id="frame" hidden></canvas><span class="empty">아직 받은 사진 없음</span></div>
+    <div class="clockbar"><span>지연 재기 · 안경으로 이 시계를 보면 위 화면 속 시계와의 차이가 전체 지연</span><b id="clock">0.00</b></div>
     <div id="now">
       <div class="stat"><small>받은 장 / 목표</small><b id="s-frames">-</b></div>
       <div class="stat"><small>실제 초당 / 설정</small><b id="s-real">-</b></div>
@@ -207,7 +210,11 @@
   }
   addEventListener('resize', fit);
   img.onload = draw;
-  (function loop() { if (img.complete && img.naturalWidth) draw(); requestAnimationFrame(loop); })();
+  (function loop() {
+    if (img.complete && img.naturalWidth) draw();
+    $('#clock').textContent = ((performance.now() / 1000) % 100).toFixed(2); // 1/100초 시계(지연 재기용)
+    requestAnimationFrame(loop);
+  })();
   const markRot = () => $('#rot').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.rot === rot)));
   $('#rot').addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return;

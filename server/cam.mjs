@@ -128,8 +128,9 @@ export function camRoutes({dir, send, json}) {
   function decoder(key, t, w, h) {
     let d = decoders.get(key);
     if (d) { d.touch(); return d; }
-    // nobuffer·low_delay 를 넣으면 장면을 버린다(150장 중 120장, 11-04 실측) → 쓰지 않음
-    const ff = spawn('ffmpeg', ['-hide_banner', '-loglevel', 'error',
+    // nobuffer 를 넣으면 장면을 버린다(326장→266장, 11-04 실측) → 쓰지 않음.
+    // -threads 1: 여러 코어로 나눠 풀면 코어 수만큼 장면을 모았다 내보내 0.3초쯤 늦다(16코어 PC 실측) → 코어 하나로.
+    const ff = spawn('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-threads', '1',
       '-probesize', '32', '-analyzeduration', '0', '-f', 'h264', '-i', 'pipe:0', '-f', 'image2pipe', '-c:v', 'mjpeg', '-q:v', '6', 'pipe:1']);
     let acc = Buffer.alloc(0), idle = null, closed = false;
     ff.stdout.on('data', chunk => {
