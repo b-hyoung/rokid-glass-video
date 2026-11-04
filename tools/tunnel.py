@@ -4,6 +4,7 @@ server.txt 에는 같은 와이파이용 이 PC 주소들을 먼저, 터널 주�
 
     node server/server.mjs        (먼저 서버를 켜 둔다)
     python tools/tunnel.py        (터널 켜기 + server.txt 갱신, Ctrl+C 로 끔)
+    python tools/tunnel.py --lan  (로컬 시험: 터널 없이 이 PC 주소만 server.txt 에 올림)
 
 server.txt: https://glass-2412.youqlrqod.workers.dev/server.txt (Cloudflare Workers 정적 배포, wrangler.jsonc)
 """
@@ -37,10 +38,10 @@ def lan():  # 같은 와이파이에서 안경이 직접 붙을 이 PC 주소들
     return [f'http://{ip}:8787' for ip in sorted(ips) if ip.startswith('192.168.')]  # 가상망(172.x)·별도 유선망(10.x)은 안경이 못 붙음
 
 
-def publish(url):
+def publish(url=None):
     if not os.path.isdir(DIST):
         subprocess.run([sys.executable, os.path.join(ROOT, 'tools', 'build_pages.py')], check=True)
-    lines = lan() + [url]  # 앱 0.2.3+ 는 앞에서부터 시도(직접 먼저, 터널 나중), 0.2.2 이하는 첫 줄만 씀
+    lines = lan() + ([url] if url else [])  # 앱 0.2.3+ 는 앞에서부터 시도(직접 먼저, 터널 나중), 0.2.2 이하는 첫 줄만 씀
     with open(os.path.join(DIST, 'server.txt'), 'w', encoding='utf-8') as f:
         f.write('\n'.join(lines) + '\n')
     print('server.txt:', ' / '.join(lines), flush=True)
@@ -49,6 +50,10 @@ def publish(url):
 
 
 def main():
+    if '--lan' in sys.argv:  # 로컬만: 터널로 조용히 넘어가지 않게 터널 주소를 뺀다
+        publish()
+        print('로컬 전용 server.txt 올림. 안경이 PC 주소로만 붙습니다.')
+        return
     if not ok(LOCAL):
         print('서버가 꺼져 있습니다. 먼저 node server/server.mjs 를 켜 주세요.')
         sys.exit(1)
