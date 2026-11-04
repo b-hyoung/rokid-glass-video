@@ -25,10 +25,14 @@
   .seg button:last-child { border-radius: 0 6px 6px 0; }
   .fps { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; }
   .hint { margin: 8px 0 0; font-size: 12px; color: #8fb39a; }
+  .actions { display: grid; grid-template-columns: 2fr 1fr; gap: 8px; }
+  .actions button { padding: 12px 0; font-size: 19px; font-weight: 700; }
+  button.start { background: #1f6f3a; border-color: #2c9a52; color: #fff; }
+  button.halt { background: #5a2020; border-color: #8a3030; color: #fff; }
+  button:disabled { opacity: .45; cursor: default; }
   [hidden] { display: none !important; }
   button { background: #1b2a22; color: #dfe9e2; border: 1px solid #2c4235; border-radius: 6px; padding: 7px 8px; font: inherit; cursor: pointer; }
   button:hover { border-color: #3dff5a; }
-  button.go { background: #1f6f3a; border-color: #2c9a52; color: #fff; padding: 9px 0; }
   button.stop { background: #5a2020; border-color: #8a3030; padding: 8px 16px; white-space: nowrap; }
   button[aria-pressed="true"] { background: #2c9a52; border-color: #3dff5a; color: #fff; position: relative; }
   .view { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
@@ -58,12 +62,11 @@
     <p class="sub">이 페이지에서 버튼을 누르면 안경이 신호를 받아 그 속도로 찍어 보내고, 끝나면 결과가 표에 쌓입니다.</p>
   </div>
   <div id="st">-</div>
-  <button class="stop" id="off">카메라 끄기</button>
 </header>
 <main>
   <div class="controls">
     <section>
-      <h2>① 방식<small>골라 두기만 함</small></h2>
+      <h2>① 방식</h2>
       <div class="seg" id="mode">
         <button data-mode="photo" aria-pressed="true">사진 한 장씩</button>
         <button data-mode="video" aria-pressed="false">동영상 스트림</button>
@@ -71,7 +74,7 @@
       <p class="hint" id="mode-hint"></p>
     </section>
     <section>
-      <h2>② 조건<small>골라 두기만 함</small></h2>
+      <h2>② 조건</h2>
       <div class="row"><span>시간</span><div class="seg" id="secs">
         <button data-sec="5" aria-pressed="true">5초</button>
         <button data-sec="60" aria-pressed="false">60초</button>
@@ -96,9 +99,15 @@
       </div>
     </section>
     <section>
-      <h2>③ 초당 몇 장<small>누르면 바로 시작</small></h2>
-      <div class="fps" id="fps"></div>
-      <p class="hint" id="summary"></p>
+      <h2>③ 초당 몇 장</h2>
+      <div class="seg" id="fps"></div>
+    </section>
+    <section>
+      <p class="hint" id="summary" style="margin:0 0 10px"></p>
+      <div class="actions">
+        <button class="start" id="start">시작</button>
+        <button class="halt" id="off">중지</button>
+      </div>
     </section>
   </div>
   <div class="view">
@@ -134,21 +143,20 @@
   const mode = () => pick('#mode', 'mode');
   function summary() { // 지금 고른 조건 요약(③을 누르면 이대로 시작)
     const m = mode(), sec = pick('#secs', 'sec');
-    const parts = [m === 'video' ? '동영상' : '사진', sec === '0' ? '끌 때까지' : sec + '초'];
+    const parts = [m === 'video' ? '동영상' : '사진', '초당 ' + pick('#fps', 'fps') + '장', sec === '0' ? '끌 때까지' : sec + '초'];
     if (m === 'video') parts.push(pick('#rate', 'kbps') / 1000 + 'Mbps');
     else parts.push(pick('#crop', 'crop') === '1' ? '전체' : '가운데만', '화질 ' + pick('#qual', 'q'));
-    $('#summary').textContent = '숫자를 누르면 이 조건으로 바로 시작: ' + parts.join(' · ');
+    $('#summary').textContent = '시작하면: ' + parts.join(' · ');
   }
   function showMode() {
     const m = mode();
     document.querySelectorAll('[data-for]').forEach(el => el.hidden = el.dataset.for !== m);
     $('#mode-hint').textContent = HINT[m];
-    $('#fps').innerHTML = '';
-    for (const f of FPS[m]) {
-      const b = document.createElement('button'); b.className = 'go'; b.textContent = f; b.onclick = () => go(f); $('#fps').append(b);
-    }
+    const keep = $('#fps [aria-pressed="true"]')?.dataset.fps;
+    const def = FPS[m].includes(+keep) ? +keep : (m === 'video' ? 30 : 10);
+    $('#fps').innerHTML = FPS[m].map(f => `<button data-fps="${f}" aria-pressed="${f === def}">${f}</button>`).join('');
   }
-  for (const box of ['#mode', '#secs', '#crop', '#qual', '#rate']) {
+  for (const box of ['#mode', '#secs', '#crop', '#qual', '#rate', '#fps']) {
     $(box).addEventListener('click', e => {
       const b = e.target.closest('button'); if (!b) return;
       $(box).querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
@@ -156,14 +164,16 @@
       summary();
     });
   }
-  const go = fps => {
+  const go = () => {
+    const fps = pick('#fps', 'fps');
     const p = new URLSearchParams({mode: mode(), fps, sec: pick('#secs', 'sec'), crop: pick('#crop', 'crop'), q: pick('#qual', 'q'), kbps: pick('#rate', 'kbps')});
     fetch('cam/set?' + p + (q ? '&' + q.slice(1) : '')).then(r => r.json())
       .then(j => { $('#summary').textContent = `시험 #${j.test} 시작 · 초당 ${fps}장 신호 보냄`; setTimeout(summary, 3000); });
   };
+  $('#start').onclick = go;
   showMode();
   summary();
-  $('#off').onclick = () => fetch('cam/set?fps=0' + (q ? '&' + q.slice(1) : ''));
+  $('#off').onclick = () => fetch('cam/set?fps=0' + (q ? '&' + q.slice(1) : '')).then(() => { $('#summary').textContent = '중지함'; setTimeout(summary, 2000); });
 
   let shown = 0;
   const T = t => t >= 0 ? (t / 10).toFixed(1) + '°' : '-';
@@ -179,7 +189,9 @@
         if (img) img.src = src;
         else $('#live').innerHTML = `<img src="${src}" alt="안경 카메라 최신 사진">`;
       }
-      const t = s.test;
+      const t = s.test, busy = t && !t.done;
+      $('#start').disabled = !!busy;
+      $('#start').textContent = busy ? `진행 중 ${t.elapsed}초` : '시작';
       $('#s-frames').textContent = t ? `${t.frames} / ${t.sec ? t.fps * t.sec : '∞'}` : '-';
       $('#s-real').textContent = t ? `${t.real} / ${t.fps}` : '-';
       $('#s-bat').textContent = s.tele ? `${s.tele.bat}% · ${T(s.tele.temp)}` : '-';
