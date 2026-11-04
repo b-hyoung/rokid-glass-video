@@ -2,11 +2,16 @@
 // 안경이 사진(/frame) 또는 동영상(/stream, ffmpeg로 풂)과 배터리·발열(/tele)을 보낸다.
 // 시험마다 "설정 초당 N장 → 실제로 받은 장 수"를 recordings/cam_tests.csv, 2초마다 상태를 cam_tele.csv 에 남긴다.
 import {spawn} from 'node:child_process';
-import {appendFileSync, existsSync, mkdirSync, readFileSync} from 'node:fs';
+import {appendFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync} from 'node:fs';
+import {homedir} from 'node:os';
 import {join} from 'node:path';
 
 const SOI = Buffer.from([0xff, 0xd8]), EOI = Buffer.from([0xff, 0xd9]);
 const THERMAL = ['정상', '약간', '보통', '심함', '위험', '비상', '꺼짐'];
+// 시험마다 받은 장면을 바탕화면에 남긴다: 사진은 jpg 전부, 동영상은 원본 h264, 끝나면 둘 다 영상.mp4 로.
+// 안경 카메라 센서가 옆으로 누워 장면이 시계 방향 90°로 오므로(11-04 실측) mp4 는 왼쪽 90°(transpose=2)로 돌려 만든다.
+const SAVE = join(homedir(), 'Desktop', '안경카메라_기록');
+const TURN = 'transpose=2';
 
 export function camRoutes({dir, send, json}) {
   const rec = join(dir, '..', 'recordings');
@@ -43,8 +48,25 @@ export function camRoutes({dir, send, json}) {
     results.unshift(s);
     results.length = Math.min(results.length, 40);
     const c = v => (v ?? '');
+    if (test.dir) setTimeout(() => movie(test, s), 3000); // 동영상 마지막 조각이 늦게 올 수 있어 잠깐 뒤에
     appendFileSync(testsCsv, [stamp(), s.no, s.mode === 'video' ? '동영상' : '사진', s.fps, s.sec || '계속', s.frames, s.real, c(s.first), s.kb, s.rate,
       s.drop, s.fail, c(s.bat0), c(s.bat1), c(s.temp0 >= 0 ? s.temp0 / 10 : ''), c(s.temp1 >= 0 ? s.temp1 / 10 : ''), c(THERMAL[s.maxTh])].join(',') + '\n');
+  }
+
+  function movie(t, s) { // 받은 장면을 쓴 사람 기준 방향의 영상.mp4 로
+    const rate = Math.max(1, Math.round(s.real || t.fps));
+    writeFileSync(join(t.dir, '정보.txt'), [
+      `${s.no}번 시험 · ${s.mode === 'video' ? '동영상' : '사진' + (s.crop < 1 ? ' 가운데' : ' 전체')} · 설정 초당 ${s.fps}장 · ${s.sec || '끌 때까지'}${s.sec ? '초' : ''}`,
+      `받은 장 ${s.frames}${s.sec ? ' / ' + s.fps * s.sec : ''} · 실제 초당 ${s.real} · 첫 장까지 ${s.first ?? '-'}ms`,
+      s.mode === 'video' ? `전송량 ${s.rate}kbps · 원본 ${s.w}x${s.h}` : `장당 ${s.kb}KB · ${s.w}x${s.h}`,
+      `배터리 ${s.bat0 ?? '-'}→${s.bat1 ?? '-'}% · 온도 ${s.temp0 >= 0 ? s.temp0 / 10 : '-'}→${s.temp1 >= 0 ? s.temp1 / 10 : '-'}°C · 발열 최고 ${THERMAL[s.maxTh] ?? '-'}`,
+      `영상.mp4 는 왼쪽 90° 돌림(쓴 사람 기준), 초당 ${rate}장으로 재생`, ''].join('\r\n'));
+    const video = s.mode === 'video';
+    if (video ? !existsSync(join(t.dir, '원본.h264')) : !readdirSync(t.dir).some(f => f.endsWith('.jpg'))) return;
+    const input = video ? ['-f', 'h264', '-r', String(rate), '-i', '원본.h264'] : ['-framerate', String(rate), '-i', '%05d.jpg'];
+    const ff = spawn('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', ...input, '-vf', `${TURN},scale=trunc(iw/2)*2:trunc(ih/2)*2`,
+      '-c:v', 'libx264', '-crf', '20', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', '영상.mp4'], {cwd: t.dir});
+    ff.stderr.on('data', x => console.log('[ffmpeg 저장]', String(x).trim()));
   }
 
   function note(q) { // 안경이 함께 보낸 배터리·발열·카운터
@@ -62,12 +84,30 @@ export function camRoutes({dir, send, json}) {
   function frame(t, buf, w, h) {
     const at = now();
     latest = {buf, at, n: (latest?.n ?? 0) + 1};
+    queue.push(buf);
     if (!t || t.done) return;
     if (!t.firstAt) t.firstAt = at;
     t.lastAt = at;
     t.frames++;
     if (w) { t.w = w; t.h = h; }
   }
+
+  // 실시간 화면(/cam/live.mjpg): 동영상은 0.25초 조각으로 몰려 오므로, 받은 장면을 줄 세워 초당 N장 간격으로 고르게 내보낸다.
+  // 줄이 0.5초 분량보다 길어지면 오래된 장면을 버려 늦어지지 않게 한다.
+  const queue = [], viewers = new Set();
+  let nextOut = 0;
+  setInterval(() => {
+    const rate = test && !test.done ? Math.max(1, test.fps) : 30, gap = 1000 / rate, t = now();
+    if (queue.length > Math.ceil(rate / 2)) queue.splice(0, queue.length - Math.ceil(rate / 2));
+    if (!queue.length || t < nextOut) return;
+    nextOut = Math.max(nextOut + gap, t - gap);
+    const buf = queue.shift();
+    for (const res of viewers) {
+      res.write(`--frame\r\nContent-Type: image/jpeg\r\nContent-Length: ${buf.length}\r\n\r\n`);
+      res.write(buf);
+      res.write('\r\n');
+    }
+  }, 5);
 
   const decoders = new Map(); // 시험 번호 → ffmpeg(조각을 이어 붙여 풂)
   function decoder(key, t, w, h) {
@@ -122,6 +162,10 @@ export function camRoutes({dir, send, json}) {
       const cfg = {mode: q.get('mode') === 'video' ? 'video' : 'photo', fps, sec: Math.max(0, +(q.get('sec') ?? 5)),
         crop: +(q.get('crop') || 0.5), q: +(q.get('q') || 80), kbps: +(q.get('kbps') || 2000)};
       test = {no: ++no, ...cfg, cmdAt: now(), frames: 0, bytes: 0, drop: 0, fail: 0, done: false};
+      const d = new Date(), z = v => String(v).padStart(2, '0');
+      test.dir = join(SAVE, `${d.getFullYear()}${z(d.getMonth() + 1)}${z(d.getDate())}-${z(d.getHours())}${z(d.getMinutes())}${z(d.getSeconds())}`
+        + `_${test.no}번_${cfg.mode === 'video' ? '동영상' : '사진'}_${cfg.fps}장`);
+      mkdirSync(test.dir, {recursive: true});
       send({cmd: 'cam', ...cfg, test: test.no});
       if (cfg.sec > 0) timer = setTimeout(finish, (cfg.sec + 4) * 1000); // 안경이 늦게 시작해도 받을 여유
       json(res, 200, {ok: true, test: test.no});
@@ -133,6 +177,7 @@ export function camRoutes({dir, send, json}) {
         const t = note(q);
         if (t) t.bytes += buf.length;
         frame(t, buf, +q.get('w'), +q.get('h'));
+        if (t?.dir && !t.done) writeFileSync(join(t.dir, String(t.frames).padStart(5, '0') + '.jpg'), buf);
         json(res, 200, {ok: true});
       });
       return true;
@@ -142,7 +187,11 @@ export function camRoutes({dir, send, json}) {
       const t = note(q);
       const dec = decoder(q.get('test'), t, +q.get('w'), +q.get('h'));
       body(req, 8 << 20, buf => {
-        if (buf) { if (t) t.bytes += buf.length; dec.write(buf); }
+        if (buf) {
+          if (t) t.bytes += buf.length;
+          dec.write(buf);
+          if (t?.dir) appendFileSync(join(t.dir, '원본.h264'), buf);
+        }
         if (q.get('end') === '1') dec.end();
         json(res, 200, {ok: true});
       });
@@ -154,6 +203,12 @@ export function camRoutes({dir, send, json}) {
       if (teleHist.length > 3000) teleHist.splice(0, teleHist.length - 3000);
       appendFileSync(teleCsv, [stamp(), q.get('test'), q.get('mode'), q.get('fps'), tele.bat, tele.temp >= 0 ? tele.temp / 10 : '', THERMAL[tele.th] ?? ''].join(',') + '\n');
       json(res, 200, {ok: true});
+      return true;
+    }
+    if (p === '/cam/live.mjpg') { // 고르게 내보내는 실시간 화면(multipart JPEG)
+      res.writeHead(200, {'Content-Type': 'multipart/x-mixed-replace; boundary=frame', 'Cache-Control': 'no-store', Connection: 'keep-alive'});
+      viewers.add(res);
+      req.on('close', () => viewers.delete(res));
       return true;
     }
     if (p === '/cam/latest.jpg') {
