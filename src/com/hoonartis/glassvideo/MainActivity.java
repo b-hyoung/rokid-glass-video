@@ -35,6 +35,7 @@ import java.nio.charset.StandardCharsets;
  * 서버 주소는 빌드 때 넣은 기본값, 또는 한 번 넘겨 주면 기억한다:
  *   adb shell am start -n com.hoonartis.glassvideo/.MainActivity -d https://xxx.trycloudflare.com
  * 터치패드 탭·확인 키로 멈춤/재생. 안 만져도 신호가 오면 저절로 튼다.
+ * {"cmd":"cam",...} 이면 카메라 전송 시험(CameraStreamer). 카메라 권한이 없으면 처음 켤 때 묻는다.
  *
  * VideoView(SurfaceView) 대신 TextureView 를 쓴다: 첫 버전은 안경에서 영상을 받아 갔는데도 화면에 안 보였다(11-03).
  */
@@ -49,6 +50,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
     private boolean pendingLoop;
     private volatile boolean running;
     private volatile HttpURLConnection conn;
+    private CameraStreamer cam;
 
     @Override
     protected void onCreate(Bundle state) {
@@ -76,6 +78,12 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         if (given != null) prefs.edit().putString("server", given.toString()).apply();
         server = trim(prefs.getString("server", getString(R.string.default_server)));
         id = android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
+        cam = new CameraStreamer(this, server, id, new CameraStreamer.Out() {
+            @Override public void report(String m) { MainActivity.this.report(m); }
+            @Override public void status(String m) { ui.post(() -> status.setText(m)); }
+        });
+        if (checkSelfPermission(android.Manifest.permission.CAMERA) != android.content.pm.PackageManager.PERMISSION_GRANTED)
+            requestPermissions(new String[]{android.Manifest.permission.CAMERA}, 1);
     }
 
     private static String trim(String s) {
@@ -152,6 +160,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
     protected void onStop() {
         super.onStop();
         running = false;
+        cam.stop(true);
         HttpURLConnection c = conn;
         if (c != null) c.disconnect();
         hide();
@@ -194,6 +203,13 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
 
     private void handle(JSONObject m) {
         String cmd = m.optString("cmd");
+        if (cmd.equals("cam")) { // 카메라 전송 시험: fps 0 이면 끔
+            int fps = m.optInt("fps");
+            if (fps <= 0) cam.stop(true);
+            else cam.start(m.optString("mode", "photo"), fps, m.optInt("sec", 5), (float) m.optDouble("crop", 0.5),
+                    m.optInt("q", 80), m.optInt("kbps", 2000), m.optLong("test"));
+            return;
+        }
         String title = m.optString("title");
         String u = m.optString("url");
         java.io.File local = cached.get(u.substring(u.lastIndexOf('/') + 1));

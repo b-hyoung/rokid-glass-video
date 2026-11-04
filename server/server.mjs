@@ -5,6 +5,7 @@
 import http from 'node:http';
 import {readFileSync, statSync, createReadStream, createWriteStream, mkdirSync} from 'node:fs';
 import {join, basename, normalize, extname} from 'node:path';
+import {camRoutes} from './cam.mjs';
 
 const DIR = import.meta.dirname;
 const DEMO = join(DIR, '..', 'demo'); // 2412호 3D 데모(/demo/2412/)
@@ -19,6 +20,7 @@ const seen = new Map();    // 안경 id → 마지막으로 물어본 시각
 let seq = 0;
 let now = null; // 마지막으로 보낸 신호
 
+let cam; // 카메라 전송 시험(cam.mjs), send·json 정의 뒤에 만든다
 const glasses = () => [...seen.values()].filter(t => Date.now() - t < HOLD_MS + 15000).length;
 
 function send(msg) {
@@ -56,11 +58,14 @@ button{font:inherit;padding:12px 16px;margin:4px;border:0;border-radius:8px;back
 </style></head><body><main><h1>안경 영상 신호</h1><div id="st">-</div>
 ${Object.entries(list()).map(([k, v]) => `<button onclick="go('${k}')">${k} · ${v.title}</button>`).join('')}
 <button class="stop" onclick="fetch('stop'+q)">끄기</button>
+<p><a style="color:#3dff5a" href="cam" onclick="this.href='cam'+location.search">안경 카메라 시험 →</a></p>
 <p>미리보기(안경에 보내는 것과 같은 영상)</p><video id="pv" controls muted playsinline></video>
 <script>const q=location.search;const L=${JSON.stringify(list())};
 function go(k){fetch('play?key='+k+(q?'&'+q.slice(1):''));document.getElementById('pv').src='v/'+L[k].file;document.getElementById('pv').play();}
 async function tick(){try{const s=await (await fetch('status')).json();document.getElementById('st').textContent='연결된 안경 '+s.glasses+'대 · 지금 '+(s.now?.key??'없음');}catch{}}
 tick();setInterval(tick,3000);</script></main></body></html>`;
+
+cam = camRoutes({dir: DIR, send: m => send(m), json: (res, code, body) => json(res, code, body)});
 
 http.createServer((req, res) => {
   const url = new URL(req.url, 'http://x');
@@ -72,6 +77,9 @@ http.createServer((req, res) => {
       `${Date.now() - t0}ms`, req.headers.range ?? '', (req.headers['user-agent'] ?? '').slice(0, 40)));
     req.on('close', () => { if (!res.writableFinished) console.log(new Date().toLocaleTimeString('ko-KR'), '끊김', req.url, `${Date.now() - t0}ms`); });
   }
+
+  if (p === '/cam/set' && !authed) return json(res, 403, {error: 'token'});
+  if (cam(req, res, url)) return;
 
   // 안경: /next?id=<안경>&after=<마지막 seq>. after 없이 오면 지금 seq 만 알려 준다(켜자마자 옛 신호를 다시 틀지 않게).
   if (p === '/next') {
