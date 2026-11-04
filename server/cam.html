@@ -63,7 +63,7 @@
 <main>
   <div class="controls">
     <section>
-      <h2>① 방식</h2>
+      <h2>① 방식<small>골라 두기만 함</small></h2>
       <div class="seg" id="mode">
         <button data-mode="photo" aria-pressed="true">사진 한 장씩</button>
         <button data-mode="video" aria-pressed="false">동영상 스트림</button>
@@ -71,7 +71,7 @@
       <p class="hint" id="mode-hint"></p>
     </section>
     <section>
-      <h2>② 조건</h2>
+      <h2>② 조건<small>골라 두기만 함</small></h2>
       <div class="row"><span>시간</span><div class="seg" id="secs">
         <button data-sec="5" aria-pressed="true">5초</button>
         <button data-sec="60" aria-pressed="false">60초</button>
@@ -98,6 +98,7 @@
     <section>
       <h2>③ 초당 몇 장<small>누르면 바로 시작</small></h2>
       <div class="fps" id="fps"></div>
+      <p class="hint" id="summary"></p>
     </section>
   </div>
   <div class="view">
@@ -131,6 +132,13 @@
   const HINT = {photo: '정한 속도로 사진(JPEG)을 한 장씩 보냅니다. 장당 용량이 커서 속도가 높으면 밀릴 수 있습니다.',
     video: '안경이 동영상(H.264)으로 압축해 한 줄로 흘려보냅니다. 용량이 작아 초당 30장에 유리합니다.'};
   const mode = () => pick('#mode', 'mode');
+  function summary() { // 지금 고른 조건 요약(③을 누르면 이대로 시작)
+    const m = mode(), sec = pick('#secs', 'sec');
+    const parts = [m === 'video' ? '동영상' : '사진', sec === '0' ? '끌 때까지' : sec + '초'];
+    if (m === 'video') parts.push(pick('#rate', 'kbps') / 1000 + 'Mbps');
+    else parts.push(pick('#crop', 'crop') === '1' ? '전체' : '가운데만', '화질 ' + pick('#qual', 'q'));
+    $('#summary').textContent = '숫자를 누르면 이 조건으로 바로 시작: ' + parts.join(' · ');
+  }
   function showMode() {
     const m = mode();
     document.querySelectorAll('[data-for]').forEach(el => el.hidden = el.dataset.for !== m);
@@ -145,13 +153,16 @@
       const b = e.target.closest('button'); if (!b) return;
       $(box).querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
       if (box === '#mode') showMode();
+      summary();
     });
   }
   const go = fps => {
     const p = new URLSearchParams({mode: mode(), fps, sec: pick('#secs', 'sec'), crop: pick('#crop', 'crop'), q: pick('#qual', 'q'), kbps: pick('#rate', 'kbps')});
-    fetch('cam/set?' + p + (q ? '&' + q.slice(1) : ''));
+    fetch('cam/set?' + p + (q ? '&' + q.slice(1) : '')).then(r => r.json())
+      .then(j => { $('#summary').textContent = `시험 #${j.test} 시작 · 초당 ${fps}장 신호 보냄`; setTimeout(summary, 3000); });
   };
   showMode();
+  summary();
   $('#off').onclick = () => fetch('cam/set?fps=0' + (q ? '&' + q.slice(1) : ''));
 
   let shown = 0;
