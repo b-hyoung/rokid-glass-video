@@ -7,113 +7,151 @@
 <style>
   * { box-sizing: border-box; }
   body { margin: 0; background: #0f1211; color: #dfe9e2; font: 15px/1.5 "Malgun Gothic", system-ui, sans-serif; }
-  main { max-width: 1180px; margin: 0 auto; padding: 20px; display: grid; grid-template-columns: 380px 1fr; gap: 20px; }
-  h1 { margin: 0 0 2px; font-size: 26px; color: #3dff5a; }
-  .sub { margin: 0 0 14px; color: #7f9a88; font-size: 12px; }
-  section { background: #151b18; border: 1px solid #22302a; border-radius: 10px; padding: 14px; margin-bottom: 14px; }
-  h2 { margin: 0 0 10px; font-size: 19px; color: #cfe9d4; }
-  .row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 8px; }
-  .row span { font-size: 12px; color: #8fb39a; min-width: 64px; }
-  button { background: #1b2a22; color: #dfe9e2; border: 1px solid #2c4235; border-radius: 6px; padding: 7px 11px; font: inherit; cursor: pointer; }
+  header { display: flex; align-items: center; gap: 16px; padding: 14px 24px; border-bottom: 1px solid #22302a; background: #121715; }
+  header .title { flex: 1; min-width: 0; }
+  h1 { margin: 0; font-size: 26px; line-height: 1.2; color: #3dff5a; }
+  .sub { margin: 2px 0 0; color: #7f9a88; font-size: 12px; }
+  #st { font-size: 12px; color: #cfe9d4; background: #1b2a22; border: 1px solid #2c4235; border-radius: 999px; padding: 5px 12px; white-space: nowrap; }
+  main { max-width: 1280px; margin: 0 auto; padding: 20px 24px; display: grid; grid-template-columns: 340px 1fr; gap: 20px; }
+  section { background: #151b18; border: 1px solid #22302a; border-radius: 10px; padding: 14px 16px; }
+  .controls { display: flex; flex-direction: column; gap: 14px; }
+  h2 { margin: 0 0 10px; font-size: 19px; line-height: 1.3; color: #cfe9d4; }
+  h2 small { font-size: 12px; color: #7f9a88; font-weight: 400; margin-left: 6px; }
+  .row { display: grid; grid-template-columns: 44px 1fr; gap: 8px; align-items: center; margin-top: 8px; }
+  .row > span { font-size: 12px; color: #8fb39a; }
+  .seg { display: flex; }
+  .seg button { flex: 1; border-radius: 0; margin-left: -1px; }
+  .seg button:first-child { border-radius: 6px 0 0 6px; margin-left: 0; }
+  .seg button:last-child { border-radius: 0 6px 6px 0; }
+  .fps { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; }
+  .hint { margin: 8px 0 0; font-size: 12px; color: #8fb39a; }
+  [hidden] { display: none !important; }
+  button { background: #1b2a22; color: #dfe9e2; border: 1px solid #2c4235; border-radius: 6px; padding: 7px 8px; font: inherit; cursor: pointer; }
   button:hover { border-color: #3dff5a; }
-  button.go { background: #1f6f3a; border-color: #2c9a52; color: #fff; min-width: 46px; }
-  button.stop { background: #5a2020; border-color: #8a3030; }
-  button[aria-pressed="true"] { background: #2c9a52; border-color: #3dff5a; color: #fff; }
-  #st { font-size: 12px; color: #9aa3ad; }
-  #live { position: relative; background: #000; border-radius: 10px; aspect-ratio: 4 / 3; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  button.go { background: #1f6f3a; border-color: #2c9a52; color: #fff; padding: 9px 0; }
+  button.stop { background: #5a2020; border-color: #8a3030; padding: 8px 16px; white-space: nowrap; }
+  button[aria-pressed="true"] { background: #2c9a52; border-color: #3dff5a; color: #fff; position: relative; }
+  .view { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  #live { background: #000; border-radius: 10px; height: min(52vh, 480px); display: flex; align-items: center; justify-content: center; overflow: hidden; }
   #live img { max-width: 100%; max-height: 100%; }
   #live .empty { color: #556; }
-  #now { margin-top: 10px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-  .stat { background: #151b18; border: 1px solid #22302a; border-radius: 8px; padding: 8px 10px; }
-  .stat b { display: block; font-size: 26px; color: #3dff5a; font-weight: 700; }
+  #now { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .stat { background: #151b18; border: 1px solid #22302a; border-radius: 8px; padding: 8px 12px; }
+  .stat b { display: block; font-size: 26px; line-height: 1.2; color: #3dff5a; font-weight: 700; }
   .stat small { color: #8fb39a; font-size: 12px; }
+  .bottom { grid-column: 1 / -1; display: grid; grid-template-columns: 1.7fr 1fr; gap: 20px; }
+  .scroll { overflow-x: auto; }
   table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  th, td { padding: 5px 6px; border-bottom: 1px solid #22302a; text-align: right; white-space: nowrap; }
+  th, td { padding: 6px; border-bottom: 1px solid #22302a; text-align: right; white-space: nowrap; }
   th { color: #8fb39a; font-weight: 600; }
   td:nth-child(2), th:nth-child(2) { text-align: left; }
   td.bad { color: #ff9b7a; }
-  canvas { width: 100%; height: 160px; display: block; }
-  .note { font-size: 12px; color: #7f9a88; }
+  canvas { width: 100%; height: 180px; display: block; }
+  footer { max-width: 1280px; margin: 0 auto; padding: 0 24px 20px; font-size: 12px; color: #6f8a78; word-break: break-all; }
+  @media (max-width: 900px) { main, .bottom { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
-<main>
-  <div>
+<header>
+  <div class="title">
     <h1>안경 카메라 시험</h1>
-    <p class="sub">버튼을 누르면 안경이 정한 속도로 카메라를 보내고, 끝나면 결과가 표에 쌓입니다.</p>
-    <div id="st">-</div>
+    <p class="sub">이 페이지에서 버튼을 누르면 안경이 신호를 받아 그 속도로 찍어 보내고, 끝나면 결과가 표에 쌓입니다.</p>
+  </div>
+  <div id="st">-</div>
+  <button class="stop" id="off">카메라 끄기</button>
+</header>
+<main>
+  <div class="controls">
     <section>
-      <h2>측정 시간</h2>
-      <div class="row" id="secs">
+      <h2>① 방식</h2>
+      <div class="seg" id="mode">
+        <button data-mode="photo" aria-pressed="true">사진 한 장씩</button>
+        <button data-mode="video" aria-pressed="false">동영상 스트림</button>
+      </div>
+      <p class="hint" id="mode-hint"></p>
+    </section>
+    <section>
+      <h2>② 조건</h2>
+      <div class="row"><span>시간</span><div class="seg" id="secs">
         <button data-sec="5" aria-pressed="true">5초</button>
         <button data-sec="60" aria-pressed="false">60초</button>
         <button data-sec="0" aria-pressed="false">끌 때까지</button>
+      </div></div>
+      <div data-for="photo">
+        <div class="row"><span>범위</span><div class="seg" id="crop">
+          <button data-crop="0.5" aria-pressed="true">가운데만</button>
+          <button data-crop="1" aria-pressed="false">전체</button>
+        </div></div>
+        <div class="row"><span>화질</span><div class="seg" id="qual">
+          <button data-q="80" aria-pressed="true">80</button>
+          <button data-q="60" aria-pressed="false">60</button>
+        </div></div>
+      </div>
+      <div data-for="video" hidden>
+        <div class="row"><span>용량</span><div class="seg" id="rate">
+          <button data-kbps="1000" aria-pressed="false">1Mbps</button>
+          <button data-kbps="2000" aria-pressed="true">2Mbps</button>
+          <button data-kbps="4000" aria-pressed="false">4Mbps</button>
+        </div></div>
       </div>
     </section>
     <section>
-      <h2>사진 방식 · 한 장씩 보내기</h2>
-      <div class="row" id="photo"><span>초당</span></div>
-      <div class="row" id="crop"><span>범위</span>
-        <button data-crop="0.5" aria-pressed="true">가운데만</button>
-        <button data-crop="1" aria-pressed="false">전체</button>
-      </div>
-      <div class="row" id="qual"><span>화질</span>
-        <button data-q="80" aria-pressed="true">80</button>
-        <button data-q="60" aria-pressed="false">60</button>
-      </div>
+      <h2>③ 초당 몇 장<small>누르면 바로 시작</small></h2>
+      <div class="fps" id="fps"></div>
     </section>
-    <section>
-      <h2>동영상 방식 · H.264 스트림</h2>
-      <div class="row" id="video"><span>초당</span></div>
-      <div class="row" id="rate"><span>용량</span>
-        <button data-kbps="2000" aria-pressed="true">2Mbps</button>
-        <button data-kbps="1000" aria-pressed="false">1Mbps</button>
-        <button data-kbps="4000" aria-pressed="false">4Mbps</button>
-      </div>
-    </section>
-    <button class="stop" id="off">카메라 끄기</button>
-    <p class="note" id="files"></p>
   </div>
-  <div>
+  <div class="view">
     <div id="live"><span class="empty">아직 받은 사진 없음</span></div>
     <div id="now">
-      <div class="stat"><small>받은 장</small><b id="s-frames">-</b></div>
-      <div class="stat"><small>실제 초당</small><b id="s-real">-</b></div>
+      <div class="stat"><small>받은 장 / 목표</small><b id="s-frames">-</b></div>
+      <div class="stat"><small>실제 초당 / 설정</small><b id="s-real">-</b></div>
       <div class="stat"><small>배터리 · 온도</small><b id="s-bat">-</b></div>
       <div class="stat"><small>발열 단계</small><b id="s-th">-</b></div>
     </div>
-    <section style="margin-top:14px">
+  </div>
+  <div class="bottom">
+    <section>
       <h2>시험 결과</h2>
-      <table>
+      <div class="scroll"><table>
         <thead><tr><th>#</th><th>방식</th><th>설정</th><th>시간</th><th>받은 장</th><th>실제 초당</th><th>첫 장까지</th><th>장당 · 전송량</th><th>버림</th><th>배터리</th><th>온도</th></tr></thead>
         <tbody id="rows"></tbody>
-      </table>
+      </table></div>
     </section>
     <section>
-      <h2>배터리(초록) · 온도(주황) 변화</h2>
-      <canvas id="chart" width="760" height="160"></canvas>
+      <h2>배터리 · 온도 변화<small>초록 배터리 · 주황 온도</small></h2>
+      <canvas id="chart" width="460" height="180"></canvas>
     </section>
   </div>
 </main>
+<footer id="files"></footer>
 <script>
   const q = location.search, $ = s => document.querySelector(s);
   const pick = (box, attr) => $(box + ' [aria-pressed="true"]').dataset[attr];
-  for (const box of ['#secs', '#crop', '#qual', '#rate']) {
+  const FPS = {photo: [1, 2, 5, 10, 15, 20, 30], video: [10, 15, 20, 30]};
+  const HINT = {photo: '정한 속도로 사진(JPEG)을 한 장씩 보냅니다. 장당 용량이 커서 속도가 높으면 밀릴 수 있습니다.',
+    video: '안경이 동영상(H.264)으로 압축해 한 줄로 흘려보냅니다. 용량이 작아 초당 30장에 유리합니다.'};
+  const mode = () => pick('#mode', 'mode');
+  function showMode() {
+    const m = mode();
+    document.querySelectorAll('[data-for]').forEach(el => el.hidden = el.dataset.for !== m);
+    $('#mode-hint').textContent = HINT[m];
+    $('#fps').innerHTML = '';
+    for (const f of FPS[m]) {
+      const b = document.createElement('button'); b.className = 'go'; b.textContent = f; b.onclick = () => go(f); $('#fps').append(b);
+    }
+  }
+  for (const box of ['#mode', '#secs', '#crop', '#qual', '#rate']) {
     $(box).addEventListener('click', e => {
       const b = e.target.closest('button'); if (!b) return;
       $(box).querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+      if (box === '#mode') showMode();
     });
   }
-  const go = (mode, fps) => {
-    const p = new URLSearchParams({mode, fps, sec: pick('#secs', 'sec'), crop: pick('#crop', 'crop'), q: pick('#qual', 'q'), kbps: pick('#rate', 'kbps')});
+  const go = fps => {
+    const p = new URLSearchParams({mode: mode(), fps, sec: pick('#secs', 'sec'), crop: pick('#crop', 'crop'), q: pick('#qual', 'q'), kbps: pick('#rate', 'kbps')});
     fetch('cam/set?' + p + (q ? '&' + q.slice(1) : ''));
   };
-  for (const f of [1, 2, 5, 10, 15, 20, 30]) {
-    const b = document.createElement('button'); b.className = 'go'; b.textContent = f; b.onclick = () => go('photo', f); $('#photo').append(b);
-  }
-  for (const f of [15, 30]) {
-    const b = document.createElement('button'); b.className = 'go'; b.textContent = f; b.onclick = () => go('video', f); $('#video').append(b);
-  }
+  showMode();
   $('#off').onclick = () => fetch('cam/set?fps=0' + (q ? '&' + q.slice(1) : ''));
 
   let shown = 0;
