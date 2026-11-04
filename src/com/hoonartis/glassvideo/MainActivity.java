@@ -71,7 +71,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         status = new TextView(this);
         status.setTextColor(Color.GREEN);
         status.setTextSize(16);
-        status.setText("연결 중… (v0.2.2)");
+        status.setText("연결 중… (v0.2.3)");
         status.setGravity(Gravity.CENTER);
         root.addView(status, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
@@ -170,7 +170,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         StringBuilder body = new StringBuilder();
         try (BufferedReader in = new BufferedReader(new InputStreamReader(c.getInputStream(), StandardCharsets.UTF_8))) {
             String line;
-            while ((line = in.readLine()) != null) body.append(line);
+            while ((line = in.readLine()) != null) body.append(line).append('\n');
         }
         return body.toString();
     }
@@ -189,17 +189,35 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
      * 서버에 "새 신호 있나"를 묻고, 서버는 신호가 생길 때까지(최대 25초) 답을 붙잡는다(롱 폴링).
      * 처음엔 after 없이 물어 지금 번호만 받아서, 켜자마자 옛 신호를 다시 틀지 않는다. 끊기면 1초 뒤 다시.
      */
-    /** server.txt 첫 줄을 읽어 서버 주소가 바뀌었으면 갈아탄다. */
+    /** server.txt 의 주소들(같은 와이파이 PC 주소 먼저, 터널 나중)을 차례로 /status 로 찔러 먼저 답하는 곳으로 붙는다. */
     private void resolve() {
         if (pinned) return;
-        try {
-            String line = get(getString(R.string.server_txt) + "?t=" + System.currentTimeMillis()).trim().split("[ \t\r\n]+")[0];
-            if (line.startsWith("http") && !trim(line).equals(server)) {
-                server = trim(line);
+        String text;
+        try { text = get(getString(R.string.server_txt) + "?t=" + System.currentTimeMillis()); }
+        catch (Exception e) { say("서버 주소(server.txt) 확인 실패\n" + why(e)); report("server.txt 실패 " + e); return; }
+        for (String raw : text.trim().split("[ \t\r\n]+")) {
+            if (!raw.startsWith("http")) continue;
+            String url = trim(raw);
+            if (!reachable(url)) continue;
+            if (!url.equals(server)) {
+                server = url;
                 prefs.edit().putString("server", server).apply();
-                report("서버 주소 자동 설정 " + server);
+                report("서버 주소 자동 설정 " + server + (url.startsWith("https") ? " (터널)" : " (같은 와이파이 직접)"));
             }
-        } catch (Exception e) { say("서버 주소(server.txt) 확인 실패\n" + why(e)); report("server.txt 실패 " + e); }
+            return;
+        }
+        say("server.txt 의 주소 모두 응답 없음");
+    }
+
+    private static boolean reachable(String url) {
+        try {
+            HttpURLConnection c = (HttpURLConnection) new URL(url + "/status").openConnection();
+            c.setConnectTimeout(1500);
+            c.setReadTimeout(2500);
+            int code = c.getResponseCode();
+            c.disconnect();
+            return code == 200;
+        } catch (Exception e) { return false; }
     }
 
     private void listen() {
