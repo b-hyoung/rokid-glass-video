@@ -74,7 +74,8 @@ http.createServer((req, res) => {
   if (process.env.LOG) {
     const t0 = Date.now();
     res.on('finish', () => console.log(new Date().toLocaleTimeString('ko-KR'), req.method, req.url, res.statusCode,
-      `${Date.now() - t0}ms`, req.headers.range ?? '', (req.headers['user-agent'] ?? '').slice(0, 40)));
+      `${Date.now() - t0}ms`, req.headers.range ?? '', (req.headers['user-agent'] ?? '').slice(0, 40),
+      req.headers['cf-ray'] ? `경유 ${String(req.headers['cf-ray']).split('-').pop()}` : '')); // Cloudflare가 거친 도시(ICN 서울, NRT 도쿄, HKG 홍콩 …)
     req.on('close', () => { if (!res.writableFinished) console.log(new Date().toLocaleTimeString('ko-KR'), '끊김', req.url, `${Date.now() - t0}ms`); });
   }
 
