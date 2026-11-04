@@ -71,7 +71,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         status = new TextView(this);
         status.setTextColor(Color.GREEN);
         status.setTextSize(16);
-        status.setText("연결 중… (v0.2.4)");
+        status.setText("연결 중… (v0.2.5)");
         status.setGravity(Gravity.CENTER);
         root.addView(status, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
@@ -189,12 +189,21 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
      * 서버에 "새 신호 있나"를 묻고, 서버는 신호가 생길 때까지(최대 25초) 답을 붙잡는다(롱 폴링).
      * 처음엔 after 없이 물어 지금 번호만 받아서, 켜자마자 옛 신호를 다시 틀지 않는다. 끊기면 1초 뒤 다시.
      */
-    /** server.txt 의 주소들(같은 와이파이 PC 주소 먼저, 터널 나중)을 차례로 /status 로 찔러 먼저 답하는 곳으로 붙는다. */
+    /**
+     * 서버 주소 고르기: ① 앱에 넣어 둔 같은 와이파이 PC 주소부터 /status 로 찔러 본다(Cloudflare 를 안 거침).
+     * ② 다 안 되면 server.txt(Cloudflare)의 주소들(PC 주소 먼저, 터널 나중)을 차례로. 먼저 답하는 곳으로 붙는다.
+     */
     private void resolve() {
         if (pinned) return;
+        if (pick(getString(R.string.local_servers))) return;
         String text;
         try { text = get(getString(R.string.server_txt) + "?t=" + System.currentTimeMillis()); }
-        catch (Exception e) { say("서버 주소(server.txt) 확인 실패\n" + why(e)); report("server.txt 실패 " + e); return; }
+        catch (Exception e) { say("PC 주소 응답 없음 · server.txt 확인 실패\n" + why(e)); report("server.txt 실패 " + e); return; }
+        if (!pick(text)) say("PC 주소·server.txt 주소 모두 응답 없음");
+    }
+
+    /** 공백·줄바꿈으로 나뉜 주소들을 차례로 찔러 먼저 답하는 곳으로 바꾼다. 붙었으면 true. */
+    private boolean pick(String text) {
         for (String raw : text.trim().split("[ \t\r\n]+")) {
             if (!raw.startsWith("http")) continue;
             String url = trim(raw);
@@ -204,9 +213,9 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
                 prefs.edit().putString("server", server).apply();
                 report("서버 주소 자동 설정 " + server + (url.startsWith("https") ? " (터널)" : " (같은 와이파이 직접)"));
             }
-            return;
+            return true;
         }
-        say("server.txt 의 주소 모두 응답 없음");
+        return false;
     }
 
     private static boolean reachable(String url) {

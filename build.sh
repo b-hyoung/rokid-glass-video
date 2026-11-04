@@ -10,6 +10,8 @@ export PATH="$JDK/bin:$PATH"
 
 rm -rf build && mkdir -p build/gen build/classes build/dex
 # SERVER=https://... bash build.sh 로 기본 서버 주소를 바꿔 넣는다
+# LOCAL="http://a:8787 http://b:8787" bash build.sh 로 같은 와이파이 PC 주소를 바꿔 넣는다
+if [ -n "${LOCAL:-}" ]; then sed -i "s|<string name=\"local_servers\"[^>]*>[^<]*<|<string name=\"local_servers\" translatable=\"false\">$LOCAL<|" res/values/strings.xml; fi
 if [ -n "${SERVER:-}" ]; then sed -i "s|<string name=\"default_server\"[^>]*>[^<]*<|<string name=\"default_server\" translatable=\"false\">$SERVER<|" res/values/strings.xml; fi
 "$BT/aapt2" compile --dir res -o build/res.zip
 "$BT/aapt2" link -o build/unsigned.apk -I "$JAR" --manifest AndroidManifest.xml \

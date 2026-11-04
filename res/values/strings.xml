@@ -7,4 +7,7 @@
          읽어서 앞에서부터 /status 로 찔러 먼저 답하는 주소로 붙는다.
          PC에서 python tools/tunnel.py 가 터널을 켜고 이 파일을 새 주소로 올린다. -->
     <string name="server_txt" translatable="false">https://glass-2412.youqlrqod.workers.dev/server.txt</string>
+    <!-- 같은 와이파이 PC 주소(앱에 직접 넣음). 켤 때 이것부터 시도해 로컬 시험이 Cloudflare(server.txt)에 기대지 않게 한다.
+         PC 주소가 바뀌면 LOCAL="http://...:8787 http://...:8787" bash build.sh 로 넣는다. -->
+    <string name="local_servers" translatable="false">http://192.168.219.140:8787 http://192.168.219.170:8787</string>
 </resources>
