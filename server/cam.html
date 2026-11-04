@@ -234,7 +234,7 @@
         const want = r.sec ? r.fps * r.sec : null, low = want && r.frames < want * 0.9;
         return `<tr><td>${r.no}</td><td>${r.mode === 'video' ? '동영상' : '사진' + (r.crop < 1 ? ' 가운데' : ' 전체')}</td><td>${r.fps}장/초</td><td>${r.sec || '계속'}${r.sec ? '초' : ''}</td>`
           + `<td class="${low ? 'bad' : ''}">${r.frames}${want ? ' / ' + want : ''}</td><td class="${low ? 'bad' : ''}">${r.real}</td><td>${r.first ?? '-'}ms</td>`
-          + `<td>${r.mode === 'video' ? r.rate + 'kbps' : r.kb + 'KB'}</td><td>${r.drop}</td><td>${r.bat0 ?? '-'}→${r.bat1 ?? '-'}%</td><td>${T(r.temp0)}→${T(r.temp1)}</td></tr>`;
+          + `<td>${r.mode === 'video' ? r.rate + 'kbps' : r.kb + 'KB'}</td><td>${r.drop}</td><td>${r.bat0 ?? '-'}→${r.bat1 ?? '-'}%</td><td>${T(r.temp0)}→${T(r.temp1)}${r.why ? ' · <b style="color:#ff9b7a">안전 멈춤(' + r.why + ')</b>' : ''}</td></tr>`;
       }).join('');
       chart(s.teleHist);
     } catch {}

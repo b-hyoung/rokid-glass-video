@@ -12,6 +12,8 @@ const THERMAL = ['정상', '약간', '보통', '심함', '위험', '비상', '�
 // 안경 카메라 센서가 옆으로 누워 장면이 시계 방향 90°로 오므로(11-04 실측) mp4 는 왼쪽 90°(transpose=2)로 돌려 만든다.
 const SAVE = join(homedir(), 'Desktop', '안경카메라_기록');
 const TURN = 'transpose=2';
+// 안전 자동 멈춤: 발열 단계 3(심함) 이상 또는 배터리 온도 45°C 이상이면 시험을 끈다(긴 시험을 두고 자리를 비워도 되게).
+const STOP_TH = 3, STOP_TEMP = 450;
 
 export function camRoutes({dir, send, json}) {
   const rec = join(dir, '..', 'recordings');
@@ -34,7 +36,7 @@ export function camRoutes({dir, send, json}) {
       first: t.firstAt ? t.firstAt - t.cmdAt : null,
       kb: t.frames ? +(t.bytes / t.frames / 1024).toFixed(1) : 0,
       rate: span > 0 ? Math.round(t.bytes * 8 / span / 1000) : 0,
-      drop: t.drop, fail: t.fail, w: t.w, h: t.h,
+      drop: t.drop, fail: t.fail, w: t.w, h: t.h, why: t.why ?? null,
       bat0: t.bat0, bat1: t.bat1, temp0: t.temp0, temp1: t.temp1, maxTh: t.maxTh,
       elapsed: Math.round((now() - t.cmdAt) / 100) / 10, done: !!t.done,
     };
@@ -77,6 +79,12 @@ export function camRoutes({dir, send, json}) {
     if (t.bat0 == null && bat >= 0) { t.bat0 = bat; t.temp0 = temp; }
     if (bat >= 0) { t.bat1 = bat; t.temp1 = temp; }
     if (th >= 0) t.maxTh = Math.max(t.maxTh ?? 0, th);
+    if (!t.done && (th >= STOP_TH || temp >= STOP_TEMP)) {
+      t.why = th >= STOP_TH ? `발열 ${THERMAL[th]}` : `온도 ${temp / 10}°C`;
+      send({cmd: 'cam', fps: 0});
+      finish();
+      console.log('[안전 멈춤]', t.no, t.why);
+    }
     t.drop = +q.get('drop') || t.drop; t.fail = +q.get('fail') || t.fail;
     return t;
   }
