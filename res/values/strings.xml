@@ -3,4 +3,7 @@
     <string name="app_name">글래스 영상</string>
     <!-- 기본 서버 주소. 빠른 터널은 켤 때마다 바뀌니 build.sh 가 SERVER 로 덮어쓴다. -->
     <string name="default_server" translatable="false">https://parents-substantially-processor-blind.trycloudflare.com</string>
+    <!-- 지금 서버 주소가 적힌 txt(첫 줄). 켤 때와 연결이 3번 연속 실패할 때 읽어 서버 주소를 자동으로 바꾼다.
+         PC에서 python tools/tunnel.py 가 터널을 켜고 이 파일을 새 주소로 올린다. -->
+    <string name="server_txt" translatable="false">https://glass-2412.youqlrqod.workers.dev/server.txt</string>
 </resources>

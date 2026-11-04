@@ -1,9 +1,10 @@
-"""Cloudflare Pages 배포용 정적 폴더(dist/)를 만든다.
+"""Cloudflare 배포용 정적 폴더(dist/)를 만든다.
 
     python tools/build_pages.py
-    npx wrangler pages deploy dist --project-name glass-2412 --branch main
+    npx wrangler deploy   (wrangler.jsonc, Workers 정적 자산)
 
-담는 것: 2412호 3D 데모(/demo/2412/), 안경 영상 목록(/videos.json)과 영상(/v/…), 시연 녹화(/video/).
+담는 것: 2412호 3D 데모(/demo/2412/), 안경 영상 목록(/videos.json)과 영상(/v/…), 시연 녹화(/video/),
+안경이 읽는 지금 서버 주소(/server.txt, tools/tunnel.py 가 갱신).
 서버 기능(/play로 실제 안경에 보내기, /rec 녹화 저장)은 정적 호스팅이라 빠진다(데모는 그대로 동작).
 """
 import json
@@ -33,6 +34,8 @@ PLAYER = '''<!doctype html>
 
 
 def main():
+    keep = os.path.join(DIST, 'server.txt')  # tools/tunnel.py 가 쓴 지금 터널 주소는 남긴다
+    server = open(keep, encoding='utf-8').read() if os.path.exists(keep) else ''
     shutil.rmtree(DIST, ignore_errors=True)
     shutil.copytree(os.path.join(ROOT, 'demo'), os.path.join(DIST, 'demo'))
     with open(os.path.join(ROOT, 'server', 'videos.json'), encoding='utf-8') as f:
@@ -50,6 +53,11 @@ def main():
         shutil.copy2(REC, os.path.join(DIST, 'video', '2412-demo.mp4'))
         with open(os.path.join(DIST, 'video', 'index.html'), 'w', encoding='utf-8') as f:
             f.write(PLAYER)
+    if server:
+        with open(keep, 'w', encoding='utf-8') as f:
+            f.write(server)
+    with open(os.path.join(DIST, '_headers'), 'w', encoding='utf-8') as f:  # 안경이 늘 최신 주소를 읽게
+        f.write('/server.txt\n  Cache-Control: no-store\n  Content-Type: text/plain; charset=utf-8\n')
     with open(os.path.join(DIST, '_redirects'), 'w', encoding='utf-8') as f:
         f.write('/ /demo/2412/ 302\n/demo/2412 /demo/2412/ 301\n')
     total = sum(os.path.getsize(os.path.join(d, n)) for d, _, fs in os.walk(DIST) for n in fs)

@@ -14,11 +14,17 @@ import threading
 import time
 import urllib.parse
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor
 
 SERVER = (sys.argv[1] if len(sys.argv) > 1 else 'http://localhost:8787').rstrip('/')
 U = urllib.parse.urlparse(SERVER)
 ID = 'fake-glasses'
 state = {'bat': 100, 'temp': 300}
+
+
+def conn(timeout):  # http/https(터널) 둘 다
+    cls = http.client.HTTPSConnection if U.scheme == 'https' else http.client.HTTPConnection
+    return cls(U.hostname, U.port, timeout=timeout)
 
 
 def query(path, cmd, **extra):
@@ -52,31 +58,41 @@ def frames(fps, sec):  # 시험 화면(640x480)을 JPEG 한 장씩
 def photo(cmd, stop):
     fps, sec = cmd['fps'], cmd.get('sec', 5)
     t0 = time.time()
+    pool = ThreadPoolExecutor(2)  # 실제 앱처럼 전송 2줄
+
+    def post(n, jpg):
+        c = conn(10)
+        c.request('POST', query('/frame', cmd, n=n, t=int(time.time() * 1000), w=640, h=480, q=80), jpg, {'Content-Type': 'image/jpeg'})
+        c.getresponse().read()
     for n, jpg in enumerate(frames(fps, sec), 1):
         if stop.is_set():
             break
         wait = t0 + (n - 1) / fps - time.time()
         if wait > 0:
             time.sleep(wait)
-        c = http.client.HTTPConnection(U.hostname, U.port or 80, timeout=5)
-        c.request('POST', query('/frame', cmd, n=n, t=int(time.time() * 1000), w=640, h=480, q=80), jpg, {'Content-Type': 'image/jpeg'})
-        c.getresponse().read()
+        if pool._work_queue.qsize() < 2:  # 밀리면 버림(실제 앱과 같게)
+            pool.submit(post, n, jpg)
+    pool.shutdown(wait=True)
 
 
-def video(cmd, stop):
+def video(cmd, stop):  # 실제 앱처럼 0.25초씩 잘라 /stream 에 차례로 POST
     fps, sec = cmd['fps'], cmd.get('sec', 5)
     p = subprocess.Popen(['ffmpeg', '-v', 'error', '-re', '-f', 'lavfi', '-i', f'testsrc2=size=1280x720:rate={fps}', '-t', str(sec or 3600),
                           '-c:v', 'libx264', '-preset', 'ultrafast', '-tune', 'zerolatency', '-b:v', f"{cmd.get('kbps', 2000)}k",
-                          '-g', str(fps), '-f', 'h264', 'pipe:1'], stdout=subprocess.PIPE)
-    c = http.client.HTTPConnection(U.hostname, U.port or 80, timeout=10)
-    c.putrequest('POST', query('/stream', cmd, w=1280, h=720, kbps=cmd.get('kbps', 2000)))
-    c.putheader('Content-Type', 'video/h264')
-    c.putheader('Transfer-Encoding', 'chunked')
-    c.endheaders()
-    while not stop.is_set() and (d := p.stdout.read(16384)):
-        c.send(b'%x\r\n%s\r\n' % (len(d), d))
-    c.send(b'0\r\n\r\n')
-    c.getresponse().read()
+                          '-g', str(fps), '-f', 'h264', 'pipe:1'], stdout=subprocess.PIPE, bufsize=0)
+    base = query('/stream', cmd, w=1280, h=720, kbps=cmd.get('kbps', 2000))
+    seg, k, at = b'', 0, time.time()
+    while not stop.is_set():
+        d = p.stdout.read(4096)
+        if d:
+            seg += d
+        if seg and (time.time() - at >= 0.25 or not d):
+            c = conn(10)
+            c.request('POST', f'{base}&seg={k}' + ('' if d else '&end=1'), seg, {'Content-Type': 'video/h264'})
+            c.getresponse().read()
+            seg, k, at = b'', k + 1, time.time()
+        if not d:
+            break
     p.kill()
 
 

@@ -32,7 +32,8 @@ import java.nio.charset.StandardCharsets;
  * 서버 신호를 기다렸다가 그 영상을 서버에서 받아 재생한다.
  * 서버 /next 가 {"cmd":"play","url":"/v/whale.mp4"} 를 주면 재생, {"cmd":"stop"} 이면 끔.
  * 재생 상태(불러오는 중·재생·실패)는 /log 로 서버에 알린다.
- * 서버 주소는 빌드 때 넣은 기본값, 또는 한 번 넘겨 주면 기억한다:
+ * 서버 주소: 켤 때와 연결이 3번 연속 실패할 때 server.txt(R.string.server_txt, 첫 줄)를 읽어 자동으로 잡는다.
+ *   터널 주소가 바뀌어도 앱을 다시 설치할 필요 없음. adb로 직접 넘기면 그 주소로 고정(-d auto 로 자동 복귀):
  *   adb shell am start -n com.hoonartis.glassvideo/.MainActivity -d https://xxx.trycloudflare.com
  * 터치패드 탭·확인 키로 멈춤/재생. 안 만져도 신호가 오면 저절로 튼다.
  * {"cmd":"cam",...} 이면 카메라 전송 시험(CameraStreamer). 카메라 권한이 없으면 처음 켤 때 묻는다.
@@ -45,7 +46,10 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
     private TextView status;
     private MediaPlayer player;
     private Surface surface;
-    private String server, id;
+    private volatile String server;
+    private String id;
+    private boolean pinned; // adb로 직접 넘긴 주소면 server.txt 를 보지 않음
+    private SharedPreferences prefs;
     private String pending; // 화면 준비 전에 온 영상 주소
     private boolean pendingLoop;
     private volatile boolean running;
@@ -73,12 +77,17 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
                 FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL));
         setContentView(root);
 
-        SharedPreferences prefs = getSharedPreferences("glass", MODE_PRIVATE);
+        prefs = getSharedPreferences("glass", MODE_PRIVATE);
         Uri given = getIntent().getData();
-        if (given != null) prefs.edit().putString("server", given.toString()).apply();
+        if (given != null) {
+            boolean auto = given.toString().equals("auto");
+            prefs.edit().putBoolean("pinned", !auto).apply();
+            if (!auto) prefs.edit().putString("server", given.toString()).apply();
+        }
+        pinned = prefs.getBoolean("pinned", false);
         server = trim(prefs.getString("server", getString(R.string.default_server)));
         id = android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
-        cam = new CameraStreamer(this, server, id, new CameraStreamer.Out() {
+        cam = new CameraStreamer(this, () -> server, id, new CameraStreamer.Out() {
             @Override public void report(String m) { MainActivity.this.report(m); }
             @Override public void status(String m) { ui.post(() -> status.setText(m)); }
         });
@@ -170,7 +179,21 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
      * 서버에 "새 신호 있나"를 묻고, 서버는 신호가 생길 때까지(최대 25초) 답을 붙잡는다(롱 폴링).
      * 처음엔 after 없이 물어 지금 번호만 받아서, 켜자마자 옛 신호를 다시 틀지 않는다. 끊기면 1초 뒤 다시.
      */
+    /** server.txt 첫 줄을 읽어 서버 주소가 바뀌었으면 갈아탄다. */
+    private void resolve() {
+        if (pinned) return;
+        try {
+            String line = get(getString(R.string.server_txt) + "?t=" + System.currentTimeMillis()).trim().split("[ \t\r\n]+")[0];
+            if (line.startsWith("http") && !trim(line).equals(server)) {
+                server = trim(line);
+                prefs.edit().putString("server", server).apply();
+                report("서버 주소 자동 설정 " + server);
+            }
+        } catch (Exception e) { say("서버 주소 확인 실패 · 이전 주소로 시도"); }
+    }
+
     private void listen() {
+        resolve();
         long after = -1;
         long t0 = System.currentTimeMillis(); int tries = 0;
         boolean online = false;
@@ -197,6 +220,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
                 if (running) say("연결 끊김 · 다시 연결 중");
             }
             tries++;
+            if (tries % 3 == 0) { resolve(); after = -1; } // 터널을 다시 켜 주소가 바뀌었을 수 있음(새 서버는 번호가 처음부터)
             if (running) try { Thread.sleep(1000); } catch (InterruptedException ignored) { }
         }
     }

@@ -43,14 +43,16 @@ import java.util.concurrent.atomic.AtomicLong;
  * 안경 카메라 전송 시험. 서버 신호 {"cmd":"cam", mode, fps, sec, ...} 로 시작하고 sec초 뒤 저절로 멈춘다(0이면 끌 때까지).
  *  - photo: 카메라를 열어 둔 채 초당 fps장, 화면 가운데(crop 비율)를 잘라 JPEG로 /frame 에 한 장씩 POST.
  *           보내기가 밀리면(전송 2줄 + 대기 2장 초과) 그 장은 버리고 수를 센다.
- *  - video: 하드웨어 인코더(H.264)로 동영상을 만들어 /stream 에 한 줄로 계속 흘려보낸다(서버 ffmpeg가 풂).
+ *  - video: 하드웨어 인코더(H.264) 출력을 약 0.25초씩 잘라 /stream 에 차례로 POST(서버 ffmpeg가 이어 붙여 풂).
+ *           한 줄로 길게 올리면 Cloudflare 터널이 끝까지 모았다가 넘겨서(11-04 실측) 조각으로 나눈다.
  * 배터리 %, 배터리 온도(0.1°C), 시스템 발열 단계(0~6)를 함께 보내 "얼마나 버티는지"를 잰다.
  */
 final class CameraStreamer {
     interface Out { void report(String m); void status(String m); }
 
     private final Context ctx;
-    private final String server, id;
+    private final java.util.function.Supplier<String> server; // 서버 주소는 바뀔 수 있어(server.txt) 매번 읽는다
+    private final String id;
     private final Out out;
     private HandlerThread thread;
     private Handler bg;
@@ -72,7 +74,7 @@ final class CameraStreamer {
     private volatile int battery = -1, temp = -1, thermal = -1;
     private long startedAt, lastInfo;
 
-    CameraStreamer(Context ctx, String server, String id, Out out) {
+    CameraStreamer(Context ctx, java.util.function.Supplier<String> server, String id, Out out) {
         this.ctx = ctx; this.server = server; this.id = id; this.out = out;
     }
 
@@ -260,7 +262,7 @@ final class CameraStreamer {
     }
 
     private String query(String path) {
-        return server + path + "?id=" + id + "&test=" + test + "&mode=" + mode + "&fps=" + fps
+        return server.get() + path + "?id=" + id + "&test=" + test + "&mode=" + mode + "&fps=" + fps
                 + "&bat=" + battery + "&temp=" + temp + "&th=" + thermal
                 + "&sent=" + sent.get() + "&drop=" + dropped.get() + "&fail=" + failed.get() + "&cap=" + captured.get();
     }
@@ -306,49 +308,71 @@ final class CameraStreamer {
         return in;
     }
 
-    /** 인코더 출력(H.264 Annex-B)을 한 POST에 조각조각 흘려보낸다. 끝나면 인코더를 닫는다. */
+    /** 인코더 출력(H.264 Annex-B)을 0.25초씩 모아 조각 POST 로 차례로 보낸다. 끝나면 인코더를 닫는다. */
     private void pump(MediaCodec enc, String url) {
-        HttpURLConnection c = null;
-        long deadline = Long.MAX_VALUE;
+        ThreadPoolExecutor sender = new ThreadPoolExecutor(1, 1, 0, TimeUnit.SECONDS, new ArrayBlockingQueue<>(40),
+                (r, ex) -> dropped.incrementAndGet()); // 한 줄로 보내 순서 유지, 너무 밀리면 버림(다음 키프레임부터 다시 풀림)
+        ByteArrayOutputStream seg = new ByteArrayOutputStream(256 * 1024);
+        int segNo = 0;
+        long segAt = System.currentTimeMillis(), deadline = Long.MAX_VALUE;
         try {
-            c = (HttpURLConnection) new URL(url).openConnection();
-            c.setDoOutput(true);
-            c.setRequestMethod("POST");
-            c.setRequestProperty("Content-Type", "video/h264");
-            c.setChunkedStreamingMode(32 * 1024);
-            c.setConnectTimeout(5000);
-            c.setReadTimeout(10000);
-            OutputStream o = c.getOutputStream();
             MediaCodec.BufferInfo info = new MediaCodec.BufferInfo();
             byte[] buf = new byte[256 * 1024];
             while (System.currentTimeMillis() < deadline) {
                 if (encoder != enc && deadline == Long.MAX_VALUE) deadline = System.currentTimeMillis() + 2000; // 멈춤 요청 뒤 2초 안에 마무리
                 int i = enc.dequeueOutputBuffer(info, 20000);
-                if (i < 0) continue;
-                if (info.size > 0) {
-                    ByteBuffer b = enc.getOutputBuffer(i);
-                    b.position(info.offset);
-                    b.limit(info.offset + info.size);
-                    if (buf.length < info.size) buf = new byte[info.size * 2];
-                    b.get(buf, 0, info.size);
-                    o.write(buf, 0, info.size);
-                    o.flush();
-                    bytes.addAndGet(info.size);
-                    if ((info.flags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG) == 0) { sent.incrementAndGet(); captured.incrementAndGet(); }
+                if (i >= 0) {
+                    if (info.size > 0) {
+                        ByteBuffer b = enc.getOutputBuffer(i);
+                        b.position(info.offset);
+                        b.limit(info.offset + info.size);
+                        if (buf.length < info.size) buf = new byte[info.size * 2];
+                        b.get(buf, 0, info.size);
+                        seg.write(buf, 0, info.size);
+                        if ((info.flags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG) == 0) { sent.incrementAndGet(); captured.incrementAndGet(); }
+                    }
+                    enc.releaseOutputBuffer(i, false);
+                    if ((info.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) break;
                 }
-                enc.releaseOutputBuffer(i, false);
-                if ((info.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) break;
+                long now = System.currentTimeMillis();
+                if (seg.size() > 0 && now - segAt >= 250) {
+                    byte[] part = seg.toByteArray();
+                    seg.reset();
+                    int k = segNo++;
+                    sender.execute(() -> post(url + "&seg=" + k, part));
+                    segAt = now;
+                }
                 info();
             }
-            o.close();
-            c.getResponseCode();
         } catch (Exception e) {
             failed.incrementAndGet();
-            out.report("동영상 보내기 실패 " + e);
+            out.report("동영상 인코더 오류 " + e);
         } finally {
+            byte[] last = seg.toByteArray();
+            int k = segNo;
+            sender.execute(() -> post(url + "&seg=" + k + "&end=1", last));
+            sender.shutdown();
+            try { sender.awaitTermination(10, TimeUnit.SECONDS); } catch (InterruptedException ignored) { }
             try { enc.stop(); } catch (Exception ignored) { }
             enc.release();
-            if (c != null) c.disconnect();
+        }
+    }
+
+    private void post(String url, byte[] data) {
+        try {
+            HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
+            c.setDoOutput(true);
+            c.setRequestMethod("POST");
+            c.setRequestProperty("Content-Type", "video/h264");
+            c.setFixedLengthStreamingMode(data.length);
+            c.setConnectTimeout(5000);
+            c.setReadTimeout(10000);
+            try (OutputStream o = c.getOutputStream()) { o.write(data); }
+            if (c.getResponseCode() != 200) failed.incrementAndGet();
+            c.getInputStream().close();
+            bytes.addAndGet(data.length);
+        } catch (Exception e) {
+            failed.incrementAndGet();
         }
     }
 

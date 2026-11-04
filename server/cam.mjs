@@ -69,6 +69,38 @@ export function camRoutes({dir, send, json}) {
     if (w) { t.w = w; t.h = h; }
   }
 
+  const decoders = new Map(); // 시험 번호 → ffmpeg(조각을 이어 붙여 풂)
+  function decoder(key, t, w, h) {
+    let d = decoders.get(key);
+    if (d) { d.touch(); return d; }
+    // nobuffer·low_delay 를 넣으면 장면을 버린다(150장 중 120장, 11-04 실측) → 쓰지 않음
+    const ff = spawn('ffmpeg', ['-hide_banner', '-loglevel', 'error',
+      '-probesize', '32', '-analyzeduration', '0', '-f', 'h264', '-i', 'pipe:0', '-f', 'image2pipe', '-c:v', 'mjpeg', '-q:v', '6', 'pipe:1']);
+    let acc = Buffer.alloc(0), idle = null, closed = false;
+    ff.stdout.on('data', chunk => {
+      acc = Buffer.concat([acc, chunk]);
+      for (;;) {
+        const a = acc.indexOf(SOI);
+        if (a < 0) { acc = Buffer.alloc(0); break; }
+        const e = acc.indexOf(EOI, a + 2);
+        if (e < 0) { acc = acc.subarray(a); break; }
+        frame(t, Buffer.from(acc.subarray(a, e + 2)), w, h);
+        acc = acc.subarray(e + 2);
+      }
+    });
+    ff.stderr.on('data', x => console.log('[ffmpeg]', String(x).trim()));
+    ff.stdin.on('error', () => {});
+    const end = () => { if (closed) return; closed = true; clearTimeout(idle); ff.stdin.end(); decoders.delete(key); };
+    d = {
+      write: b => { if (!closed) ff.stdin.write(b); },
+      end,
+      touch: () => { clearTimeout(idle); idle = setTimeout(end, 8000); }, // 조각이 끊기면 정리
+    };
+    d.touch();
+    decoders.set(key, d);
+    return d;
+  }
+
   function body(req, limit, done) {
     const parts = [];
     let size = 0;
@@ -105,28 +137,15 @@ export function camRoutes({dir, send, json}) {
       });
       return true;
     }
-    if (p === '/stream' && req.method === 'POST') { // 동영상 방식: H.264 한 줄 → ffmpeg로 풀어 장면마다 센다
+    if (p === '/stream' && req.method === 'POST') { // 동영상 방식: H.264 조각(약 0.25초)을 차례로 받아 한 ffmpeg에 이어 붙인다
+      // 한 줄로 길게 올리면 Cloudflare 터널이 끝까지 모았다가 넘겨(5초 뒤 한꺼번에, 11-04 실측) 조각으로 나눠 받는다.
       const t = note(q);
-      // nobuffer·low_delay 를 넣으면 장면을 버린다(150장 중 120장, 11-04 실측) → 쓰지 않음
-      const ff = spawn('ffmpeg', ['-hide_banner', '-loglevel', 'error',
-        '-probesize', '32', '-analyzeduration', '0', '-f', 'h264', '-i', 'pipe:0', '-f', 'image2pipe', '-c:v', 'mjpeg', '-q:v', '6', 'pipe:1']);
-      let acc = Buffer.alloc(0);
-      ff.stdout.on('data', d => {
-        acc = Buffer.concat([acc, d]);
-        for (;;) {
-          const s = acc.indexOf(SOI);
-          if (s < 0) { acc = Buffer.alloc(0); break; }
-          const e = acc.indexOf(EOI, s + 2);
-          if (e < 0) { acc = acc.subarray(s); break; }
-          frame(t, Buffer.from(acc.subarray(s, e + 2)), +q.get('w'), +q.get('h'));
-          acc = acc.subarray(e + 2);
-        }
+      const dec = decoder(q.get('test'), t, +q.get('w'), +q.get('h'));
+      body(req, 8 << 20, buf => {
+        if (buf) { if (t) t.bytes += buf.length; dec.write(buf); }
+        if (q.get('end') === '1') dec.end();
+        json(res, 200, {ok: true});
       });
-      ff.stderr.on('data', d => console.log('[ffmpeg]', String(d).trim()));
-      ff.stdin.on('error', () => {});
-      req.on('data', d => { if (t) t.bytes += d.length; ff.stdin.write(d); });
-      req.on('end', () => { ff.stdin.end(); json(res, 200, {ok: true}); });
-      req.on('close', () => ff.stdin.end());
       return true;
     }
     if (p === '/tele') { // 2초마다 배터리·발열
