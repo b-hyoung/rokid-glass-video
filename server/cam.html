@@ -37,7 +37,10 @@
   button[aria-pressed="true"] { background: #2c9a52; border-color: #3dff5a; color: #fff; position: relative; }
   .view { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
   #live { background: #000; border-radius: 10px; height: min(52vh, 480px); display: flex; align-items: center; justify-content: center; overflow: hidden; }
-  #live img { max-width: 100%; max-height: 100%; }
+  #live canvas { flex: none; }
+  .viewbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 12px; color: #8fb39a; }
+  .viewbar small { color: #6f8a78; }
+  .viewbar .seg button { padding: 5px 10px; font-size: 12px; white-space: nowrap; }
   #live .empty { color: #556; }
   #now { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
   .stat { background: #151b18; border: 1px solid #22302a; border-radius: 8px; padding: 8px 12px; }
@@ -111,7 +114,11 @@
     </section>
   </div>
   <div class="view">
-    <div id="live"><span class="empty">아직 받은 사진 없음</span></div>
+    <div class="viewbar"><span>화면 회전<small> · 안경 카메라가 옆으로 누워 있어 쓴 사람 기준으로 돌림</small></span>
+      <div class="seg" id="rot">
+        <button data-rot="0">0°</button><button data-rot="270">왼쪽 90°</button><button data-rot="180">180°</button><button data-rot="90">오른쪽 90°</button>
+      </div></div>
+    <div id="live"><canvas id="frame" hidden></canvas><span class="empty">아직 받은 사진 없음</span></div>
     <div id="now">
       <div class="stat"><small>받은 장 / 목표</small><b id="s-frames">-</b></div>
       <div class="stat"><small>실제 초당 / 설정</small><b id="s-real">-</b></div>
@@ -176,6 +183,34 @@
   $('#off').onclick = () => fetch('cam/set?fps=0' + (q ? '&' + q.slice(1) : '')).then(() => { $('#summary').textContent = '중지함'; setTimeout(summary, 2000); });
 
   let shown = 0;
+  // 화면 회전: 안경 카메라 센서가 옆으로 누워 있어 사진이 시계 방향 90°로 온다(11-04 실측) → 기본 왼쪽 90°
+  let rot = +(localStorage.getItem('camRot') ?? 270);
+  const img = new Image();
+  function draw() {
+    if (!img.naturalWidth) return;
+    const c = $('#frame'), g = c.getContext('2d'), side = rot % 180 !== 0;
+    c.width = side ? img.naturalHeight : img.naturalWidth;
+    c.height = side ? img.naturalWidth : img.naturalHeight;
+    g.save(); g.translate(c.width / 2, c.height / 2); g.rotate(rot * Math.PI / 180);
+    g.drawImage(img, -img.naturalWidth / 2, -img.naturalHeight / 2); g.restore();
+    c.hidden = false; $('#live .empty')?.remove();
+    fit();
+  }
+  function fit() { // 비율을 지키며 칸 안에 맞춤
+    const c = $('#frame'), box = $('#live');
+    if (!c.width) return;
+    const k = Math.min(box.clientWidth / c.width, box.clientHeight / c.height);
+    c.style.width = Math.floor(c.width * k) + 'px';
+    c.style.height = Math.floor(c.height * k) + 'px';
+  }
+  addEventListener('resize', fit);
+  img.onload = draw;
+  const markRot = () => $('#rot').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.rot === rot)));
+  $('#rot').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    rot = +b.dataset.rot; localStorage.setItem('camRot', rot); markRot(); draw();
+  });
+  markRot();
   const T = t => t >= 0 ? (t / 10).toFixed(1) + '°' : '-';
   async function tick() {
     try {
@@ -185,9 +220,7 @@
       $('#files').textContent = '기록: ' + s.files.tests + ' · ' + s.files.tele;
       if (s.latest && s.latest.n !== shown) {
         shown = s.latest.n;
-        const src = 'cam/latest.jpg?n=' + shown, img = $('#live img');
-        if (img) img.src = src;
-        else $('#live').innerHTML = `<img src="${src}" alt="안경 카메라 최신 사진">`;
+        img.src = 'cam/latest.jpg?n=' + shown; // 다 받으면 draw()가 돌려서 그린다
       }
       const t = s.test, busy = t && !t.done;
       $('#start').disabled = !!busy;
