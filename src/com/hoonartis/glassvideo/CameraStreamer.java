@@ -72,6 +72,8 @@ final class CameraStreamer {
     private final AtomicInteger shot = new AtomicInteger(), sent = new AtomicInteger(), dropped = new AtomicInteger(), failed = new AtomicInteger();
     private final AtomicLong captured = new AtomicLong(), bytes = new AtomicLong();
     private volatile int battery = -1, temp = -1, thermal = -1;
+    private volatile int zmax = -1, head = -1; // 칩 구역 최고 온도(0.1°C), 발열 여유(0~100%, 100이면 크게 느려짐)
+    private volatile String zname = "";
     private long startedAt, lastInfo;
 
     CameraStreamer(Context ctx, java.util.function.Supplier<String> server, String id, Out out) {
@@ -138,6 +140,7 @@ final class CameraStreamer {
                 desc = "사진 원본 " + size + " 가운데 " + Math.round(crop * 100) + "% 화질 " + quality;
             }
             if (attempt == 0) out.report("카메라 " + camId + " 속도범위 " + Arrays.toString(ranges) + " → " + range + " · " + desc);
+            if (attempt == 0) out.report("온도 구역 " + zoneList());
             final Range<Integer> fr = range;
             final Surface tg = target;
             cm.openCamera(camId, new CameraDevice.StateCallback() {
@@ -263,7 +266,7 @@ final class CameraStreamer {
 
     private String query(String path) {
         return server.get() + path + "?id=" + id + "&test=" + test + "&mode=" + mode + "&fps=" + fps
-                + "&bat=" + battery + "&temp=" + temp + "&th=" + thermal
+                + "&bat=" + battery + "&temp=" + temp + "&th=" + thermal + "&zmax=" + zmax + "&head=" + head + "&zname=" + zname
                 + "&sent=" + sent.get() + "&drop=" + dropped.get() + "&fail=" + failed.get() + "&cap=" + captured.get();
     }
 
@@ -386,7 +389,51 @@ final class CameraStreamer {
             temp = b.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1); // 0.1°C 단위
         }
         PowerManager pm = ctx.getSystemService(PowerManager.class);
-        if (pm != null) thermal = pm.getCurrentThermalStatus();
+        if (pm != null) {
+            thermal = pm.getCurrentThermalStatus();
+            if (android.os.Build.VERSION.SDK_INT >= 30) { // 안드로이드 11+: 10초 뒤 발열 여유 예측(1.0 = 심하게 느려지는 선)
+                float f = pm.getThermalHeadroom(10);
+                head = Float.isNaN(f) ? -1 : Math.round(f * 100);
+            }
+        }
+        readZones();
+    }
+
+    /** /sys/class/thermal 의 구역별 온도 중 가장 뜨거운 곳(카메라·칩 쪽 실제 열). 읽기가 막힌 기기도 있다. */
+    private void readZones() {
+        java.io.File[] zones = new java.io.File("/sys/class/thermal").listFiles((d, n) -> n.startsWith("thermal_zone"));
+        if (zones == null) return;
+        int best = -1;
+        String name = "";
+        for (java.io.File z : zones) {
+            try {
+                String raw = read(new java.io.File(z, "temp"));
+                if (raw == null) continue;
+                long v = Long.parseLong(raw.trim());
+                int tenth = (int) (v > 1000 ? v / 100 : v * 10); // 밀리°C 또는 °C 를 0.1°C 로
+                if (tenth < 0 || tenth > 1500) continue;          // 센서 없음·이상값 제외
+                if (tenth > best) { best = tenth; name = read(new java.io.File(z, "type")); }
+            } catch (Exception ignored) { }
+        }
+        zmax = best;
+        zname = name == null ? "" : name.trim().replaceAll("[^A-Za-z0-9_\\-]", "");
+    }
+
+    private static String read(java.io.File f) {
+        try (java.io.BufferedReader r = new java.io.BufferedReader(new java.io.FileReader(f))) { return r.readLine(); }
+        catch (Exception e) { return null; }
+    }
+
+    /** 처음 한 번: 읽히는 온도 구역 목록을 서버 기록에 남긴다(어느 구역이 카메라·칩인지 보려고). */
+    private String zoneList() {
+        StringBuilder b = new StringBuilder();
+        java.io.File[] zones = new java.io.File("/sys/class/thermal").listFiles((d, n) -> n.startsWith("thermal_zone"));
+        if (zones == null) return "온도 구역 읽기 불가";
+        for (java.io.File z : zones) {
+            String t = read(new java.io.File(z, "type")), v = read(new java.io.File(z, "temp"));
+            if (v != null) b.append(t).append('=').append(v.trim()).append(' ');
+        }
+        return b.length() == 0 ? "온도 구역 읽기 막힘" : b.toString();
     }
 
     /** 2초마다 배터리·온도·발열 단계를 다시 읽고 안경 화면에 상태를 띄운다. */

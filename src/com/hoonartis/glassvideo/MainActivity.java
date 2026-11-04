@@ -71,7 +71,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         status = new TextView(this);
         status.setTextColor(Color.GREEN);
         status.setTextSize(16);
-        status.setText("연결 중… (v0.2.1)");
+        status.setText("연결 중… (v0.2.2)");
         status.setGravity(Gravity.CENTER);
         root.addView(status, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,

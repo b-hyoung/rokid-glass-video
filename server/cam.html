@@ -42,7 +42,7 @@
   .viewbar small { color: #6f8a78; }
   .viewbar .seg button { padding: 5px 10px; font-size: 12px; white-space: nowrap; }
   #live .empty { color: #556; }
-  #now { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  #now { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
   .stat { background: #151b18; border: 1px solid #22302a; border-radius: 8px; padding: 8px 12px; }
   .stat b { display: block; font-size: 26px; line-height: 1.2; color: #3dff5a; font-weight: 700; }
   .stat small { color: #8fb39a; font-size: 12px; }
@@ -123,7 +123,8 @@
     <div id="now">
       <div class="stat"><small>받은 장 / 목표</small><b id="s-frames">-</b></div>
       <div class="stat"><small>실제 초당 / 설정</small><b id="s-real">-</b></div>
-      <div class="stat"><small>배터리 · 온도</small><b id="s-bat">-</b></div>
+      <div class="stat"><small>배터리 · 배터리 온도</small><b id="s-bat">-</b></div>
+      <div class="stat"><small>칩 최고 온도 · 발열 여유</small><b id="s-chip">-</b></div>
       <div class="stat"><small>발열 단계</small><b id="s-th">-</b></div>
     </div>
   </div>
@@ -131,12 +132,12 @@
     <section>
       <h2>시험 결과</h2>
       <div class="scroll"><table>
-        <thead><tr><th>#</th><th>방식</th><th>설정</th><th>시간</th><th>받은 장</th><th>실제 초당</th><th>첫 장까지</th><th>장당 · 전송량</th><th>버림</th><th>배터리</th><th>온도</th></tr></thead>
+        <thead><tr><th>#</th><th>방식</th><th>설정</th><th>시간</th><th>받은 장</th><th>실제 초당</th><th>첫 장까지</th><th>장당 · 전송량</th><th>버림</th><th>배터리</th><th>배터리 온도</th><th>칩 온도</th></tr></thead>
         <tbody id="rows"></tbody>
       </table></div>
     </section>
     <section>
-      <h2>배터리 · 온도 변화<small>초록 배터리 · 주황 온도</small></h2>
+      <h2>배터리 · 온도 변화<small>초록 배터리 · 주황 배터리 온도 · 빨강 칩 온도</small></h2>
       <canvas id="chart" width="460" height="180"></canvas>
     </section>
   </div>
@@ -231,11 +232,13 @@
       $('#s-real').textContent = t ? `${t.real} / ${t.fps}` : '-';
       $('#s-bat').textContent = s.tele ? `${s.tele.bat}% · ${T(s.tele.temp)}` : '-';
       $('#s-th').textContent = s.tele ? (s.thermal[s.tele.th] ?? '-') : '-';
+      $('#s-chip').textContent = s.tele && s.tele.zmax >= 0 ? `${T(s.tele.zmax)}${s.tele.head >= 0 ? ' · ' + s.tele.head + '%' : ''}` : '앱 0.2.2 필요';
+      $('#s-chip').title = s.tele?.zname || '';
       $('#rows').innerHTML = s.results.map(r => {
         const want = r.sec ? r.fps * r.sec : null, low = want && r.frames < want * 0.9;
         return `<tr><td>${r.no}</td><td>${r.mode === 'video' ? '동영상' : '사진' + (r.crop < 1 ? ' 가운데' : ' 전체')}</td><td>${r.fps}장/초</td><td>${r.sec || '계속'}${r.sec ? '초' : ''}</td>`
           + `<td class="${low ? 'bad' : ''}">${r.frames}${want ? ' / ' + want : ''}</td><td class="${low ? 'bad' : ''}">${r.real}</td><td>${r.first ?? '-'}ms</td>`
-          + `<td>${r.mode === 'video' ? r.rate + 'kbps' : r.kb + 'KB'}</td><td>${r.drop}</td><td>${r.bat0 ?? '-'}→${r.bat1 ?? '-'}%</td><td>${T(r.temp0)}→${T(r.temp1)}${r.why ? ' · <b style="color:#ff9b7a">안전 멈춤(' + r.why + ')</b>' : ''}</td></tr>`;
+          + `<td>${r.mode === 'video' ? r.rate + 'kbps' : r.kb + 'KB'}</td><td>${r.drop}</td><td>${r.bat0 ?? '-'}→${r.bat1 ?? '-'}%</td><td>${T(r.temp0)}→${T(r.temp1)}</td><td>${r.z0 != null ? T(r.z0) + '→' + T(r.z1) : '-'}${r.why ? ' · <b style="color:#ff9b7a">안전 멈춤(' + r.why + ')</b>' : ''}</td></tr>`;
       }).join('');
       chart(s.teleHist);
     } catch {}
@@ -253,8 +256,9 @@
     };
     line('bat', 0, 100, '#3dff5a');
     line('temp', 250, 500, '#ffa45a'); // 25~50°C
+    line('zmax', 250, 900, '#ff5a6e'); // 칩 25~90°C
     g.fillStyle = '#8fb39a'; g.font = '12px "Malgun Gothic"';
-    g.fillText(`${Math.round((t1 - t0) / 60000)}분 · 배터리 0~100% · 온도 25~50°C`, 8, 14);
+    g.fillText(`${Math.round((t1 - t0) / 60000)}분 · 배터리 0~100% · 배터리 온도 25~50°C · 칩 온도(빨강) 25~90°C`, 8, 14);
   }
   tick(); setInterval(tick, 400);
 </script>
