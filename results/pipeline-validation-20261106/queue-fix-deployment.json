@@ -1,0 +1,14 @@
+{
+  "worker": "glass-2412",
+  "version": "9934bc08-7465-41ef-9aa7-1553c19b04ee",
+  "url": "https://glass-2412.youqlrqod.workers.dev/recognition",
+  "startupDelayMs": 0,
+  "maxDecodedQueueMs": 200,
+  "verifiedRemoteAssets": {
+    "cloud/frame-player.js": "1adc58008ddf3398ff23e307fd41c28eba3d1a30fe014a9f0f4a54ee2de1d5a0",
+    "cloud/app.js": "8a0f76c8a10e3e1f50815e256d19740499aa8abd3ba90546df1f15fa9bdcb031"
+  },
+  "unitTestsPassed": 25,
+  "realDeviceConnectedAfterDeploy": false,
+  "endToEndUnder500msVerified": false
+}

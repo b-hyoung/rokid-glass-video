@@ -1,0 +1,1612 @@
+[
+  {
+    "test": {
+      "cmd": "cam",
+      "mode": "video",
+      "fps": 60,
+      "sec": 0,
+      "crop": 1,
+      "q": 80,
+      "kbps": 500,
+      "test": 1793923113519,
+      "transport": "websocket",
+      "frames": 4108,
+      "cmdAt": 1793923113519,
+      "done": false,
+      "segments": 685,
+      "retries": 0,
+      "firstAt": 1793923116446,
+      "lastAt": 1793923187677
+    },
+    "keyRequests": 2,
+    "tele": {
+      "at": 1793923187342,
+      "bat": 77,
+      "temp": 285,
+      "th": 0,
+      "zmax": 610,
+      "head": -1,
+      "cap": 4138,
+      "sent": 673,
+      "drop": 16,
+      "fail": 0
+    },
+    "latest": null,
+    "bytes": 8266138,
+    "receiveFps": 58.7,
+    "viewers": [
+      {
+        "media": "http",
+        "dropped": 4,
+        "droppedBackpressure": 0,
+        "droppedWaitingKey": 4,
+        "metrics": {
+          "seq": 45,
+          "visible": true,
+          "frozen": false,
+          "at": 1793923186879,
+          "networkFps": 61.49385061530499,
+          "decodedFps": 61.49385061530499,
+          "displayFps": 37.49625037518597,
+          "frameAgeMs": 21230,
+          "totalReceived": 3564,
+          "totalDecoded": 3499,
+          "totalDisplayed": 2509,
+          "displayDrops": 989,
+          "queueFrames": 1,
+          "maxFrameQueue": 12,
+          "maxRafGap": 6.900000000008731,
+          "displayWaitMs": 106.20000002384768,
+          "maxDisplayWaitMs": 199.60000002384186,
+          "decoder": {
+            "submitted": 3512,
+            "output": 3499,
+            "skippedUntilKey": 0,
+            "skippedNoConfig": 52,
+            "segmentGaps": 0,
+            "queueResets": 0,
+            "pendingDiscarded": 13,
+            "errors": 0,
+            "maxDecodeQueue": 36
+          },
+          "playerDrops": {
+            "overflow": 988,
+            "stale": 1,
+            "clear": 0
+          }
+        }
+      }
+    ],
+    "logs": [
+      {
+        "at": 1793922980440,
+        "message": "카메라 0 속도범위 [[15, 15], [24, 24], [14, 30], [30, 30], [14, 60], [60, 60]] → [60, 60] · 동영상 1280x720 2000kbps"
+      },
+      {
+        "at": 1793922980448,
+        "message": "온도 구역 cpu-0-1=52900 sys-therm-0=50661 aoss-0=50900 mdmss-0=52100 nspss-2=50900 camera-0=51300 nspss-0=51300 video=52500 gpuss-0=51700 battery=26500 cpu-0-2=52500 sys-therm-1=50000 cpu-0-0=53700 pm8150_tz=51536 camera-1=51700 nspss-1=50900 ddr=51700 gpuss-1=51300 cpu-0-3=53300 xo-therm=49545 "
+      },
+      {
+        "at": 1793922980646,
+        "message": "카메라 시작 · video 60장/초 · 끌 때까지"
+      },
+      {
+        "at": 1793922982121,
+        "message": "실시간 영상 연결 · H.264 60fps"
+      },
+      {
+        "at": 1793922988373,
+        "message": "재생 시작 480x640 화면 480x640"
+      },
+      {
+        "at": 1793922988566,
+        "message": "신호 받음 마주봄 · 추억 영상 (받아 둔 파일)"
+      },
+      {
+        "at": 1793923032480,
+        "message": "신호 받음 마주봄 · 추억 영상 (받아 둔 파일)"
+      },
+      {
+        "at": 1793923032902,
+        "message": "재생 시작 480x640 화면 480x640"
+      },
+      {
+        "at": 1793923063059,
+        "message": "화면 준비 480x640"
+      },
+      {
+        "at": 1793923064969,
+        "message": "앱 시작"
+      },
+      {
+        "at": 1793923065972,
+        "message": "연결됨 392ms, 시도 1번"
+      },
+      {
+        "at": 1793923066347,
+        "message": "카메라 0 속도범위 [[15, 15], [24, 24], [14, 30], [30, 30], [14, 60], [60, 60]] → [60, 60] · 동영상 1280x720 2000kbps"
+      },
+      {
+        "at": 1793923066457,
+        "message": "카메라 시작 · video 60장/초 · 끌 때까지"
+      },
+      {
+        "at": 1793923066708,
+        "message": "실시간 영상 연결 · H.264 60fps"
+      },
+      {
+        "at": 1793923066919,
+        "message": "온도 구역 cpu-0-1=55700 sys-therm-0=54338 aoss-0=53700 mdmss-0=54900 nspss-2=53700 camera-0=54100 nspss-0=54100 video=55300 gpuss-0=54100 battery=28000 cpu-0-2=54100 sys-therm-1=53823 cpu-0-0=55700 pm8150_tz=55007 camera-1=54500 nspss-1=54100 ddr=54100 gpuss-1=54100 cpu-0-3=55700 xo-therm=53308 "
+      },
+      {
+        "at": 1793923110660,
+        "message": "카메라 끔 · video 60장/초, 44초 · 보냄 408 · 버림 10 · 실패 0"
+      },
+      {
+        "at": 1793923114110,
+        "message": "카메라 0 속도범위 [[15, 15], [24, 24], [14, 30], [30, 30], [14, 60], [60, 60]] → [60, 60] · 동영상 1280x720 500kbps"
+      },
+      {
+        "at": 1793923115111,
+        "message": "카메라 시작 · video 60장/초 · 끌 때까지"
+      },
+      {
+        "at": 1793923115124,
+        "message": "온도 구역 cpu-0-1=55700 sys-therm-0=54705 aoss-0=54500 mdmss-0=55300 nspss-2=54100 camera-0=54100 nspss-0=54500 video=55700 gpuss-0=54900 battery=28000 cpu-0-2=54900 sys-therm-1=54264 cpu-0-0=56600 pm8150_tz=55429 camera-1=55300 nspss-1=54500 ddr=54900 gpuss-1=54500 cpu-0-3=55700 xo-therm=53750 "
+      },
+      {
+        "at": 1793923117028,
+        "message": "실시간 영상 연결 · H.264 60fps"
+      }
+    ]
+  },
+  {
+    "test": {
+      "cmd": "cam",
+      "mode": "video",
+      "fps": 60,
+      "sec": 0,
+      "crop": 1,
+      "q": 80,
+      "kbps": 500,
+      "test": 1793923113519,
+      "transport": "websocket",
+      "frames": 4303,
+      "cmdAt": 1793923113519,
+      "done": false,
+      "segments": 716,
+      "retries": 0,
+      "firstAt": 1793923116446,
+      "lastAt": 1793923191019
+    },
+    "keyRequests": 2,
+    "tele": {
+      "at": 1793923188558,
+      "bat": 77,
+      "temp": 285,
+      "th": 0,
+      "zmax": 610,
+      "head": -1,
+      "cap": 4253,
+      "sent": 692,
+      "drop": 16,
+      "fail": 0
+    },
+    "latest": null,
+    "bytes": 8547951,
+    "receiveFps": 59.5,
+    "viewers": [
+      {
+        "media": "http",
+        "dropped": 4,
+        "droppedBackpressure": 0,
+        "droppedWaitingKey": 4,
+        "metrics": {
+          "seq": 47,
+          "visible": true,
+          "frozen": false,
+          "at": 1793923190883,
+          "networkFps": 29.998500075085648,
+          "decodedFps": 29.998500075085648,
+          "displayFps": 11.49942502878283,
+          "frameAgeMs": 22743,
+          "totalReceived": 3691,
+          "totalDecoded": 3626,
+          "totalDisplayed": 2583,
+          "displayDrops": 1043,
+          "queueFrames": 0,
+          "maxFrameQueue": 12,
+          "maxRafGap": 6.900000000008731,
+          "displayWaitMs": 147.70000000596337,
+          "maxDisplayWaitMs": 199.60000002384186,
+          "decoder": {
+            "submitted": 3639,
+            "output": 3626,
+            "skippedUntilKey": 0,
+            "skippedNoConfig": 52,
+            "segmentGaps": 0,
+            "queueResets": 0,
+            "pendingDiscarded": 13,
+            "errors": 0,
+            "maxDecodeQueue": 45
+          },
+          "playerDrops": {
+            "overflow": 1042,
+            "stale": 1,
+            "clear": 0
+          }
+        }
+      }
+    ],
+    "logs": [
+      {
+        "at": 1793922980440,
+        "message": "카메라 0 속도범위 [[15, 15], [24, 24], [14, 30], [30, 30], [14, 60], [60, 60]] → [60, 60] · 동영상 1280x720 2000kbps"
+      },
+      {
+        "at": 1793922980448,
+        "message": "온도 구역 cpu-0-1=52900 sys-therm-0=50661 aoss-0=50900 mdmss-0=52100 nspss-2=50900 camera-0=51300 nspss-0=51300 video=52500 gpuss-0=51700 battery=26500 cpu-0-2=52500 sys-therm-1=50000 cpu-0-0=53700 pm8150_tz=51536 camera-1=51700 nspss-1=50900 ddr=51700 gpuss-1=51300 cpu-0-3=53300 xo-therm=49545 "
+      },
+      {
+        "at": 1793922980646,
+        "message": "카메라 시작 · video 60장/초 · 끌 때까지"
+      },
+      {
+        "at": 1793922982121,
+        "message": "실시간 영상 연결 · H.264 60fps"
+      },
+      {
+        "at": 1793922988373,
+        "message": "재생 시작 480x640 화면 480x640"
+      },
+      {
+        "at": 1793922988566,
+        "message": "신호 받음 마주봄 · 추억 영상 (받아 둔 파일)"
+      },
+      {
+        "at": 1793923032480,
+        "message": "신호 받음 마주봄 · 추억 영상 (받아 둔 파일)"
+      },
+      {
+        "at": 1793923032902,
+        "message": "재생 시작 480x640 화면 480x640"
+      },
+      {
+        "at": 1793923063059,
+        "message": "화면 준비 480x640"
+      },
+      {
+        "at": 1793923064969,
+        "message": "앱 시작"
+      },
+      {
+        "at": 1793923065972,
+        "message": "연결됨 392ms, 시도 1번"
+      },
+      {
+        "at": 1793923066347,
+        "message": "카메라 0 속도범위 [[15, 15], [24, 24], [14, 30], [30, 30], [14, 60], [60, 60]] → [60, 60] · 동영상 1280x720 2000kbps"
+      },
+      {
+        "at": 1793923066457,
+        "message": "카메라 시작 · video 60장/초 · 끌 때까지"
+      },
+      {
+        "at": 1793923066708,
+        "message": "실시간 영상 연결 · H.264 60fps"
+      },
+      {
+        "at": 1793923066919,
+        "message": "온도 구역 cpu-0-1=55700 sys-therm-0=54338 aoss-0=53700 mdmss-0=54900 nspss-2=53700 camera-0=54100 nspss-0=54100 video=55300 gpuss-0=54100 battery=28000 cpu-0-2=54100 sys-therm-1=53823 cpu-0-0=55700 pm8150_tz=55007 camera-1=54500 nspss-1=54100 ddr=54100 gpuss-1=54100 cpu-0-3=55700 xo-therm=53308 "
+      },
+      {
+        "at": 1793923110660,
+        "message": "카메라 끔 · video 60장/초, 44초 · 보냄 408 · 버림 10 · 실패 0"
+      },
+      {
+        "at": 1793923114110,
+        "message": "카메라 0 속도범위 [[15, 15], [24, 24], [14, 30], [30, 30], [14, 60], [60, 60]] → [60, 60] · 동영상 1280x720 500kbps"
+      },
+      {
+        "at": 1793923115111,
+        "message": "카메라 시작 · video 60장/초 · 끌 때까지"
+      },
+      {
+        "at": 1793923115124,
+        "message": "온도 구역 cpu-0-1=55700 sys-therm-0=54705 aoss-0=54500 mdmss-0=55300 nspss-2=54100 camera-0=54100 nspss-0=54500 video=55700 gpuss-0=54900 battery=28000 cpu-0-2=54900 sys-therm-1=54264 cpu-0-0=56600 pm8150_tz=55429 camera-1=55300 nspss-1=54500 ddr=54900 gpuss-1=54500 cpu-0-3=55700 xo-therm=53750 "
+      },
+      {
+        "at": 1793923117028,
+        "message": "실시간 영상 연결 · H.264 60fps"
+      }
+    ]
+  },
+  {
+    "test": {
+      "cmd": "cam",
+      "mode": "video",
+      "fps": 60,
+      "sec": 0,
+      "crop": 1,
+      "q": 80,
+      "kbps": 500,
+      "test": 1793923113519,
+      "transport": "websocket",
+      "frames": 4441,
+      "cmdAt": 1793923113519,
+      "done": false,
+      "segments": 739,
+      "retries": 0,
+      "firstAt": 1793923116446,
+      "lastAt": 1793923193380
+    },
+    "keyRequests": 2,
+    "tele": {
+      "at": 1793923191526,
+      "bat": 76,
+      "temp": 285,
+      "th": 0,
+      "zmax": 614,
+      "head": -1,
+      "cap": 4374,
+      "sent": 711,
+      "drop": 16,
+      "fail": 0
+    },
+    "latest": null,
+    "bytes": 8762685,
+    "receiveFps": 58.3,
+    "viewers": [
+      {
+        "media": "http",
+        "dropped": 4,
+        "droppedBackpressure": 0,
+        "droppedWaitingKey": 4,
+        "metrics": {
+          "seq": 48,
+          "visible": true,
+          "frozen": false,
+          "at": 1793923192877,
+          "networkFps": 45.506826023496664,
+          "decodedFps": 45.506826023496664,
+          "displayFps": 16.002400359910915,
+          "frameAgeMs": 23128,
+          "totalReceived": 3782,
+          "totalDecoded": 3717,
+          "totalDisplayed": 2615,
+          "displayDrops": 1094,
+          "queueFrames": 8,
+          "maxFrameQueue": 12,
+          "maxRafGap": 6.900000000008731,
+          "displayWaitMs": 56.10000002384186,
+          "maxDisplayWaitMs": 199.60000002384186,
+          "decoder": {
+            "submitted": 3730,
+            "output": 3717,
+            "skippedUntilKey": 0,
+            "skippedNoConfig": 52,
+            "segmentGaps": 0,
+            "queueResets": 0,
+            "pendingDiscarded": 13,
+            "errors": 0,
+            "maxDecodeQueue": 53
+          },
+          "playerDrops": {
+            "overflow": 1093,
+            "stale": 1,
+            "clear": 0
+          }
+        }
+      }
+    ],
+    "logs": [
+      {
+        "at": 1793922980440,
+        "message": "카메라 0 속도범위 [[15, 15], [24, 24], [14, 30], [30, 30], [14, 60], [60, 60]] → [60, 60] · 동영상 1280x720 2000kbps"
+      },
+      {
+        "at": 1793922980448,
+        "message": "온도 구역 cpu-0-1=52900 sys-therm-0=50661 aoss-0=50900 mdmss-0=52100 nspss-2=50900 camera-0=51300 nspss-0=51300 video=52500 gpuss-0=51700 battery=26500 cpu-0-2=52500 sys-therm-1=50000 cpu-0-0=53700 pm8150_tz=51536 camera-1=51700 nspss-1=50900 ddr=51700 gpuss-1=51300 cpu-0-3=53300 xo-therm=49545 "
+      },
+      {
+        "at": 1793922980646,
+        "message": "카메라 시작 · video 60장/초 · 끌 때까지"
+      },
+      {
+        "at": 1793922982121,
+        "message": "실시간 영상 연결 · H.264 60fps"
+      },
+      {
+        "at": 1793922988373,
+        "message": "재생 시작 480x640 화면 480x640"
+      },
+      {
+        "at": 1793922988566,
+        "message": "신호 받음 마주봄 · 추억 영상 (받아 둔 파일)"
+      },
+      {
+        "at": 1793923032480,
+        "message": "신호 받음 마주봄 · 추억 영상 (받아 둔 파일)"
+      },
+      {
+        "at": 1793923032902,
+        "message": "재생 시작 480x640 화면 480x640"
+      },
+      {
+        "at": 1793923063059,
+        "message": "화면 준비 480x640"
+      },
+      {
+        "at": 1793923064969,
+        "message": "앱 시작"
+      },
+      {
+        "at": 1793923065972,
+        "message": "연결됨 392ms, 시도 1번"
+      },
+      {
+        "at": 1793923066347,
+        "message": "카메라 0 속도범위 [[15, 15], [24, 24], [14, 30], [30, 30], [14, 60], [60, 60]] → [60, 60] · 동영상 1280x720 2000kbps"
+      },
+      {
+        "at": 1793923066457,
+        "message": "카메라 시작 · video 60장/초 · 끌 때까지"
+      },
+      {
+        "at": 1793923066708,
+        "message": "실시간 영상 연결 · H.264 60fps"
+      },
+      {
+        "at": 1793923066919,
+        "message": "온도 구역 cpu-0-1=55700 sys-therm-0=54338 aoss-0=53700 mdmss-0=54900 nspss-2=53700 camera-0=54100 nspss-0=54100 video=55300 gpuss-0=54100 battery=28000 cpu-0-2=54100 sys-therm-1=53823 cpu-0-0=55700 pm8150_tz=55007 camera-1=54500 nspss-1=54100 ddr=54100 gpuss-1=54100 cpu-0-3=55700 xo-therm=53308 "
+      },
+      {
+        "at": 1793923110660,
+        "message": "카메라 끔 · video 60장/초, 44초 · 보냄 408 · 버림 10 · 실패 0"
+      },
+      {
+        "at": 1793923114110,
+        "message": "카메라 0 속도범위 [[15, 15], [24, 24], [14, 30], [30, 30], [14, 60], [60, 60]] → [60, 60] · 동영상 1280x720 500kbps"
+      },
+      {
+        "at": 1793923115111,
+        "message": "카메라 시작 · video 60장/초 · 끌 때까지"
+      },
+      {
+        "at": 1793923115124,
+        "message": "온도 구역 cpu-0-1=55700 sys-therm-0=54705 aoss-0=54500 mdmss-0=55300 nspss-2=54100 camera-0=54100 nspss-0=54500 video=55700 gpuss-0=54900 battery=28000 cpu-0-2=54900 sys-therm-1=54264 cpu-0-0=56600 pm8150_tz=55429 camera-1=55300 nspss-1=54500 ddr=54900 gpuss-1=54500 cpu-0-3=55700 xo-therm=53750 "
+      },
+      {
+        "at": 1793923117028,
+        "message": "실시간 영상 연결 · H.264 60fps"
+      }
+    ]
+  },
+  {
+    "test": {
+      "cmd": "cam",
+      "mode": "video",
+      "fps": 60,
+      "sec": 0,
+      "crop": 1,
+      "q": 80,
+      "kbps": 500,
+      "test": 1793923113519,
+      "transport": "websocket",
+      "frames": 4681,
+      "cmdAt": 1793923113519,
+      "done": false,
+      "segments": 778,
+      "retries": 0,
+      "firstAt": 1793923116446,
+      "lastAt": 1793923197468
+    },
+    "keyRequests": 2,
+    "tele": {
+      "at": 1793923197468,
+      "bat": 76,
+      "temp": 285,
+      "th": 0,
+      "zmax": 614,
+      "head": -1,
+      "cap": 4729,
+      "sent": 768,
+      "drop": 16,
+      "fail": 0
+    },
+    "latest": null,
+    "bytes": 9373465,
+    "receiveFps": 59.7,
+    "viewers": [
+      {
+        "media": "http",
+        "dropped": 4,
+        "droppedBackpressure": 0,
+        "droppedWaitingKey": 4,
+        "metrics": {
+          "seq": 50,
+          "visible": true,
+          "frozen": false,
+          "at": 1793923196881,
+          "networkFps": 85.00850085084512,
+          "decodedFps": 85.00850085084512,
+          "displayFps": 38.50385038538279,
+          "frameAgeMs": 22382,
+          "totalReceived": 4031,
+          "totalDecoded": 3966,
+          "totalDisplayed": 2751,
+          "displayDrops": 1215,
+          "queueFrames": 0,
+          "maxFrameQueue": 12,
+          "maxRafGap": 6.900000000008731,
+          "displayWaitMs": 194.50000001191802,
+          "maxDisplayWaitMs": 199.60000002384186,
+          "decoder": {
+            "submitted": 3979,
+            "output": 3966,
+            "skippedUntilKey": 0,
+            "skippedNoConfig": 52,
+            "segmentGaps": 0,
+            "queueResets": 0,
+            "pendingDiscarded": 13,
+            "errors": 0,
+            "maxDecodeQueue": 53
+          },
+          "playerDrops": {
+            "overflow": 1214,
+            "stale": 1,
+            "clear": 0
+          }
+        }
+      }
+    ],
+    "logs": [
+      {
+        "at": 1793922980440,
+        "message": "카메라 0 속도범위 [[15, 15], [24, 24], [14, 30], [30, 30], [14, 60], [60, 60]] → [60, 60] · 동영상 1280x720 2000kbps"
+      },
+      {
+        "at": 1793922980448,
+        "message": "온도 구역 cpu-0-1=52900 sys-therm-0=50661 aoss-0=50900 mdmss-0=52100 nspss-2=50900 camera-0=51300 nspss-0=51300 video=52500 gpuss-0=51700 battery=26500 cpu-0-2=52500 sys-therm-1=50000 cpu-0-0=53700 pm8150_tz=51536 camera-1=51700 nspss-1=50900 ddr=51700 gpuss-1=51300 cpu-0-3=53300 xo-therm=49545 "
+      },
+      {
+        "at": 1793922980646,
+        "message": "카메라 시작 · video 60장/초 · 끌 때까지"
+      },
+      {
+        "at": 1793922982121,
+        "message": "실시간 영상 연결 · H.264 60fps"
+      },
+      {
+        "at": 1793922988373,
+        "message": "재생 시작 480x640 화면 480x640"
+      },
+      {
+        "at": 1793922988566,
+        "message": "신호 받음 마주봄 · 추억 영상 (받아 둔 파일)"
+      },
+      {
+        "at": 1793923032480,
+        "message": "신호 받음 마주봄 · 추억 영상 (받아 둔 파일)"
+      },
+      {
+        "at": 1793923032902,
+        "message": "재생 시작 480x640 화면 480x640"
+      },
+      {
+        "at": 1793923063059,
+        "message": "화면 준비 480x640"
+      },
+      {
+        "at": 1793923064969,
+        "message": "앱 시작"
+      },
+      {
+        "at": 1793923065972,
+        "message": "연결됨 392ms, 시도 1번"
+      },
+      {
+        "at": 1793923066347,
+        "message": "카메라 0 속도범위 [[15, 15], [24, 24], [14, 30], [30, 30], [14, 60], [60, 60]] → [60, 60] · 동영상 1280x720 2000kbps"
+      },
+      {
+        "at": 1793923066457,
+        "message": "카메라 시작 · video 60장/초 · 끌 때까지"
+      },
+      {
+        "at": 1793923066708,
+        "message": "실시간 영상 연결 · H.264 60fps"
+      },
+      {
+        "at": 1793923066919,
+        "message": "온도 구역 cpu-0-1=55700 sys-therm-0=54338 aoss-0=53700 mdmss-0=54900 nspss-2=53700 camera-0=54100 nspss-0=54100 video=55300 gpuss-0=54100 battery=28000 cpu-0-2=54100 sys-therm-1=53823 cpu-0-0=55700 pm8150_tz=55007 camera-1=54500 nspss-1=54100 ddr=54100 gpuss-1=54100 cpu-0-3=55700 xo-therm=53308 "
+      },
+      {
+        "at": 1793923110660,
+        "message": "카메라 끔 · video 60장/초, 44초 · 보냄 408 · 버림 10 · 실패 0"
+      },
+      {
+        "at": 1793923114110,
+        "message": "카메라 0 속도범위 [[15, 15], [24, 24], [14, 30], [30, 30], [14, 60], [60, 60]] → [60, 60] · 동영상 1280x720 500kbps"
+      },
+      {
+        "at": 1793923115111,
+        "message": "카메라 시작 · video 60장/초 · 끌 때까지"
+      },
+      {
+        "at": 1793923115124,
+        "message": "온도 구역 cpu-0-1=55700 sys-therm-0=54705 aoss-0=54500 mdmss-0=55300 nspss-2=54100 camera-0=54100 nspss-0=54500 video=55700 gpuss-0=54900 battery=28000 cpu-0-2=54900 sys-therm-1=54264 cpu-0-0=56600 pm8150_tz=55429 camera-1=55300 nspss-1=54500 ddr=54900 gpuss-1=54500 cpu-0-3=55700 xo-therm=53750 "
+      },
+      {
+        "at": 1793923117028,
+        "message": "실시간 영상 연결 · H.264 60fps"
+      }
+    ]
+  },
+  {
+    "test": {
+      "cmd": "cam",
+      "mode": "video",
+      "fps": 60,
+      "sec": 0,
+      "crop": 1,
+      "q": 80,
+      "kbps": 500,
+      "test": 1793923113519,
+      "transport": "websocket",
+      "frames": 4815,
+      "cmdAt": 1793923113519,
+      "done": false,
+      "segments": 801,
+      "retries": 0,
+      "firstAt": 1793923116446,
+      "lastAt": 1793923199834
+    },
+    "keyRequests": 2,
+    "tele": {
+      "at": 1793923198568,
+      "bat": 76,
+      "temp": 285,
+      "th": 0,
+      "zmax": 610,
+      "head": -1,
+      "cap": 4844,
+      "sent": 787,
+      "drop": 16,
+      "fail": 0
+    },
+    "latest": null,
+    "bytes": 9718958,
+    "receiveFps": 55.7,
+    "viewers": [
+      {
+        "media": "http",
+        "dropped": 4,
+        "droppedBackpressure": 0,
+        "droppedWaitingKey": 4,
+        "metrics": {
+          "seq": 51,
+          "visible": true,
+          "frozen": false,
+          "at": 1793923198875,
+          "networkFps": 99.99500024879552,
+          "decodedFps": 99.99500024879552,
+          "displayFps": 30.99845007712661,
+          "frameAgeMs": 20893,
+          "totalReceived": 4231,
+          "totalDecoded": 4166,
+          "totalDisplayed": 2813,
+          "displayDrops": 1353,
+          "queueFrames": 0,
+          "maxFrameQueue": 12,
+          "maxRafGap": 6.900000000008731,
+          "displayWaitMs": 190.90000001192675,
+          "maxDisplayWaitMs": 199.60000002384186,
+          "decoder": {
+            "submitted": 4179,
+            "output": 4166,
+            "skippedUntilKey": 0,
+            "skippedNoConfig": 52,
+            "segmentGaps": 0,
+            "queueResets": 0,
+            "pendingDiscarded": 13,
+            "errors": 0,
+            "maxDecodeQueue": 53
+          },
+          "playerDrops": {
+            "overflow": 1352,
+            "stale": 1,
+            "clear": 0
+          }
+        }
+      }
+    ],
+    "logs": [
+      {
+        "at": 1793922980440,
+        "message": "카메라 0 속도범위 [[15, 15], [24, 24], [14, 30], [30, 30], [14, 60], [60, 60]] → [60, 60] · 동영상 1280x720 2000kbps"
+      },
+      {
+        "at": 1793922980448,
+        "message": "온도 구역 cpu-0-1=52900 sys-therm-0=50661 aoss-0=50900 mdmss-0=52100 nspss-2=50900 camera-0=51300 nspss-0=51300 video=52500 gpuss-0=51700 battery=26500 cpu-0-2=52500 sys-therm-1=50000 cpu-0-0=53700 pm8150_tz=51536 camera-1=51700 nspss-1=50900 ddr=51700 gpuss-1=51300 cpu-0-3=53300 xo-therm=49545 "
+      },
+      {
+        "at": 1793922980646,
+        "message": "카메라 시작 · video 60장/초 · 끌 때까지"
+      },
+      {
+        "at": 1793922982121,
+        "message": "실시간 영상 연결 · H.264 60fps"
+      },
+      {
+        "at": 1793922988373,
+        "message": "재생 시작 480x640 화면 480x640"
+      },
+      {
+        "at": 1793922988566,
+        "message": "신호 받음 마주봄 · 추억 영상 (받아 둔 파일)"
+      },
+      {
+        "at": 1793923032480,
+        "message": "신호 받음 마주봄 · 추억 영상 (받아 둔 파일)"
+      },
+      {
+        "at": 1793923032902,
+        "message": "재생 시작 480x640 화면 480x640"
+      },
+      {
+        "at": 1793923063059,
+        "message": "화면 준비 480x640"
+      },
+      {
+        "at": 1793923064969,
+        "message": "앱 시작"
+      },
+      {
+        "at": 1793923065972,
+        "message": "연결됨 392ms, 시도 1번"
+      },
+      {
+        "at": 1793923066347,
+        "message": "카메라 0 속도범위 [[15, 15], [24, 24], [14, 30], [30, 30], [14, 60], [60, 60]] → [60, 60] · 동영상 1280x720 2000kbps"
+      },
+      {
+        "at": 1793923066457,
+        "message": "카메라 시작 · video 60장/초 · 끌 때까지"
+      },
+      {
+        "at": 1793923066708,
+        "message": "실시간 영상 연결 · H.264 60fps"
+      },
+      {
+        "at": 1793923066919,
+        "message": "온도 구역 cpu-0-1=55700 sys-therm-0=54338 aoss-0=53700 mdmss-0=54900 nspss-2=53700 camera-0=54100 nspss-0=54100 video=55300 gpuss-0=54100 battery=28000 cpu-0-2=54100 sys-therm-1=53823 cpu-0-0=55700 pm8150_tz=55007 camera-1=54500 nspss-1=54100 ddr=54100 gpuss-1=54100 cpu-0-3=55700 xo-therm=53308 "
+      },
+      {
+        "at": 1793923110660,
+        "message": "카메라 끔 · video 60장/초, 44초 · 보냄 408 · 버림 10 · 실패 0"
+      },
+      {
+        "at": 1793923114110,
+        "message": "카메라 0 속도범위 [[15, 15], [24, 24], [14, 30], [30, 30], [14, 60], [60, 60]] → [60, 60] · 동영상 1280x720 500kbps"
+      },
+      {
+        "at": 1793923115111,
+        "message": "카메라 시작 · video 60장/초 · 끌 때까지"
+      },
+      {
+        "at": 1793923115124,
+        "message": "온도 구역 cpu-0-1=55700 sys-therm-0=54705 aoss-0=54500 mdmss-0=55300 nspss-2=54100 camera-0=54100 nspss-0=54500 video=55700 gpuss-0=54900 battery=28000 cpu-0-2=54900 sys-therm-1=54264 cpu-0-0=56600 pm8150_tz=55429 camera-1=55300 nspss-1=54500 ddr=54900 gpuss-1=54500 cpu-0-3=55700 xo-therm=53750 "
+      },
+      {
+        "at": 1793923117028,
+        "message": "실시간 영상 연결 · H.264 60fps"
+      }
+    ]
+  },
+  {
+    "test": {
+      "cmd": "cam",
+      "mode": "video",
+      "fps": 60,
+      "sec": 0,
+      "crop": 1,
+      "q": 80,
+      "kbps": 500,
+      "test": 1793923113519,
+      "transport": "websocket",
+      "frames": 4958,
+      "cmdAt": 1793923113519,
+      "done": false,
+      "segments": 824,
+      "retries": 0,
+      "firstAt": 1793923116446,
+      "lastAt": 1793923202269
+    },
+    "keyRequests": 2,
+    "tele": {
+      "at": 1793923200595,
+      "bat": 76,
+      "temp": 285,
+      "th": 0,
+      "zmax": 610,
+      "head": -1,
+      "cap": 4959,
+      "sent": 806,
+      "drop": 16,
+      "fail": 0
+    },
+    "latest": null,
+    "bytes": 10074716,
+    "receiveFps": 58,
+    "viewers": [
+      {
+        "media": "http",
+        "dropped": 4,
+        "droppedBackpressure": 0,
+        "droppedWaitingKey": 4,
+        "metrics": {
+          "seq": 52,
+          "visible": true,
+          "frozen": false,
+          "at": 1793923200880,
+          "networkFps": 129.00645032405407,
+          "decodedFps": 129.00645032405407,
+          "displayFps": 44.002200110530076,
+          "frameAgeMs": 18477,
+          "totalReceived": 4489,
+          "totalDecoded": 4424,
+          "totalDisplayed": 2901,
+          "displayDrops": 1516,
+          "queueFrames": 7,
+          "maxFrameQueue": 12,
+          "maxRafGap": 6.900000000008731,
+          "displayWaitMs": 143.50000001191802,
+          "maxDisplayWaitMs": 199.60000002384186,
+          "decoder": {
+            "submitted": 4437,
+            "output": 4424,
+            "skippedUntilKey": 0,
+            "skippedNoConfig": 52,
+            "segmentGaps": 0,
+            "queueResets": 0,
+            "pendingDiscarded": 13,
+            "errors": 0,
+            "maxDecodeQueue": 53
+          },
+          "playerDrops": {
+            "overflow": 1515,
+            "stale": 1,
+            "clear": 0
+          }
+        }
+      }
+    ],
+    "logs": [
+      {
+        "at": 1793922980440,
+        "message": "카메라 0 속도범위 [[15, 15], [24, 24], [14, 30], [30, 30], [14, 60], [60, 60]] → [60, 60] · 동영상 1280x720 2000kbps"
+      },
+      {
+        "at": 1793922980448,
+        "message": "온도 구역 cpu-0-1=52900 sys-therm-0=50661 aoss-0=50900 mdmss-0=52100 nspss-2=50900 camera-0=51300 nspss-0=51300 video=52500 gpuss-0=51700 battery=26500 cpu-0-2=52500 sys-therm-1=50000 cpu-0-0=53700 pm8150_tz=51536 camera-1=51700 nspss-1=50900 ddr=51700 gpuss-1=51300 cpu-0-3=53300 xo-therm=49545 "
+      },
+      {
+        "at": 1793922980646,
+        "message": "카메라 시작 · video 60장/초 · 끌 때까지"
+      },
+      {
+        "at": 1793922982121,
+        "message": "실시간 영상 연결 · H.264 60fps"
+      },
+      {
+        "at": 1793922988373,
+        "message": "재생 시작 480x640 화면 480x640"
+      },
+      {
+        "at": 1793922988566,
+        "message": "신호 받음 마주봄 · 추억 영상 (받아 둔 파일)"
+      },
+      {
+        "at": 1793923032480,
+        "message": "신호 받음 마주봄 · 추억 영상 (받아 둔 파일)"
+      },
+      {
+        "at": 1793923032902,
+        "message": "재생 시작 480x640 화면 480x640"
+      },
+      {
+        "at": 1793923063059,
+        "message": "화면 준비 480x640"
+      },
+      {
+        "at": 1793923064969,
+        "message": "앱 시작"
+      },
+      {
+        "at": 1793923065972,
+        "message": "연결됨 392ms, 시도 1번"
+      },
+      {
+        "at": 1793923066347,
+        "message": "카메라 0 속도범위 [[15, 15], [24, 24], [14, 30], [30, 30], [14, 60], [60, 60]] → [60, 60] · 동영상 1280x720 2000kbps"
+      },
+      {
+        "at": 1793923066457,
+        "message": "카메라 시작 · video 60장/초 · 끌 때까지"
+      },
+      {
+        "at": 1793923066708,
+        "message": "실시간 영상 연결 · H.264 60fps"
+      },
+      {
+        "at": 1793923066919,
+        "message": "온도 구역 cpu-0-1=55700 sys-therm-0=54338 aoss-0=53700 mdmss-0=54900 nspss-2=53700 camera-0=54100 nspss-0=54100 video=55300 gpuss-0=54100 battery=28000 cpu-0-2=54100 sys-therm-1=53823 cpu-0-0=55700 pm8150_tz=55007 camera-1=54500 nspss-1=54100 ddr=54100 gpuss-1=54100 cpu-0-3=55700 xo-therm=53308 "
+      },
+      {
+        "at": 1793923110660,
+        "message": "카메라 끔 · video 60장/초, 44초 · 보냄 408 · 버림 10 · 실패 0"
+      },
+      {
+        "at": 1793923114110,
+        "message": "카메라 0 속도범위 [[15, 15], [24, 24], [14, 30], [30, 30], [14, 60], [60, 60]] → [60, 60] · 동영상 1280x720 500kbps"
+      },
+      {
+        "at": 1793923115111,
+        "message": "카메라 시작 · video 60장/초 · 끌 때까지"
+      },
+      {
+        "at": 1793923115124,
+        "message": "온도 구역 cpu-0-1=55700 sys-therm-0=54705 aoss-0=54500 mdmss-0=55300 nspss-2=54100 camera-0=54100 nspss-0=54500 video=55700 gpuss-0=54900 battery=28000 cpu-0-2=54900 sys-therm-1=54264 cpu-0-0=56600 pm8150_tz=55429 camera-1=55300 nspss-1=54500 ddr=54900 gpuss-1=54500 cpu-0-3=55700 xo-therm=53750 "
+      },
+      {
+        "at": 1793923117028,
+        "message": "실시간 영상 연결 · H.264 60fps"
+      }
+    ]
+  },
+  {
+    "test": {
+      "cmd": "cam",
+      "mode": "video",
+      "fps": 60,
+      "sec": 0,
+      "crop": 1,
+      "q": 80,
+      "kbps": 500,
+      "test": 1793923113519,
+      "transport": "websocket",
+      "frames": 5200,
+      "cmdAt": 1793923113519,
+      "done": false,
+      "segments": 865,
+      "retries": 0,
+      "firstAt": 1793923116446,
+      "lastAt": 1793923206700
+    },
+    "keyRequests": 2,
+    "tele": {
+      "at": 1793923205459,
+      "bat": 76,
+      "temp": 285,
+      "th": 0,
+      "zmax": 614,
+      "head": -1,
+      "cap": 5191,
+      "sent": 845,
+      "drop": 16,
+      "fail": 0
+    },
+    "latest": null,
+    "bytes": 10740728,
+    "receiveFps": 52.7,
+    "viewers": [
+      {
+        "media": "http",
+        "dropped": 4,
+        "droppedBackpressure": 0,
+        "droppedWaitingKey": 4,
+        "metrics": {
+          "seq": 54,
+          "visible": true,
+          "frozen": false,
+          "at": 1793923204884,
+          "networkFps": 45.515930575430104,
+          "decodedFps": 45.515930575430104,
+          "displayFps": 25.008753063423132,
+          "frameAgeMs": 19212,
+          "totalReceived": 4678,
+          "totalDecoded": 4613,
+          "totalDisplayed": 3016,
+          "displayDrops": 1589,
+          "queueFrames": 8,
+          "maxFrameQueue": 12,
+          "maxRafGap": 6.900000000008731,
+          "displayWaitMs": 147.10000000595755,
+          "maxDisplayWaitMs": 199.60000002384186,
+          "decoder": {
+            "submitted": 4626,
+            "output": 4613,
+            "skippedUntilKey": 0,
+            "skippedNoConfig": 52,
+            "segmentGaps": 0,
+            "queueResets": 0,
+            "pendingDiscarded": 13,
+            "errors": 0,
+            "maxDecodeQueue": 53
+          },
+          "playerDrops": {
+            "overflow": 1588,
+            "stale": 1,
+            "clear": 0
+          }
+        }
+      }
+    ],
+    "logs": [
+      {
+        "at": 1793922980440,
+        "message": "카메라 0 속도범위 [[15, 15], [24, 24], [14, 30], [30, 30], [14, 60], [60, 60]] → [60, 60] · 동영상 1280x720 2000kbps"
+      },
+      {
+        "at": 1793922980448,
+        "message": "온도 구역 cpu-0-1=52900 sys-therm-0=50661 aoss-0=50900 mdmss-0=52100 nspss-2=50900 camera-0=51300 nspss-0=51300 video=52500 gpuss-0=51700 battery=26500 cpu-0-2=52500 sys-therm-1=50000 cpu-0-0=53700 pm8150_tz=51536 camera-1=51700 nspss-1=50900 ddr=51700 gpuss-1=51300 cpu-0-3=53300 xo-therm=49545 "
+      },
+      {
+        "at": 1793922980646,
+        "message": "카메라 시작 · video 60장/초 · 끌 때까지"
+      },
+      {
+        "at": 1793922982121,
+        "message": "실시간 영상 연결 · H.264 60fps"
+      },
+      {
+        "at": 1793922988373,
+        "message": "재생 시작 480x640 화면 480x640"
+      },
+      {
+        "at": 1793922988566,
+        "message": "신호 받음 마주봄 · 추억 영상 (받아 둔 파일)"
+      },
+      {
+        "at": 1793923032480,
+        "message": "신호 받음 마주봄 · 추억 영상 (받아 둔 파일)"
+      },
+      {
+        "at": 1793923032902,
+        "message": "재생 시작 480x640 화면 480x640"
+      },
+      {
+        "at": 1793923063059,
+        "message": "화면 준비 480x640"
+      },
+      {
+        "at": 1793923064969,
+        "message": "앱 시작"
+      },
+      {
+        "at": 1793923065972,
+        "message": "연결됨 392ms, 시도 1번"
+      },
+      {
+        "at": 1793923066347,
+        "message": "카메라 0 속도범위 [[15, 15], [24, 24], [14, 30], [30, 30], [14, 60], [60, 60]] → [60, 60] · 동영상 1280x720 2000kbps"
+      },
+      {
+        "at": 1793923066457,
+        "message": "카메라 시작 · video 60장/초 · 끌 때까지"
+      },
+      {
+        "at": 1793923066708,
+        "message": "실시간 영상 연결 · H.264 60fps"
+      },
+      {
+        "at": 1793923066919,
+        "message": "온도 구역 cpu-0-1=55700 sys-therm-0=54338 aoss-0=53700 mdmss-0=54900 nspss-2=53700 camera-0=54100 nspss-0=54100 video=55300 gpuss-0=54100 battery=28000 cpu-0-2=54100 sys-therm-1=53823 cpu-0-0=55700 pm8150_tz=55007 camera-1=54500 nspss-1=54100 ddr=54100 gpuss-1=54100 cpu-0-3=55700 xo-therm=53308 "
+      },
+      {
+        "at": 1793923110660,
+        "message": "카메라 끔 · video 60장/초, 44초 · 보냄 408 · 버림 10 · 실패 0"
+      },
+      {
+        "at": 1793923114110,
+        "message": "카메라 0 속도범위 [[15, 15], [24, 24], [14, 30], [30, 30], [14, 60], [60, 60]] → [60, 60] · 동영상 1280x720 500kbps"
+      },
+      {
+        "at": 1793923115111,
+        "message": "카메라 시작 · video 60장/초 · 끌 때까지"
+      },
+      {
+        "at": 1793923115124,
+        "message": "온도 구역 cpu-0-1=55700 sys-therm-0=54705 aoss-0=54500 mdmss-0=55300 nspss-2=54100 camera-0=54100 nspss-0=54500 video=55700 gpuss-0=54900 battery=28000 cpu-0-2=54900 sys-therm-1=54264 cpu-0-0=56600 pm8150_tz=55429 camera-1=55300 nspss-1=54500 ddr=54900 gpuss-1=54500 cpu-0-3=55700 xo-therm=53750 "
+      },
+      {
+        "at": 1793923117028,
+        "message": "실시간 영상 연결 · H.264 60fps"
+      }
+    ]
+  },
+  {
+    "test": {
+      "cmd": "cam",
+      "mode": "video",
+      "fps": 60,
+      "sec": 0,
+      "crop": 1,
+      "q": 80,
+      "kbps": 500,
+      "test": 1793923113519,
+      "transport": "websocket",
+      "frames": 5354,
+      "cmdAt": 1793923113519,
+      "done": false,
+      "segments": 889,
+      "retries": 0,
+      "firstAt": 1793923116446,
+      "lastAt": 1793923209159
+    },
+    "keyRequests": 2,
+    "tele": {
+      "at": 1793923207319,
+      "bat": 76,
+      "temp": 285,
+      "th": 0,
+      "zmax": 614,
+      "head": -1,
+      "cap": 5303,
+      "sent": 863,
+      "drop": 16,
+      "fail": 0
+    },
+    "latest": null,
+    "bytes": 11028333,
+    "receiveFps": 58.2,
+    "viewers": [
+      {
+        "media": "http",
+        "dropped": 4,
+        "droppedBackpressure": 0,
+        "droppedWaitingKey": 4,
+        "metrics": {
+          "seq": 56,
+          "visible": true,
+          "frozen": false,
+          "at": 1793923208879,
+          "networkFps": 71,
+          "decodedFps": 71,
+          "displayFps": 30.5,
+          "frameAgeMs": 18764,
+          "totalReceived": 4932,
+          "totalDecoded": 4867,
+          "totalDisplayed": 3154,
+          "displayDrops": 1713,
+          "queueFrames": 0,
+          "maxFrameQueue": 12,
+          "maxRafGap": 6.900000000008731,
+          "displayWaitMs": 138.90000001787848,
+          "maxDisplayWaitMs": 199.60000002384186,
+          "decoder": {
+            "submitted": 4880,
+            "output": 4867,
+            "skippedUntilKey": 0,
+            "skippedNoConfig": 52,
+            "segmentGaps": 0,
+            "queueResets": 0,
+            "pendingDiscarded": 13,
+            "errors": 0,
+            "maxDecodeQueue": 53
+          },
+          "playerDrops": {
+            "overflow": 1712,
+            "stale": 1,
+            "clear": 0
+          }
+        }
+      }
+    ],
+    "logs": [
+      {
+        "at": 1793922980440,
+        "message": "카메라 0 속도범위 [[15, 15], [24, 24], [14, 30], [30, 30], [14, 60], [60, 60]] → [60, 60] · 동영상 1280x720 2000kbps"
+      },
+      {
+        "at": 1793922980448,
+        "message": "온도 구역 cpu-0-1=52900 sys-therm-0=50661 aoss-0=50900 mdmss-0=52100 nspss-2=50900 camera-0=51300 nspss-0=51300 video=52500 gpuss-0=51700 battery=26500 cpu-0-2=52500 sys-therm-1=50000 cpu-0-0=53700 pm8150_tz=51536 camera-1=51700 nspss-1=50900 ddr=51700 gpuss-1=51300 cpu-0-3=53300 xo-therm=49545 "
+      },
+      {
+        "at": 1793922980646,
+        "message": "카메라 시작 · video 60장/초 · 끌 때까지"
+      },
+      {
+        "at": 1793922982121,
+        "message": "실시간 영상 연결 · H.264 60fps"
+      },
+      {
+        "at": 1793922988373,
+        "message": "재생 시작 480x640 화면 480x640"
+      },
+      {
+        "at": 1793922988566,
+        "message": "신호 받음 마주봄 · 추억 영상 (받아 둔 파일)"
+      },
+      {
+        "at": 1793923032480,
+        "message": "신호 받음 마주봄 · 추억 영상 (받아 둔 파일)"
+      },
+      {
+        "at": 1793923032902,
+        "message": "재생 시작 480x640 화면 480x640"
+      },
+      {
+        "at": 1793923063059,
+        "message": "화면 준비 480x640"
+      },
+      {
+        "at": 1793923064969,
+        "message": "앱 시작"
+      },
+      {
+        "at": 1793923065972,
+        "message": "연결됨 392ms, 시도 1번"
+      },
+      {
+        "at": 1793923066347,
+        "message": "카메라 0 속도범위 [[15, 15], [24, 24], [14, 30], [30, 30], [14, 60], [60, 60]] → [60, 60] · 동영상 1280x720 2000kbps"
+      },
+      {
+        "at": 1793923066457,
+        "message": "카메라 시작 · video 60장/초 · 끌 때까지"
+      },
+      {
+        "at": 1793923066708,
+        "message": "실시간 영상 연결 · H.264 60fps"
+      },
+      {
+        "at": 1793923066919,
+        "message": "온도 구역 cpu-0-1=55700 sys-therm-0=54338 aoss-0=53700 mdmss-0=54900 nspss-2=53700 camera-0=54100 nspss-0=54100 video=55300 gpuss-0=54100 battery=28000 cpu-0-2=54100 sys-therm-1=53823 cpu-0-0=55700 pm8150_tz=55007 camera-1=54500 nspss-1=54100 ddr=54100 gpuss-1=54100 cpu-0-3=55700 xo-therm=53308 "
+      },
+      {
+        "at": 1793923110660,
+        "message": "카메라 끔 · video 60장/초, 44초 · 보냄 408 · 버림 10 · 실패 0"
+      },
+      {
+        "at": 1793923114110,
+        "message": "카메라 0 속도범위 [[15, 15], [24, 24], [14, 30], [30, 30], [14, 60], [60, 60]] → [60, 60] · 동영상 1280x720 500kbps"
+      },
+      {
+        "at": 1793923115111,
+        "message": "카메라 시작 · video 60장/초 · 끌 때까지"
+      },
+      {
+        "at": 1793923115124,
+        "message": "온도 구역 cpu-0-1=55700 sys-therm-0=54705 aoss-0=54500 mdmss-0=55300 nspss-2=54100 camera-0=54100 nspss-0=54500 video=55700 gpuss-0=54900 battery=28000 cpu-0-2=54900 sys-therm-1=54264 cpu-0-0=56600 pm8150_tz=55429 camera-1=55300 nspss-1=54500 ddr=54900 gpuss-1=54500 cpu-0-3=55700 xo-therm=53750 "
+      },
+      {
+        "at": 1793923117028,
+        "message": "실시간 영상 연결 · H.264 60fps"
+      }
+    ]
+  },
+  {
+    "test": {
+      "cmd": "cam",
+      "mode": "video",
+      "fps": 60,
+      "sec": 0,
+      "crop": 1,
+      "q": 80,
+      "kbps": 500,
+      "test": 1793923113519,
+      "transport": "websocket",
+      "frames": 5589,
+      "cmdAt": 1793923113519,
+      "done": false,
+      "segments": 928,
+      "retries": 0,
+      "firstAt": 1793923116446,
+      "lastAt": 1793923213138
+    },
+    "keyRequests": 2,
+    "tele": {
+      "at": 1793923212651,
+      "bat": 76,
+      "temp": 285,
+      "th": 0,
+      "zmax": 618,
+      "head": -1,
+      "cap": 5656,
+      "sent": 921,
+      "drop": 16,
+      "fail": 0
+    },
+    "latest": null,
+    "bytes": 11339241,
+    "receiveFps": 59.4,
+    "viewers": [
+      {
+        "media": "http",
+        "dropped": 4,
+        "droppedBackpressure": 0,
+        "droppedWaitingKey": 4,
+        "metrics": {
+          "seq": 58,
+          "visible": true,
+          "frozen": false,
+          "at": 1793923212888,
+          "networkFps": 36.509127281820454,
+          "decodedFps": 36.509127281820454,
+          "displayFps": 30.50762690672668,
+          "frameAgeMs": 18822,
+          "totalReceived": 5163,
+          "totalDecoded": 5098,
+          "totalDisplayed": 3278,
+          "displayDrops": 1820,
+          "queueFrames": 0,
+          "maxFrameQueue": 12,
+          "maxRafGap": 6.900000000008731,
+          "displayWaitMs": 106.90000001787848,
+          "maxDisplayWaitMs": 199.60000002384186,
+          "decoder": {
+            "submitted": 5111,
+            "output": 5098,
+            "skippedUntilKey": 0,
+            "skippedNoConfig": 52,
+            "segmentGaps": 0,
+            "queueResets": 0,
+            "pendingDiscarded": 13,
+            "errors": 0,
+            "maxDecodeQueue": 53
+          },
+          "playerDrops": {
+            "overflow": 1819,
+            "stale": 1,
+            "clear": 0
+          }
+        }
+      }
+    ],
+    "logs": [
+      {
+        "at": 1793922980440,
+        "message": "카메라 0 속도범위 [[15, 15], [24, 24], [14, 30], [30, 30], [14, 60], [60, 60]] → [60, 60] · 동영상 1280x720 2000kbps"
+      },
+      {
+        "at": 1793922980448,
+        "message": "온도 구역 cpu-0-1=52900 sys-therm-0=50661 aoss-0=50900 mdmss-0=52100 nspss-2=50900 camera-0=51300 nspss-0=51300 video=52500 gpuss-0=51700 battery=26500 cpu-0-2=52500 sys-therm-1=50000 cpu-0-0=53700 pm8150_tz=51536 camera-1=51700 nspss-1=50900 ddr=51700 gpuss-1=51300 cpu-0-3=53300 xo-therm=49545 "
+      },
+      {
+        "at": 1793922980646,
+        "message": "카메라 시작 · video 60장/초 · 끌 때까지"
+      },
+      {
+        "at": 1793922982121,
+        "message": "실시간 영상 연결 · H.264 60fps"
+      },
+      {
+        "at": 1793922988373,
+        "message": "재생 시작 480x640 화면 480x640"
+      },
+      {
+        "at": 1793922988566,
+        "message": "신호 받음 마주봄 · 추억 영상 (받아 둔 파일)"
+      },
+      {
+        "at": 1793923032480,
+        "message": "신호 받음 마주봄 · 추억 영상 (받아 둔 파일)"
+      },
+      {
+        "at": 1793923032902,
+        "message": "재생 시작 480x640 화면 480x640"
+      },
+      {
+        "at": 1793923063059,
+        "message": "화면 준비 480x640"
+      },
+      {
+        "at": 1793923064969,
+        "message": "앱 시작"
+      },
+      {
+        "at": 1793923065972,
+        "message": "연결됨 392ms, 시도 1번"
+      },
+      {
+        "at": 1793923066347,
+        "message": "카메라 0 속도범위 [[15, 15], [24, 24], [14, 30], [30, 30], [14, 60], [60, 60]] → [60, 60] · 동영상 1280x720 2000kbps"
+      },
+      {
+        "at": 1793923066457,
+        "message": "카메라 시작 · video 60장/초 · 끌 때까지"
+      },
+      {
+        "at": 1793923066708,
+        "message": "실시간 영상 연결 · H.264 60fps"
+      },
+      {
+        "at": 1793923066919,
+        "message": "온도 구역 cpu-0-1=55700 sys-therm-0=54338 aoss-0=53700 mdmss-0=54900 nspss-2=53700 camera-0=54100 nspss-0=54100 video=55300 gpuss-0=54100 battery=28000 cpu-0-2=54100 sys-therm-1=53823 cpu-0-0=55700 pm8150_tz=55007 camera-1=54500 nspss-1=54100 ddr=54100 gpuss-1=54100 cpu-0-3=55700 xo-therm=53308 "
+      },
+      {
+        "at": 1793923110660,
+        "message": "카메라 끔 · video 60장/초, 44초 · 보냄 408 · 버림 10 · 실패 0"
+      },
+      {
+        "at": 1793923114110,
+        "message": "카메라 0 속도범위 [[15, 15], [24, 24], [14, 30], [30, 30], [14, 60], [60, 60]] → [60, 60] · 동영상 1280x720 500kbps"
+      },
+      {
+        "at": 1793923115111,
+        "message": "카메라 시작 · video 60장/초 · 끌 때까지"
+      },
+      {
+        "at": 1793923115124,
+        "message": "온도 구역 cpu-0-1=55700 sys-therm-0=54705 aoss-0=54500 mdmss-0=55300 nspss-2=54100 camera-0=54100 nspss-0=54500 video=55700 gpuss-0=54900 battery=28000 cpu-0-2=54900 sys-therm-1=54264 cpu-0-0=56600 pm8150_tz=55429 camera-1=55300 nspss-1=54500 ddr=54900 gpuss-1=54500 cpu-0-3=55700 xo-therm=53750 "
+      },
+      {
+        "at": 1793923117028,
+        "message": "실시간 영상 연결 · H.264 60fps"
+      }
+    ]
+  },
+  {
+    "test": {
+      "cmd": "cam",
+      "mode": "video",
+      "fps": 60,
+      "sec": 0,
+      "crop": 1,
+      "q": 80,
+      "kbps": 500,
+      "test": 1793923113519,
+      "transport": "websocket",
+      "frames": 5747,
+      "cmdAt": 1793923113519,
+      "done": false,
+      "segments": 955,
+      "retries": 0,
+      "firstAt": 1793923116446,
+      "lastAt": 1793923215937
+    },
+    "keyRequests": 2,
+    "tele": {
+      "at": 1793923215474,
+      "bat": 75,
+      "temp": 290,
+      "th": 0,
+      "zmax": 618,
+      "head": -1,
+      "cap": 5771,
+      "sent": 941,
+      "drop": 16,
+      "fail": 0
+    },
+    "latest": null,
+    "bytes": 11515975,
+    "receiveFps": 55.3,
+    "viewers": [
+      {
+        "media": "http",
+        "dropped": 4,
+        "droppedBackpressure": 0,
+        "droppedWaitingKey": 4,
+        "metrics": {
+          "seq": 59,
+          "visible": true,
+          "frozen": false,
+          "at": 1793923214893,
+          "networkFps": 23.49765023511654,
+          "decodedFps": 23.49765023511654,
+          "displayFps": 22.997700230114063,
+          "frameAgeMs": 19983,
+          "totalReceived": 5210,
+          "totalDecoded": 5145,
+          "totalDisplayed": 3324,
+          "displayDrops": 1821,
+          "queueFrames": 0,
+          "maxFrameQueue": 12,
+          "maxRafGap": 6.900000000008731,
+          "displayWaitMs": 126.10000000595755,
+          "maxDisplayWaitMs": 199.60000002384186,
+          "decoder": {
+            "submitted": 5158,
+            "output": 5145,
+            "skippedUntilKey": 0,
+            "skippedNoConfig": 52,
+            "segmentGaps": 0,
+            "queueResets": 0,
+            "pendingDiscarded": 13,
+            "errors": 0,
+            "maxDecodeQueue": 53
+          },
+          "playerDrops": {
+            "overflow": 1820,
+            "stale": 1,
+            "clear": 0
+          }
+        }
+      }
+    ],
+    "logs": [
+      {
+        "at": 1793922980440,
+        "message": "카메라 0 속도범위 [[15, 15], [24, 24], [14, 30], [30, 30], [14, 60], [60, 60]] → [60, 60] · 동영상 1280x720 2000kbps"
+      },
+      {
+        "at": 1793922980448,
+        "message": "온도 구역 cpu-0-1=52900 sys-therm-0=50661 aoss-0=50900 mdmss-0=52100 nspss-2=50900 camera-0=51300 nspss-0=51300 video=52500 gpuss-0=51700 battery=26500 cpu-0-2=52500 sys-therm-1=50000 cpu-0-0=53700 pm8150_tz=51536 camera-1=51700 nspss-1=50900 ddr=51700 gpuss-1=51300 cpu-0-3=53300 xo-therm=49545 "
+      },
+      {
+        "at": 1793922980646,
+        "message": "카메라 시작 · video 60장/초 · 끌 때까지"
+      },
+      {
+        "at": 1793922982121,
+        "message": "실시간 영상 연결 · H.264 60fps"
+      },
+      {
+        "at": 1793922988373,
+        "message": "재생 시작 480x640 화면 480x640"
+      },
+      {
+        "at": 1793922988566,
+        "message": "신호 받음 마주봄 · 추억 영상 (받아 둔 파일)"
+      },
+      {
+        "at": 1793923032480,
+        "message": "신호 받음 마주봄 · 추억 영상 (받아 둔 파일)"
+      },
+      {
+        "at": 1793923032902,
+        "message": "재생 시작 480x640 화면 480x640"
+      },
+      {
+        "at": 1793923063059,
+        "message": "화면 준비 480x640"
+      },
+      {
+        "at": 1793923064969,
+        "message": "앱 시작"
+      },
+      {
+        "at": 1793923065972,
+        "message": "연결됨 392ms, 시도 1번"
+      },
+      {
+        "at": 1793923066347,
+        "message": "카메라 0 속도범위 [[15, 15], [24, 24], [14, 30], [30, 30], [14, 60], [60, 60]] → [60, 60] · 동영상 1280x720 2000kbps"
+      },
+      {
+        "at": 1793923066457,
+        "message": "카메라 시작 · video 60장/초 · 끌 때까지"
+      },
+      {
+        "at": 1793923066708,
+        "message": "실시간 영상 연결 · H.264 60fps"
+      },
+      {
+        "at": 1793923066919,
+        "message": "온도 구역 cpu-0-1=55700 sys-therm-0=54338 aoss-0=53700 mdmss-0=54900 nspss-2=53700 camera-0=54100 nspss-0=54100 video=55300 gpuss-0=54100 battery=28000 cpu-0-2=54100 sys-therm-1=53823 cpu-0-0=55700 pm8150_tz=55007 camera-1=54500 nspss-1=54100 ddr=54100 gpuss-1=54100 cpu-0-3=55700 xo-therm=53308 "
+      },
+      {
+        "at": 1793923110660,
+        "message": "카메라 끔 · video 60장/초, 44초 · 보냄 408 · 버림 10 · 실패 0"
+      },
+      {
+        "at": 1793923114110,
+        "message": "카메라 0 속도범위 [[15, 15], [24, 24], [14, 30], [30, 30], [14, 60], [60, 60]] → [60, 60] · 동영상 1280x720 500kbps"
+      },
+      {
+        "at": 1793923115111,
+        "message": "카메라 시작 · video 60장/초 · 끌 때까지"
+      },
+      {
+        "at": 1793923115124,
+        "message": "온도 구역 cpu-0-1=55700 sys-therm-0=54705 aoss-0=54500 mdmss-0=55300 nspss-2=54100 camera-0=54100 nspss-0=54500 video=55700 gpuss-0=54900 battery=28000 cpu-0-2=54900 sys-therm-1=54264 cpu-0-0=56600 pm8150_tz=55429 camera-1=55300 nspss-1=54500 ddr=54900 gpuss-1=54500 cpu-0-3=55700 xo-therm=53750 "
+      },
+      {
+        "at": 1793923117028,
+        "message": "실시간 영상 연결 · H.264 60fps"
+      }
+    ]
+  }
+]

@@ -58,10 +58,19 @@ final class CameraStreamer {
     private Handler bg;
     private CameraDevice device;
     private CameraCaptureSession session;
-    private ImageReader reader;
+    private ImageReader reader, trackingReader;
+    private HandlerThread trackingThread;
+    private Handler trackingHandler;
+    private final LocalTracking tracking;
+    private volatile long cameraGeneration;
+    private long lastTrackingImage;
+    private int trackingHeight=320;
+    private Rect sensorCrop;
     private ThreadPoolExecutor upload;
-    private MediaCodec encoder;
+    private volatile MediaCodec encoder;
     private Thread pump;
+    private boolean liveSocket;
+    private volatile LiveVideoSocket live;
 
     private volatile String mode = "photo";
     private volatile int fps, sec, kbps = 2000;
@@ -76,13 +85,14 @@ final class CameraStreamer {
     private volatile String zname = "";
     private long startedAt, lastInfo;
 
-    CameraStreamer(Context ctx, java.util.function.Supplier<String> server, String id, Out out) {
-        this.ctx = ctx; this.server = server; this.id = id; this.out = out;
+    CameraStreamer(Context ctx, java.util.function.Supplier<String> server, String id, Out out, LocalTracking tracking) {
+        this.ctx = ctx; this.server = server; this.id = id; this.out = out; this.tracking=tracking;
     }
 
-    synchronized void start(String mode, int fps, int sec, float crop, int quality, int kbps, long test) {
+    synchronized void start(String mode, int fps, int sec, float crop, int quality, int kbps, long test, boolean liveSocket) {
         stop(false);
         this.mode = mode; this.fps = fps; this.sec = sec; this.crop = crop; this.quality = quality; this.kbps = kbps; this.test = test;
+        this.liveSocket = liveSocket;
         shot.set(0); sent.set(0); dropped.set(0); failed.set(0); captured.set(0); bytes.set(0);
         thread = new HandlerThread("cam");
         thread.start();
@@ -94,11 +104,17 @@ final class CameraStreamer {
     }
 
     synchronized void stop(boolean say) {
+        cameraGeneration++;tracking.camera(false,320);
         int was = fps;
         fps = 0;
+        LiveVideoSocket socket = live; live = null;
+        if (socket != null) socket.close();
         try { if (session != null) session.close(); } catch (Exception ignored) { }
         try { if (device != null) device.close(); } catch (Exception ignored) { }
         try { if (reader != null) reader.close(); } catch (Exception ignored) { }
+        try { if(trackingReader!=null)trackingReader.close(); } catch(Exception ignored){}
+        if(trackingThread!=null)trackingThread.quitSafely();
+        trackingReader=null;trackingThread=null;trackingHandler=null;
         session = null; device = null; reader = null;
         MediaCodec enc = encoder;
         encoder = null;
@@ -114,6 +130,7 @@ final class CameraStreamer {
     }
 
     private void open(int attempt) {
+        final long generation=cameraGeneration;
         CameraManager cm = ctx.getSystemService(CameraManager.class);
         try {
             String camId = null;
@@ -123,6 +140,7 @@ final class CameraStreamer {
             }
             if (camId == null) { out.report("카메라 없음"); return; }
             CameraCharacteristics ch = cm.getCameraCharacteristics(camId);
+            sensorCrop=ch.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE);
             StreamConfigurationMap map = ch.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
             Range<Integer>[] ranges = ch.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES);
             Range<Integer> range = pickRange(ranges, fps);
@@ -131,6 +149,7 @@ final class CameraStreamer {
             if (mode.equals("video")) {
                 Size size = pick(map.getOutputSizes(SurfaceTexture.class), 1280, 16.0 / 9);
                 target = startEncoder(size);
+                setupTracking(map,size,generation);
                 desc = "동영상 " + size + " " + kbps + "kbps";
             } else {
                 Size size = pick(map.getOutputSizes(ImageFormat.YUV_420_888), Math.round(640 / crop), 4.0 / 3);
@@ -144,7 +163,7 @@ final class CameraStreamer {
             final Range<Integer> fr = range;
             final Surface tg = target;
             cm.openCamera(camId, new CameraDevice.StateCallback() {
-                @Override public void onOpened(CameraDevice d) { device = d; session(d, tg, fr); }
+                @Override public void onOpened(CameraDevice d) { if(generation!=cameraGeneration||fps<=0){d.close();return;} device = d; session(d,tg,fr,trackingReader==null?null:trackingReader.getSurface(),generation); }
                 @Override public void onDisconnected(CameraDevice d) { d.close(); device = null; out.report("카메라 끊김(다른 앱이 가져감?)"); }
                 @Override public void onError(CameraDevice d, int e) {
                     d.close(); device = null;
@@ -166,26 +185,84 @@ final class CameraStreamer {
         if (attempt < 3 && fps > 0 && h != null) h.postDelayed(() -> open(attempt + 1), 1500L * (attempt + 1));
     }
 
-    private void session(CameraDevice d, Surface target, Range<Integer> range) {
-        try {
-            d.createCaptureSession(Arrays.asList(target), new CameraCaptureSession.StateCallback() {
-                @Override public void onConfigured(CameraCaptureSession s) {
-                    session = s;
-                    try {
-                        CaptureRequest.Builder b = d.createCaptureRequest(mode.equals("video") ? CameraDevice.TEMPLATE_RECORD : CameraDevice.TEMPLATE_PREVIEW);
-                        b.addTarget(target);
-                        b.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
-                        if (range != null) b.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, range);
-                        s.setRepeatingRequest(b.build(), null, bg);
-                        startedAt = System.currentTimeMillis();
-                        nextShot = startedAt;
-                        out.report("카메라 시작 · " + mode + " " + fps + "장/초 · " + (sec > 0 ? sec + "초" : "끌 때까지"));
-                        if (sec > 0) bg.postDelayed(() -> stop(true), sec * 1000L);
-                    } catch (Exception e) { out.report("카메라 요청 실패 " + e); }
+    private void setupTracking(StreamConfigurationMap map,Size video,long generation){
+        try{
+            Size selected=null;double bestScore=Double.MAX_VALUE,aspect=(double)video.getWidth()/video.getHeight();
+            double sensorAspect=sensorCrop==null?aspect:(double)sensorCrop.width()/sensorCrop.height();
+            for(Size size:map.getOutputSizes(ImageFormat.YUV_420_888)){
+                double candidateAspect=(double)size.getWidth()/size.getHeight();
+                // A wider sensor view (e.g. 4:3 YUV for 16:9 video) can be center-cropped.
+                // Never use a YUV stream whose crop already removed part of the video view.
+                if(size.getWidth()<320||size.getWidth()>640||candidateAspect<Math.min(sensorAspect,aspect)-.015||candidateAspect>Math.max(sensorAspect,aspect)+.015)continue;
+                long duration=map.getOutputMinFrameDuration(ImageFormat.YUV_420_888,size);
+                if(duration>0&&duration>1_000_000_000L/Math.max(1,fps)+1_000_000L)continue;
+                double score=size.getWidth()+Math.abs(candidateAspect-aspect)*1000;
+                if(score<bestScore){selected=size;bestScore=score;}
+            }
+            if(selected==null){out.report("내부 추적 불가 · 촬영 비율/속도에 맞는 작은 YUV 출력 없음");return;}
+            trackingHeight=(int)Math.round(180*aspect);
+            trackingThread=new HandlerThread("local-tracking");trackingThread.start();trackingHandler=new Handler(trackingThread.getLooper());
+            trackingReader=ImageReader.newInstance(selected.getWidth(),selected.getHeight(),ImageFormat.YUV_420_888,3);
+            lastTrackingImage=0;
+            trackingReader.setOnImageAvailableListener(r->onTrackingImage(r,generation),trackingHandler);
+            out.report("내부 추적 준비 · YUV "+selected+" → 180x"+trackingHeight+" · 최대 15회/초");
+        }catch(Exception e){out.report("내부 추적 준비 실패 · "+e.getClass().getSimpleName());disableTracking();}
+    }
+    private void disableTracking(){
+        tracking.camera(false,trackingHeight);
+        try{if(trackingReader!=null)trackingReader.close();}catch(Exception ignored){}
+        trackingReader=null;if(trackingThread!=null)trackingThread.quitSafely();trackingThread=null;trackingHandler=null;
+    }
+    private void onTrackingImage(ImageReader reader,long generation){
+        Image image=null;byte[] gray=null;
+        try{
+            image=reader.acquireLatestImage();
+            long now=android.os.SystemClock.elapsedRealtime();
+            if(image==null||generation!=cameraGeneration||fps<=0||!tracking.wantsFrames()||now-lastTrackingImage<60)return;
+            lastTrackingImage=now;
+            Image.Plane plane=image.getPlanes()[0];
+            gray=LumaFrame.centerCropRotate(plane.getBuffer(),image.getWidth(),image.getHeight(),plane.getRowStride(),plane.getPixelStride(),180,trackingHeight);
+        }catch(Exception ignored){}finally{if(image!=null)image.close();}
+        // Release the camera buffer before doing any matching. No image queue.
+        if(gray!=null&&generation==cameraGeneration)tracking.frame(gray,180,trackingHeight);
+    }
+    private void session(CameraDevice d,Surface target,Range<Integer> range,Surface analysis,long generation){
+        try{
+            d.createCaptureSession(analysis==null?Arrays.asList(target):Arrays.asList(target,analysis),new CameraCaptureSession.StateCallback(){
+                @Override public void onConfigured(CameraCaptureSession s){
+                    if(generation!=cameraGeneration||fps<=0){s.close();return;}
+                    session=s;
+                    try{
+                        java.util.List<CaptureRequest> burst=new java.util.ArrayList<>();
+                        int every=analysis==null?1:Math.max(1,(int)Math.ceil(fps/15.0));
+                        for(int i=0;i<every;i++){
+                            CaptureRequest.Builder b=d.createCaptureRequest(mode.equals("video")?CameraDevice.TEMPLATE_RECORD:CameraDevice.TEMPLATE_PREVIEW);
+                            b.addTarget(target);if(analysis!=null&&i==0)b.addTarget(analysis);
+                            b.set(CaptureRequest.CONTROL_MODE,CameraMetadata.CONTROL_MODE_AUTO);
+                            if(sensorCrop!=null)b.set(CaptureRequest.SCALER_CROP_REGION,sensorCrop);
+                            // Keep both streams in the same sensor crop; match their aspect ratios.
+                            b.set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE,CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_OFF);
+                            if(range!=null)b.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,range);
+                            burst.add(b.build());
+                        }
+                        s.setRepeatingBurst(burst,null,bg);
+                        tracking.camera(analysis!=null,trackingHeight);
+                        startedAt=System.currentTimeMillis();nextShot=startedAt;
+                        out.report("카메라 시작 · "+mode+" "+fps+"장/초 · 내부 추적 "+(analysis!=null?"사용":"사용 불가"));
+                        if(sec>0)bg.postDelayed(()->{if(generation==cameraGeneration)stop(true);},sec*1000L);
+                    }catch(Exception e){fallback(s,e.toString());}
                 }
-                @Override public void onConfigureFailed(CameraCaptureSession s) { out.report("카메라 세션 실패"); }
-            }, bg);
-        } catch (Exception e) { out.report("카메라 세션 예외 " + e); }
+                private void fallback(CameraCaptureSession s,String message){
+                    s.close();if(generation!=cameraGeneration)return;
+                    out.report("카메라 세션 실패 · "+message);
+                    if(analysis!=null){disableTracking();out.report("내부 추적 출력을 끄고 영상 전송 재시도");session(d,target,range,null,generation);}
+                }
+                @Override public void onConfigureFailed(CameraCaptureSession s){fallback(s,"지원하지 않는 출력 조합");}
+            },bg);
+        }catch(Exception e){
+            out.report("카메라 세션 예외 "+e);
+            if(analysis!=null&&generation==cameraGeneration){disableTracking();session(d,target,range,null,generation);}
+        }
     }
 
     /** 원하는 가로폭·비율에 가장 가까운 크기. */
@@ -270,6 +347,7 @@ final class CameraStreamer {
     private String query(String path) {
         return server.get() + path + "?id=" + id + "&test=" + test + "&mode=" + mode + "&fps=" + fps
                 + "&bat=" + battery + "&temp=" + temp + "&th=" + thermal + "&zmax=" + zmax + "&head=" + head + "&zname=" + zname
+                + "&tracking=" + (tracking.available()?1:0) + "&trackMs=" + tracking.snapshot().ms + "&tracks=" + tracking.snapshot().tracks.size()
                 + "&sent=" + sent.get() + "&drop=" + dropped.get() + "&fail=" + failed.get() + "&cap=" + captured.get();
     }
 
@@ -309,13 +387,69 @@ final class CameraStreamer {
         enc.start();
         encoder = enc;
         String url = query("/stream") + "&w=" + w + "&h=" + h + "&kbps=" + kbps;
-        pump = new Thread(() -> pump(enc, url), "pump");
+        if (liveSocket) {
+            final long streamTest = test;
+            LiveVideoSocket socket = new LiveVideoSocket(() -> server.get() + "/cam/upload?id=" + id + "&test=" + streamTest, streamTest, fps, out::report);
+            live = socket;
+            pump = new Thread(() -> pumpLive(enc, socket), "pump");
+        } else pump = new Thread(() -> pump(enc, url), "pump");
         pump.start();
         return in;
     }
 
     /** 조각 길이: 0.25초였을 때 웹 화면이 그만큼 늦어서 0.1초로(같은 와이파이 조각 처리 7~9ms라 요청 수가 늘어도 괜찮음). */
     private static final long SEG_MS = 100;
+
+    /** Same Camera2/MediaCodec configuration and 100ms chunks; continuous Cloudflare upload. */
+    private void pumpLive(MediaCodec enc, LiveVideoSocket socket) {
+        ByteArrayOutputStream segment = new ByteArrayOutputStream(256 * 1024);
+        byte[] config = new byte[0];
+        int sequence = 0;
+        boolean key = false;
+        long segmentAt = android.os.SystemClock.elapsedRealtime();
+        try {
+            MediaCodec.BufferInfo info = new MediaCodec.BufferInfo();
+            while (encoder == enc) {
+                if (socket.takeKeyRequest()) {
+                    android.os.Bundle params = new android.os.Bundle();
+                    params.putInt(MediaCodec.PARAMETER_KEY_REQUEST_SYNC_FRAME, 0);
+                    enc.setParameters(params);
+                }
+                int index = enc.dequeueOutputBuffer(info, 20000);
+                if (index >= 0) {
+                    if (info.size > 0) {
+                        ByteBuffer buffer = enc.getOutputBuffer(index);
+                        buffer.position(info.offset); buffer.limit(info.offset + info.size);
+                        byte[] data = new byte[info.size]; buffer.get(data);
+                        if ((info.flags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG) != 0) config = data;
+                        else {
+                            captured.incrementAndGet();
+                            boolean isKey = (info.flags & MediaCodec.BUFFER_FLAG_KEY_FRAME) != 0;
+                            // A reconnect starts on a complete key frame, never midway through a GOP.
+                            if (isKey) {
+                                if (segment.size() > 0) sendLive(socket, segment.toByteArray(), sequence++, key);
+                                segment.reset(); segment.write(config, 0, config.length); key = true;
+                                segmentAt = android.os.SystemClock.elapsedRealtime();
+                            }
+                            segment.write(data, 0, data.length);
+                        }
+                    }
+                    enc.releaseOutputBuffer(index, false);
+                }
+                long now = android.os.SystemClock.elapsedRealtime();
+                if (segment.size() > 0 && now - segmentAt >= SEG_MS) {
+                    sendLive(socket, segment.toByteArray(), sequence++, key);
+                    segment.reset(); key = false; segmentAt = now;
+                }
+                info();
+            }
+        } catch (Exception e) { failed.incrementAndGet(); out.report("동영상 전송 오류 " + e); }
+        finally { socket.close(); try { enc.stop(); } catch (Exception ignored) { } enc.release(); }
+    }
+    private void sendLive(LiveVideoSocket socket, byte[] data, int sequence, boolean key) {
+        if (socket.send(data, sequence, key)) { sent.incrementAndGet(); bytes.addAndGet(data.length); }
+        else dropped.incrementAndGet();
+    }
 
     /** 인코더 출력(H.264 Annex-B)을 0.1초씩 모아 조각 POST 로 차례로 보낸다. 끝나면 인코더를 닫는다. */
     private void pump(MediaCodec enc, String url) {
@@ -368,6 +502,9 @@ final class CameraStreamer {
     }
 
     private void post(String url, byte[] data) {
+        // A recording may outlive a temporary tunnel. Resolve the origin for each segment.
+        int path = url.indexOf('/', url.indexOf("://") + 3);
+        if (path >= 0) url = server.get() + url.substring(path);
         try {
             HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
             c.setDoOutput(true);

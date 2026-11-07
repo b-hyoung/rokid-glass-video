@@ -1,0 +1,20 @@
+{
+  "channels": [
+    "wss://hud-test.invalid/cam/ws?binary=1",
+    "wss://hud-test.invalid/recognition/hud"
+  ],
+  "errors": [],
+  "targets": [
+    {
+      "id": "a",
+      "inliers": 206,
+      "patches": 12
+    },
+    {
+      "id": "b",
+      "inliers": 77,
+      "patches": 12
+    }
+  ],
+  "recognitionMs": 67.2999999821186
+}

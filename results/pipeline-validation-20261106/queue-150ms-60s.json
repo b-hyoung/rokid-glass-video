@@ -1,0 +1,101 @@
+{
+  "samples": [
+    "촬영 대기",
+    "설정 60fps · 서버 80.2fps · 웹 도착 60.0fps · 해석 63.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 60.1fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 60.4fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 60.1fps · 웹 도착 57.0fps · 해석 57.0fps · 표시 59.0fps",
+    "설정 60fps · 서버 59.7fps · 웹 도착 63.0fps · 해석 63.0fps · 표시 53.0fps",
+    "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 59.4fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 59.5fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 58.5fps",
+    "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 60.1fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 60.2fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 55.0fps",
+    "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 55.5fps",
+    "설정 60fps · 서버 59.7fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 59.7fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+  ],
+  "errors": [],
+  "stats": {
+    "test": {
+      "cmd": "cam",
+      "mode": "video",
+      "fps": 60,
+      "sec": 0,
+      "crop": 1,
+      "q": 80,
+      "kbps": 2000,
+      "test": 1793917807824,
+      "transport": "websocket",
+      "frames": 3552,
+      "cmdAt": 1793917807824,
+      "done": false,
+      "segments": 592,
+      "retries": 0,
+      "firstAt": 1793917808998,
+      "lastAt": 1793917867940
+    },
+    "tele": null,
+    "latest": null,
+    "bytes": 17003114,
+    "receiveFps": 60.2,
+    "viewers": [
+      {
+        "media": "http",
+        "dropped": 0,
+        "droppedBackpressure": 0,
+        "droppedWaitingKey": 0,
+        "metrics": {
+          "seq": 31,
+          "visible": true,
+          "frozen": false,
+          "at": 1793917867512,
+          "networkFps": 60.00900134966593,
+          "decodedFps": 60.00900134966593,
+          "displayFps": 60.00900134966593,
+          "frameAgeMs": 136,
+          "totalReceived": 3510,
+          "totalDecoded": 3510,
+          "totalDisplayed": 3458,
+          "displayDrops": 49,
+          "queueFrames": 3,
+          "maxFrameQueue": 9,
+          "maxRafGap": 66.60000000000002,
+          "decoder": {
+            "submitted": 3510,
+            "output": 3510,
+            "skippedUntilKey": 0,
+            "skippedNoConfig": 0,
+            "segmentGaps": 0,
+            "queueResets": 0,
+            "pendingDiscarded": 0,
+            "errors": 0,
+            "maxDecodeQueue": 5
+          },
+          "playerDrops": {
+            "overflow": 49,
+            "stale": 0,
+            "clear": 0
+          }
+        }
+      }
+    ],
+    "logs": []
+  }
+}

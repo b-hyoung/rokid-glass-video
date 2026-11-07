@@ -1,0 +1,5501 @@
+{
+  "samples": [
+    {
+      "at": 1793917339106,
+      "decoded": 66,
+      "shown": 28,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 38,
+      "maxQueue": 43,
+      "frameAge": 707,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 66,
+        "output": 66,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "촬영 대기"
+    },
+    {
+      "at": 1793917341112,
+      "decoded": 186,
+      "shown": 147,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 39,
+      "maxQueue": 44,
+      "frameAge": 738,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 186,
+        "output": 186,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 84.5fps · 웹 도착 63.0fps · 해석 63.0fps · 표시 51.0fps"
+    },
+    {
+      "at": 1793917343115,
+      "decoded": 306,
+      "shown": 267,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 39,
+      "maxQueue": 44,
+      "frameAge": 725,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 306,
+        "output": 306,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60.4fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917345121,
+      "decoded": 426,
+      "shown": 388,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 38,
+      "maxQueue": 44,
+      "frameAge": 743,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 426,
+        "output": 426,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917347125,
+      "decoded": 546,
+      "shown": 508,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 38,
+      "maxQueue": 44,
+      "frameAge": 744,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 546,
+        "output": 546,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917349130,
+      "decoded": 668,
+      "shown": 628,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 40,
+      "maxQueue": 44,
+      "frameAge": 747,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 672,
+        "output": 668,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917351135,
+      "decoded": 792,
+      "shown": 749,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 43,
+      "maxQueue": 44,
+      "frameAge": 759,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 792,
+        "output": 792,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917353139,
+      "decoded": 912,
+      "shown": 869,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 43,
+      "maxQueue": 44,
+      "frameAge": 763,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 912,
+        "output": 912,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60.1fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917355145,
+      "decoded": 1032,
+      "shown": 989,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 43,
+      "maxQueue": 44,
+      "frameAge": 765,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 1032,
+        "output": 1032,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917357150,
+      "decoded": 1152,
+      "shown": 1110,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 42,
+      "maxQueue": 44,
+      "frameAge": 769,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 1152,
+        "output": 1152,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.7fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917359157,
+      "decoded": 1272,
+      "shown": 1230,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 42,
+      "maxQueue": 44,
+      "frameAge": 780,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 1272,
+        "output": 1272,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917361162,
+      "decoded": 1392,
+      "shown": 1350,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 42,
+      "maxQueue": 44,
+      "frameAge": 790,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 1392,
+        "output": 1392,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917363167,
+      "decoded": 1512,
+      "shown": 1471,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 41,
+      "maxQueue": 44,
+      "frameAge": 691,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 1512,
+        "output": 1512,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917365173,
+      "decoded": 1632,
+      "shown": 1591,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 41,
+      "maxQueue": 44,
+      "frameAge": 674,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 1632,
+        "output": 1632,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917367177,
+      "decoded": 1752,
+      "shown": 1711,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 41,
+      "maxQueue": 44,
+      "frameAge": 700,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 1752,
+        "output": 1752,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.3fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917369181,
+      "decoded": 1872,
+      "shown": 1831,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 41,
+      "maxQueue": 44,
+      "frameAge": 708,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 1872,
+        "output": 1872,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917371186,
+      "decoded": 1992,
+      "shown": 1952,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 40,
+      "maxQueue": 44,
+      "frameAge": 708,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 1992,
+        "output": 1992,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917373190,
+      "decoded": 2112,
+      "shown": 2072,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 40,
+      "maxQueue": 44,
+      "frameAge": 711,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 2112,
+        "output": 2112,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917375196,
+      "decoded": 2232,
+      "shown": 2192,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 40,
+      "maxQueue": 44,
+      "frameAge": 702,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 2232,
+        "output": 2232,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917377201,
+      "decoded": 2352,
+      "shown": 2313,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 39,
+      "maxQueue": 44,
+      "frameAge": 726,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 2352,
+        "output": 2352,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.4fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917379207,
+      "decoded": 2472,
+      "shown": 2433,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 39,
+      "maxQueue": 44,
+      "frameAge": 727,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 2472,
+        "output": 2472,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917381211,
+      "decoded": 2592,
+      "shown": 2553,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 39,
+      "maxQueue": 44,
+      "frameAge": 730,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 2592,
+        "output": 2592,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917383214,
+      "decoded": 2712,
+      "shown": 2673,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 39,
+      "maxQueue": 44,
+      "frameAge": 742,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 2712,
+        "output": 2712,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917385219,
+      "decoded": 2832,
+      "shown": 2794,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 38,
+      "maxQueue": 44,
+      "frameAge": 742,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 2832,
+        "output": 2832,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60.2fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917387224,
+      "decoded": 2952,
+      "shown": 2914,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 38,
+      "maxQueue": 44,
+      "frameAge": 748,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 2952,
+        "output": 2952,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917389230,
+      "decoded": 3078,
+      "shown": 3034,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 44,
+      "maxQueue": 44,
+      "frameAge": 753,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 3078,
+        "output": 3078,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917391233,
+      "decoded": 3198,
+      "shown": 3155,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 43,
+      "maxQueue": 44,
+      "frameAge": 758,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 3198,
+        "output": 3198,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917393238,
+      "decoded": 3318,
+      "shown": 3275,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 43,
+      "maxQueue": 44,
+      "frameAge": 764,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 3318,
+        "output": 3318,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60.1fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917395243,
+      "decoded": 3438,
+      "shown": 3395,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 43,
+      "maxQueue": 44,
+      "frameAge": 769,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 3438,
+        "output": 3438,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917397247,
+      "decoded": 3558,
+      "shown": 3516,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 42,
+      "maxQueue": 45,
+      "frameAge": 767,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 3558,
+        "output": 3558,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917399251,
+      "decoded": 3678,
+      "shown": 3636,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 42,
+      "maxQueue": 45,
+      "frameAge": 777,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 3678,
+        "output": 3678,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917401256,
+      "decoded": 3798,
+      "shown": 3756,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 42,
+      "maxQueue": 45,
+      "frameAge": 784,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 3798,
+        "output": 3798,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917403262,
+      "decoded": 3918,
+      "shown": 3876,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 42,
+      "maxQueue": 45,
+      "frameAge": 784,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 3918,
+        "output": 3918,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60.1fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917405271,
+      "decoded": 4038,
+      "shown": 3997,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 41,
+      "maxQueue": 45,
+      "frameAge": 698,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 4038,
+        "output": 4038,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917407276,
+      "decoded": 4158,
+      "shown": 4117,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 41,
+      "maxQueue": 45,
+      "frameAge": 704,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 4158,
+        "output": 4158,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917409279,
+      "decoded": 4278,
+      "shown": 4237,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 41,
+      "maxQueue": 45,
+      "frameAge": 703,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 4278,
+        "output": 4278,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.5fps"
+    },
+    {
+      "at": 1793917411286,
+      "decoded": 4398,
+      "shown": 4358,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 40,
+      "maxQueue": 45,
+      "frameAge": 713,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 4398,
+        "output": 4398,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917413290,
+      "decoded": 4518,
+      "shown": 4478,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 40,
+      "maxQueue": 45,
+      "frameAge": 715,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 4518,
+        "output": 4518,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917415293,
+      "decoded": 4638,
+      "shown": 4598,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 40,
+      "maxQueue": 45,
+      "frameAge": 718,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 4638,
+        "output": 4638,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917417300,
+      "decoded": 4758,
+      "shown": 4719,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 39,
+      "maxQueue": 45,
+      "frameAge": 727,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 4758,
+        "output": 4758,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 59.5fps"
+    },
+    {
+      "at": 1793917419304,
+      "decoded": 4878,
+      "shown": 4839,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 39,
+      "maxQueue": 45,
+      "frameAge": 732,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 4878,
+        "output": 4878,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917421308,
+      "decoded": 4998,
+      "shown": 4959,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 39,
+      "maxQueue": 45,
+      "frameAge": 728,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 4998,
+        "output": 4998,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.5fps"
+    },
+    {
+      "at": 1793917423311,
+      "decoded": 5118,
+      "shown": 5079,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 39,
+      "maxQueue": 45,
+      "frameAge": 735,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 5118,
+        "output": 5118,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.7fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917425316,
+      "decoded": 5238,
+      "shown": 5200,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 38,
+      "maxQueue": 45,
+      "frameAge": 744,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 5244,
+        "output": 5238,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60.1fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917427320,
+      "decoded": 5358,
+      "shown": 5320,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 38,
+      "maxQueue": 45,
+      "frameAge": 745,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 5358,
+        "output": 5358,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917429322,
+      "decoded": 5478,
+      "shown": 5440,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 38,
+      "maxQueue": 45,
+      "frameAge": 732,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 5484,
+        "output": 5478,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917431325,
+      "decoded": 5604,
+      "shown": 5560,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 44,
+      "maxQueue": 45,
+      "frameAge": 750,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 5604,
+        "output": 5604,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917433330,
+      "decoded": 5724,
+      "shown": 5681,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 43,
+      "maxQueue": 45,
+      "frameAge": 757,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 5724,
+        "output": 5724,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60.5fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917435334,
+      "decoded": 5844,
+      "shown": 5801,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 43,
+      "maxQueue": 45,
+      "frameAge": 759,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 5844,
+        "output": 5844,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917437337,
+      "decoded": 5964,
+      "shown": 5921,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 43,
+      "maxQueue": 45,
+      "frameAge": 755,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 5964,
+        "output": 5964,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917439341,
+      "decoded": 6084,
+      "shown": 6041,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 43,
+      "maxQueue": 45,
+      "frameAge": 768,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 6084,
+        "output": 6084,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917441348,
+      "decoded": 6204,
+      "shown": 6162,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 42,
+      "maxQueue": 45,
+      "frameAge": 773,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 6204,
+        "output": 6204,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60.2fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917443352,
+      "decoded": 6324,
+      "shown": 6282,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 42,
+      "maxQueue": 45,
+      "frameAge": 779,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 6324,
+        "output": 6324,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.7fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917445355,
+      "decoded": 6444,
+      "shown": 6402,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 42,
+      "maxQueue": 45,
+      "frameAge": 781,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 6444,
+        "output": 6444,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917447360,
+      "decoded": 6564,
+      "shown": 6522,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 42,
+      "maxQueue": 45,
+      "frameAge": 786,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 6564,
+        "output": 6564,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917449366,
+      "decoded": 6684,
+      "shown": 6643,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 41,
+      "maxQueue": 45,
+      "frameAge": 686,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 6684,
+        "output": 6684,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917451371,
+      "decoded": 6804,
+      "shown": 6763,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 41,
+      "maxQueue": 45,
+      "frameAge": 694,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 6804,
+        "output": 6804,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917453376,
+      "decoded": 6924,
+      "shown": 6883,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 41,
+      "maxQueue": 45,
+      "frameAge": 700,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 6924,
+        "output": 6924,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917455381,
+      "decoded": 7044,
+      "shown": 7004,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 40,
+      "maxQueue": 45,
+      "frameAge": 705,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 7044,
+        "output": 7044,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917457386,
+      "decoded": 7164,
+      "shown": 7124,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 40,
+      "maxQueue": 45,
+      "frameAge": 712,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 7164,
+        "output": 7164,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917459391,
+      "decoded": 7284,
+      "shown": 7244,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 40,
+      "maxQueue": 45,
+      "frameAge": 722,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 7284,
+        "output": 7284,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917461397,
+      "decoded": 7404,
+      "shown": 7365,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 39,
+      "maxQueue": 45,
+      "frameAge": 724,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 7404,
+        "output": 7404,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60.1fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917463403,
+      "decoded": 7524,
+      "shown": 7485,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 39,
+      "maxQueue": 45,
+      "frameAge": 729,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 7524,
+        "output": 7524,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917465408,
+      "decoded": 7644,
+      "shown": 7605,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 39,
+      "maxQueue": 45,
+      "frameAge": 735,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 7644,
+        "output": 7644,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917467417,
+      "decoded": 7764,
+      "shown": 7726,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 38,
+      "maxQueue": 45,
+      "frameAge": 743,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 7770,
+        "output": 7764,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60.1fps · 웹 도착 57.0fps · 해석 57.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917469422,
+      "decoded": 7884,
+      "shown": 7846,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 38,
+      "maxQueue": 45,
+      "frameAge": 748,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 7890,
+        "output": 7884,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 63.0fps · 해석 63.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917471425,
+      "decoded": 8004,
+      "shown": 7966,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 38,
+      "maxQueue": 45,
+      "frameAge": 750,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 8004,
+        "output": 8004,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917473432,
+      "decoded": 8130,
+      "shown": 8087,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 43,
+      "maxQueue": 45,
+      "frameAge": 755,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 8130,
+        "output": 8130,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60.1fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917475438,
+      "decoded": 8250,
+      "shown": 8207,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 43,
+      "maxQueue": 45,
+      "frameAge": 764,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 8250,
+        "output": 8250,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917477444,
+      "decoded": 8370,
+      "shown": 8328,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 42,
+      "maxQueue": 45,
+      "frameAge": 768,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 8370,
+        "output": 8370,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917479450,
+      "decoded": 8490,
+      "shown": 8448,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 42,
+      "maxQueue": 45,
+      "frameAge": 781,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 8490,
+        "output": 8490,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60.2fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917481455,
+      "decoded": 8610,
+      "shown": 8568,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 42,
+      "maxQueue": 45,
+      "frameAge": 779,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 8610,
+        "output": 8610,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917483463,
+      "decoded": 8730,
+      "shown": 8689,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 41,
+      "maxQueue": 45,
+      "frameAge": 690,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 8730,
+        "output": 8730,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917485469,
+      "decoded": 8850,
+      "shown": 8809,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 41,
+      "maxQueue": 45,
+      "frameAge": 698,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 8850,
+        "output": 8850,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60.3fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917487473,
+      "decoded": 8970,
+      "shown": 8929,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 41,
+      "maxQueue": 45,
+      "frameAge": 693,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 8970,
+        "output": 8970,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917489479,
+      "decoded": 9090,
+      "shown": 9050,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 40,
+      "maxQueue": 45,
+      "frameAge": 706,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 9090,
+        "output": 9090,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917491486,
+      "decoded": 9210,
+      "shown": 9170,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 40,
+      "maxQueue": 45,
+      "frameAge": 716,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 9210,
+        "output": 9210,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.7fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917493490,
+      "decoded": 9330,
+      "shown": 9290,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 40,
+      "maxQueue": 45,
+      "frameAge": 713,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 9330,
+        "output": 9330,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917495496,
+      "decoded": 9450,
+      "shown": 9411,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 39,
+      "maxQueue": 45,
+      "frameAge": 719,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 9450,
+        "output": 9450,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.7fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917497501,
+      "decoded": 9570,
+      "shown": 9531,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 39,
+      "maxQueue": 45,
+      "frameAge": 726,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 9570,
+        "output": 9570,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917499507,
+      "decoded": 9690,
+      "shown": 9651,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 39,
+      "maxQueue": 45,
+      "frameAge": 731,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 9690,
+        "output": 9690,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917501513,
+      "decoded": 9810,
+      "shown": 9772,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 38,
+      "maxQueue": 45,
+      "frameAge": 744,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 9810,
+        "output": 9810,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917503518,
+      "decoded": 9936,
+      "shown": 9892,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 44,
+      "maxQueue": 45,
+      "frameAge": 702,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 9936,
+        "output": 9936,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60.1fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917505521,
+      "decoded": 10050,
+      "shown": 10012,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 38,
+      "maxQueue": 45,
+      "frameAge": 747,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 10056,
+        "output": 10050,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.6fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917507529,
+      "decoded": 10170,
+      "shown": 10133,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 37,
+      "maxQueue": 45,
+      "frameAge": 760,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 10176,
+        "output": 10170,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917509534,
+      "decoded": 10296,
+      "shown": 10253,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 43,
+      "maxQueue": 45,
+      "frameAge": 759,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 10296,
+        "output": 10296,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917511540,
+      "decoded": 10416,
+      "shown": 10373,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 43,
+      "maxQueue": 45,
+      "frameAge": 761,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 10416,
+        "output": 10416,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917513545,
+      "decoded": 10536,
+      "shown": 10494,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 42,
+      "maxQueue": 45,
+      "frameAge": 769,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 10536,
+        "output": 10536,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917515549,
+      "decoded": 10656,
+      "shown": 10614,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 42,
+      "maxQueue": 45,
+      "frameAge": 774,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 10656,
+        "output": 10656,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917517552,
+      "decoded": 10776,
+      "shown": 10734,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 42,
+      "maxQueue": 45,
+      "frameAge": 777,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 10776,
+        "output": 10776,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.7fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917519557,
+      "decoded": 10896,
+      "shown": 10854,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 42,
+      "maxQueue": 45,
+      "frameAge": 783,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 10896,
+        "output": 10896,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917521565,
+      "decoded": 11016,
+      "shown": 10975,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 41,
+      "maxQueue": 45,
+      "frameAge": 687,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 11016,
+        "output": 11016,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917523571,
+      "decoded": 11136,
+      "shown": 11095,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 41,
+      "maxQueue": 45,
+      "frameAge": 694,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 11136,
+        "output": 11136,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917525578,
+      "decoded": 11256,
+      "shown": 11216,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 40,
+      "maxQueue": 45,
+      "frameAge": 700,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 11256,
+        "output": 11256,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917527585,
+      "decoded": 11376,
+      "shown": 11336,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 40,
+      "maxQueue": 45,
+      "frameAge": 707,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 11376,
+        "output": 11376,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60.1fps · 웹 도착 57.0fps · 해석 57.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917529588,
+      "decoded": 11496,
+      "shown": 11456,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 40,
+      "maxQueue": 45,
+      "frameAge": 711,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 11496,
+        "output": 11496,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.3fps · 웹 도착 63.0fps · 해석 63.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917531595,
+      "decoded": 11616,
+      "shown": 11577,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 39,
+      "maxQueue": 45,
+      "frameAge": 724,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 11616,
+        "output": 11616,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60.4fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917533600,
+      "decoded": 11736,
+      "shown": 11697,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 39,
+      "maxQueue": 45,
+      "frameAge": 722,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 11736,
+        "output": 11736,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917535603,
+      "decoded": 11856,
+      "shown": 11817,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 39,
+      "maxQueue": 45,
+      "frameAge": 720,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 11856,
+        "output": 11856,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917537613,
+      "decoded": 11976,
+      "shown": 11938,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 38,
+      "maxQueue": 45,
+      "frameAge": 739,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 11976,
+        "output": 11976,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.7fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917539615,
+      "decoded": 12102,
+      "shown": 12058,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 44,
+      "maxQueue": 45,
+      "frameAge": 739,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 12102,
+        "output": 12102,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917541616,
+      "decoded": 12216,
+      "shown": 12178,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 38,
+      "maxQueue": 45,
+      "frameAge": 741,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 12216,
+        "output": 12216,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917543622,
+      "decoded": 12336,
+      "shown": 12298,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 38,
+      "maxQueue": 45,
+      "frameAge": 747,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 12336,
+        "output": 12336,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917545628,
+      "decoded": 12462,
+      "shown": 12419,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 43,
+      "maxQueue": 45,
+      "frameAge": 743,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 12462,
+        "output": 12462,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.6fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917547631,
+      "decoded": 12582,
+      "shown": 12539,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 43,
+      "maxQueue": 45,
+      "frameAge": 748,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 12582,
+        "output": 12582,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917549637,
+      "decoded": 12702,
+      "shown": 12659,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 43,
+      "maxQueue": 45,
+      "frameAge": 762,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 12702,
+        "output": 12702,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917551640,
+      "decoded": 12822,
+      "shown": 12780,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 42,
+      "maxQueue": 45,
+      "frameAge": 764,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 12822,
+        "output": 12822,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917553642,
+      "decoded": 12942,
+      "shown": 12900,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 42,
+      "maxQueue": 45,
+      "frameAge": 762,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 12942,
+        "output": 12942,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917555645,
+      "decoded": 13062,
+      "shown": 13020,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 42,
+      "maxQueue": 45,
+      "frameAge": 760,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 13062,
+        "output": 13062,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917557649,
+      "decoded": 13182,
+      "shown": 13140,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 42,
+      "maxQueue": 45,
+      "frameAge": 775,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 13182,
+        "output": 13182,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917559655,
+      "decoded": 13302,
+      "shown": 13260,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 42,
+      "maxQueue": 45,
+      "frameAge": 779,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 13302,
+        "output": 13302,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917561660,
+      "decoded": 13422,
+      "shown": 13381,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 41,
+      "maxQueue": 45,
+      "frameAge": 681,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 13422,
+        "output": 13422,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917563664,
+      "decoded": 13542,
+      "shown": 13501,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 41,
+      "maxQueue": 45,
+      "frameAge": 690,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 13542,
+        "output": 13542,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60.2fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917565675,
+      "decoded": 13662,
+      "shown": 13622,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 40,
+      "maxQueue": 45,
+      "frameAge": 700,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 13662,
+        "output": 13662,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917567679,
+      "decoded": 13782,
+      "shown": 13742,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 40,
+      "maxQueue": 45,
+      "frameAge": 705,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 13782,
+        "output": 13782,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917569681,
+      "decoded": 13902,
+      "shown": 13862,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 40,
+      "maxQueue": 45,
+      "frameAge": 702,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 13902,
+        "output": 13902,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60.1fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917571687,
+      "decoded": 14022,
+      "shown": 13982,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 40,
+      "maxQueue": 45,
+      "frameAge": 710,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 14022,
+        "output": 14022,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917573693,
+      "decoded": 14142,
+      "shown": 14103,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 39,
+      "maxQueue": 45,
+      "frameAge": 716,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 14142,
+        "output": 14142,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917575697,
+      "decoded": 14262,
+      "shown": 14223,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 39,
+      "maxQueue": 45,
+      "frameAge": 719,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 14262,
+        "output": 14262,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917577707,
+      "decoded": 14382,
+      "shown": 14344,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 38,
+      "maxQueue": 45,
+      "frameAge": 733,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 14382,
+        "output": 14382,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917579709,
+      "decoded": 14502,
+      "shown": 14464,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 38,
+      "maxQueue": 45,
+      "frameAge": 736,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 14502,
+        "output": 14502,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917581711,
+      "decoded": 14622,
+      "shown": 14584,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 38,
+      "maxQueue": 45,
+      "frameAge": 739,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 14628,
+        "output": 14622,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917583713,
+      "decoded": 14742,
+      "shown": 14704,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 38,
+      "maxQueue": 45,
+      "frameAge": 738,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 14742,
+        "output": 14742,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917585715,
+      "decoded": 14862,
+      "shown": 14824,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 38,
+      "maxQueue": 45,
+      "frameAge": 739,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 14862,
+        "output": 14862,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60.2fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917587722,
+      "decoded": 14988,
+      "shown": 14944,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 44,
+      "maxQueue": 45,
+      "frameAge": 750,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 14988,
+        "output": 14988,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917589727,
+      "decoded": 15108,
+      "shown": 15065,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 43,
+      "maxQueue": 45,
+      "frameAge": 753,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 15108,
+        "output": 15108,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917591731,
+      "decoded": 15228,
+      "shown": 15185,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 43,
+      "maxQueue": 45,
+      "frameAge": 748,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 15228,
+        "output": 15228,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917593734,
+      "decoded": 15348,
+      "shown": 15305,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 43,
+      "maxQueue": 45,
+      "frameAge": 743,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 15348,
+        "output": 15348,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917595740,
+      "decoded": 15468,
+      "shown": 15426,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 42,
+      "maxQueue": 45,
+      "frameAge": 763,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 15468,
+        "output": 15468,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917597744,
+      "decoded": 15588,
+      "shown": 15546,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 42,
+      "maxQueue": 45,
+      "frameAge": 765,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 15588,
+        "output": 15588,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917599748,
+      "decoded": 15708,
+      "shown": 15666,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 42,
+      "maxQueue": 45,
+      "frameAge": 774,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 15708,
+        "output": 15708,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917601757,
+      "decoded": 15828,
+      "shown": 15787,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 41,
+      "maxQueue": 45,
+      "frameAge": 683,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 15828,
+        "output": 15828,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917603760,
+      "decoded": 15948,
+      "shown": 15907,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 41,
+      "maxQueue": 45,
+      "frameAge": 677,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 15948,
+        "output": 15948,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917605765,
+      "decoded": 16068,
+      "shown": 16027,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 41,
+      "maxQueue": 45,
+      "frameAge": 689,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 16068,
+        "output": 16068,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917607774,
+      "decoded": 16188,
+      "shown": 16148,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 40,
+      "maxQueue": 45,
+      "frameAge": 692,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 16188,
+        "output": 16188,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.6fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917609777,
+      "decoded": 16308,
+      "shown": 16268,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 40,
+      "maxQueue": 45,
+      "frameAge": 696,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 16308,
+        "output": 16308,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917611781,
+      "decoded": 16428,
+      "shown": 16388,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 40,
+      "maxQueue": 45,
+      "frameAge": 706,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 16428,
+        "output": 16428,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60.1fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917613784,
+      "decoded": 16548,
+      "shown": 16508,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 40,
+      "maxQueue": 45,
+      "frameAge": 705,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 16548,
+        "output": 16548,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.7fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917615787,
+      "decoded": 16668,
+      "shown": 16628,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 40,
+      "maxQueue": 45,
+      "frameAge": 711,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 16668,
+        "output": 16668,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 61.5fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917617792,
+      "decoded": 16788,
+      "shown": 16749,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 39,
+      "maxQueue": 45,
+      "frameAge": 718,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 16788,
+        "output": 16788,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917619797,
+      "decoded": 16908,
+      "shown": 16869,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 39,
+      "maxQueue": 45,
+      "frameAge": 722,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 16908,
+        "output": 16908,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917621807,
+      "decoded": 17028,
+      "shown": 16990,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 38,
+      "maxQueue": 45,
+      "frameAge": 732,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 17028,
+        "output": 17028,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.6fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917623813,
+      "decoded": 17148,
+      "shown": 17110,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 38,
+      "maxQueue": 45,
+      "frameAge": 740,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 17154,
+        "output": 17148,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917625822,
+      "decoded": 17268,
+      "shown": 17231,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 37,
+      "maxQueue": 45,
+      "frameAge": 751,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 17274,
+        "output": 17268,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60.1fps · 웹 도착 57.0fps · 해석 57.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917627824,
+      "decoded": 17388,
+      "shown": 17351,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 37,
+      "maxQueue": 45,
+      "frameAge": 749,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 17388,
+        "output": 17388,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.7fps · 웹 도착 63.0fps · 해석 63.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917629827,
+      "decoded": 17514,
+      "shown": 17471,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 43,
+      "maxQueue": 45,
+      "frameAge": 755,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 17514,
+        "output": 17514,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917631832,
+      "decoded": 17634,
+      "shown": 17591,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 43,
+      "maxQueue": 45,
+      "frameAge": 758,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 17634,
+        "output": 17634,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60.3fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917633836,
+      "decoded": 17754,
+      "shown": 17711,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 43,
+      "maxQueue": 45,
+      "frameAge": 758,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 17754,
+        "output": 17754,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.7fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917635839,
+      "decoded": 17874,
+      "shown": 17832,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 42,
+      "maxQueue": 45,
+      "frameAge": 765,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 17874,
+        "output": 17874,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917638774,
+      "decoded": 18048,
+      "shown": 18008,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 40,
+      "maxQueue": 45,
+      "frameAge": 701,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 18048,
+        "output": 18048,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": false,
+      "refs": 0,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917640780,
+      "decoded": 18168,
+      "shown": 18128,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 40,
+      "maxQueue": 45,
+      "frameAge": 704,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 18168,
+        "output": 18168,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": true,
+      "refs": 2,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60.3fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917642788,
+      "decoded": 18288,
+      "shown": 18249,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 39,
+      "maxQueue": 45,
+      "frameAge": 713,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 18288,
+        "output": 18288,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": true,
+      "refs": 2,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.7fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917644794,
+      "decoded": 18408,
+      "shown": 18369,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 39,
+      "maxQueue": 45,
+      "frameAge": 722,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 18408,
+        "output": 18408,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": true,
+      "refs": 2,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917646799,
+      "decoded": 18528,
+      "shown": 18489,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 39,
+      "maxQueue": 45,
+      "frameAge": 729,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 18528,
+        "output": 18528,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": true,
+      "refs": 2,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60.1fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917648808,
+      "decoded": 18648,
+      "shown": 18610,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 38,
+      "maxQueue": 45,
+      "frameAge": 736,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 18648,
+        "output": 18648,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": true,
+      "refs": 2,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917650812,
+      "decoded": 18774,
+      "shown": 18730,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 44,
+      "maxQueue": 45,
+      "frameAge": 744,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 18774,
+        "output": 18774,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": true,
+      "refs": 2,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917652817,
+      "decoded": 18892,
+      "shown": 18850,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 42,
+      "maxQueue": 45,
+      "frameAge": 750,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 18894,
+        "output": 18892,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": true,
+      "refs": 2,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917654819,
+      "decoded": 19008,
+      "shown": 18971,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 37,
+      "maxQueue": 45,
+      "frameAge": 749,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 19008,
+        "output": 19008,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": true,
+      "refs": 2,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.7fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917656823,
+      "decoded": 19134,
+      "shown": 19091,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 43,
+      "maxQueue": 45,
+      "frameAge": 756,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 19134,
+        "output": 19134,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": true,
+      "refs": 2,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 59.7fps · 해석 59.7fps · 표시 60.2fps"
+    },
+    {
+      "at": 1793917658827,
+      "decoded": 19254,
+      "shown": 19211,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 43,
+      "maxQueue": 45,
+      "frameAge": 756,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 19254,
+        "output": 19254,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": true,
+      "refs": 2,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 59.5fps · 해석 59.5fps · 표시 59.0fps"
+    },
+    {
+      "at": 1793917660836,
+      "decoded": 19374,
+      "shown": 19332,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 42,
+      "maxQueue": 45,
+      "frameAge": 767,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 19374,
+        "output": 19374,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": true,
+      "refs": 2,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.7fps · 웹 도착 60.2fps · 해석 60.2fps · 표시 60.7fps"
+    },
+    {
+      "at": 1793917662839,
+      "decoded": 19494,
+      "shown": 19452,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 42,
+      "maxQueue": 45,
+      "frameAge": 769,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 19494,
+        "output": 19494,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": true,
+      "refs": 2,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.7fps · 웹 도착 60.6fps · 해석 60.6fps · 표시 60.1fps"
+    },
+    {
+      "at": 1793917664841,
+      "decoded": 19614,
+      "shown": 19572,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 42,
+      "maxQueue": 45,
+      "frameAge": 768,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 19614,
+        "output": 19614,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": true,
+      "refs": 2,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917666844,
+      "decoded": 19734,
+      "shown": 19692,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 42,
+      "maxQueue": 45,
+      "frameAge": 771,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 19734,
+        "output": 19734,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": true,
+      "refs": 2,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917668846,
+      "decoded": 19854,
+      "shown": 19812,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 42,
+      "maxQueue": 45,
+      "frameAge": 775,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 19854,
+        "output": 19854,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": true,
+      "refs": 2,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917670851,
+      "decoded": 19974,
+      "shown": 19932,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 42,
+      "maxQueue": 45,
+      "frameAge": 780,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 19974,
+        "output": 19974,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": true,
+      "refs": 2,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917672857,
+      "decoded": 20094,
+      "shown": 20053,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 41,
+      "maxQueue": 45,
+      "frameAge": 685,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 20094,
+        "output": 20094,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": true,
+      "refs": 2,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917674861,
+      "decoded": 20214,
+      "shown": 20173,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 41,
+      "maxQueue": 45,
+      "frameAge": 688,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 20214,
+        "output": 20214,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": true,
+      "refs": 2,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917676866,
+      "decoded": 20334,
+      "shown": 20293,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 41,
+      "maxQueue": 45,
+      "frameAge": 692,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 20334,
+        "output": 20334,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": true,
+      "refs": 2,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917678872,
+      "decoded": 20454,
+      "shown": 20413,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 41,
+      "maxQueue": 45,
+      "frameAge": 705,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 20454,
+        "output": 20454,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": true,
+      "refs": 2,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60.1fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917680880,
+      "decoded": 20574,
+      "shown": 20534,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 40,
+      "maxQueue": 45,
+      "frameAge": 707,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 20574,
+        "output": 20574,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": true,
+      "refs": 2,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917682885,
+      "decoded": 20694,
+      "shown": 20654,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 40,
+      "maxQueue": 45,
+      "frameAge": 714,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 20694,
+        "output": 20694,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": true,
+      "refs": 2,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60.1fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917684895,
+      "decoded": 20814,
+      "shown": 20775,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 39,
+      "maxQueue": 45,
+      "frameAge": 723,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 20814,
+        "output": 20814,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": true,
+      "refs": 2,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917686900,
+      "decoded": 20934,
+      "shown": 20895,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 39,
+      "maxQueue": 45,
+      "frameAge": 724,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 20934,
+        "output": 20934,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": true,
+      "refs": 2,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917688908,
+      "decoded": 21054,
+      "shown": 21016,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 38,
+      "maxQueue": 45,
+      "frameAge": 735,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 21054,
+        "output": 21054,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": true,
+      "refs": 2,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917690915,
+      "decoded": 21174,
+      "shown": 21136,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 38,
+      "maxQueue": 45,
+      "frameAge": 744,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 21174,
+        "output": 21174,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": true,
+      "refs": 2,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917692917,
+      "decoded": 21294,
+      "shown": 21256,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 38,
+      "maxQueue": 45,
+      "frameAge": 737,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 21294,
+        "output": 21294,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": true,
+      "refs": 2,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60.1fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917694919,
+      "decoded": 21414,
+      "shown": 21376,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 38,
+      "maxQueue": 45,
+      "frameAge": 742,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 21414,
+        "output": 21414,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": true,
+      "refs": 2,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917696921,
+      "decoded": 21534,
+      "shown": 21496,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 38,
+      "maxQueue": 45,
+      "frameAge": 751,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 21534,
+        "output": 21534,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": true,
+      "refs": 2,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 60.1fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    },
+    {
+      "at": 1793917698927,
+      "decoded": 21558,
+      "shown": 21558,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "queue": 0,
+      "maxQueue": 45,
+      "frameAge": 1757,
+      "maxRafGap": 183.29999999999973,
+      "decoder": {
+        "submitted": 21558,
+        "output": 21558,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "recognition": true,
+      "refs": 2,
+      "visible": "visible",
+      "ui": "설정 60fps · 서버 59.8fps · 웹 도착 27.0fps · 해석 27.0fps · 표시 47.5fps"
+    }
+  ],
+  "final": {
+    "at": 1793917699932,
+    "decoded": 21558,
+    "shown": 21558,
+    "dropped": 0,
+    "drops": {
+      "overflow": 0,
+      "stale": 0,
+      "clear": 0
+    },
+    "queue": 0,
+    "maxQueue": 45,
+    "frameAge": 2762,
+    "maxRafGap": 183.29999999999973,
+    "decoder": {
+      "submitted": 21558,
+      "output": 21558,
+      "skippedUntilKey": 0,
+      "skippedNoConfig": 0,
+      "segmentGaps": 0,
+      "queueResets": 0,
+      "pendingDiscarded": 0,
+      "errors": 0,
+      "maxDecodeQueue": 13
+    },
+    "recognition": true,
+    "refs": 2,
+    "visible": "visible"
+  },
+  "server": {
+    "test": {
+      "cmd": "cam",
+      "mode": "video",
+      "fps": 60,
+      "sec": 0,
+      "crop": 1,
+      "q": 80,
+      "kbps": 2000,
+      "test": 1793917337066,
+      "transport": "websocket",
+      "frames": 21558,
+      "cmdAt": 1793917337066,
+      "done": false,
+      "segments": 3593,
+      "retries": 0,
+      "firstAt": 1793917338131,
+      "lastAt": 1793917697170
+    },
+    "tele": null,
+    "latest": null,
+    "bytes": 103177708,
+    "receiveFps": 0,
+    "viewers": [
+      {
+        "media": "http",
+        "dropped": 0,
+        "droppedBackpressure": 0,
+        "droppedWaitingKey": 0,
+        "metrics": {
+          "seq": 181,
+          "visible": true,
+          "frozen": false,
+          "at": 1793917698504,
+          "networkFps": 27.01215547004202,
+          "decodedFps": 27.01215547004202,
+          "displayFps": 47.521384623222076,
+          "frameAgeMs": 1199,
+          "totalReceived": 21558,
+          "totalDecoded": 21558,
+          "totalDisplayed": 21558,
+          "displayDrops": 0,
+          "queueFrames": 0,
+          "maxFrameQueue": 45,
+          "maxRafGap": 183.29999999999973,
+          "decoder": {
+            "submitted": 21558,
+            "output": 21558,
+            "skippedUntilKey": 0,
+            "skippedNoConfig": 0,
+            "segmentGaps": 0,
+            "queueResets": 0,
+            "pendingDiscarded": 0,
+            "errors": 0,
+            "maxDecodeQueue": 13
+          },
+          "playerDrops": {
+            "overflow": 0,
+            "stale": 0,
+            "clear": 0
+          }
+        }
+      }
+    ],
+    "logs": []
+  },
+  "errors": [],
+  "sourceOutput": "accepted_packets=3593\n"
+}

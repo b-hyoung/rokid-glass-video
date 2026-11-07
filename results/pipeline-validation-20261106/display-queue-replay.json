@@ -1,0 +1,119 @@
+{
+  "description": "Actual packet timing replay; display queue only, no network or decoding.",
+  "results": [
+    {
+      "policy": "previous-800ms-start250",
+      "hz": 60,
+      "received": 5007,
+      "shown": 5007,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "maxQueue": 27,
+      "displayFps": 59.73,
+      "decodedToDisplayWaitMs": {
+        "p50": 196.4,
+        "p95": 379.1,
+        "max": 438.7
+      }
+    },
+    {
+      "policy": "previous-800ms-start250",
+      "hz": 144,
+      "received": 5007,
+      "shown": 5007,
+      "dropped": 0,
+      "drops": {
+        "overflow": 0,
+        "stale": 0,
+        "clear": 0
+      },
+      "maxQueue": 27,
+      "displayFps": 59.74,
+      "decodedToDisplayWaitMs": {
+        "p50": 195.5,
+        "p95": 382,
+        "max": 444.2
+      }
+    },
+    {
+      "policy": "current-200ms",
+      "hz": 60,
+      "received": 5007,
+      "shown": 4980,
+      "dropped": 27,
+      "drops": {
+        "overflow": 27,
+        "stale": 0,
+        "clear": 0
+      },
+      "maxQueue": 12,
+      "displayFps": 59.23,
+      "decodedToDisplayWaitMs": {
+        "p50": 111.4,
+        "p95": 173,
+        "max": 199.2
+      }
+    },
+    {
+      "policy": "current-200ms",
+      "hz": 144,
+      "received": 5007,
+      "shown": 4981,
+      "dropped": 26,
+      "drops": {
+        "overflow": 26,
+        "stale": 0,
+        "clear": 0
+      },
+      "maxQueue": 12,
+      "displayFps": 59.24,
+      "decodedToDisplayWaitMs": {
+        "p50": 109.4,
+        "p95": 173.1,
+        "max": 199
+      }
+    },
+    {
+      "policy": "candidate-150ms",
+      "hz": 60,
+      "received": 5007,
+      "shown": 4865,
+      "dropped": 142,
+      "drops": {
+        "overflow": 142,
+        "stale": 0,
+        "clear": 0
+      },
+      "maxQueue": 9,
+      "displayFps": 57.87,
+      "decodedToDisplayWaitMs": {
+        "p50": 80.8,
+        "p95": 135.1,
+        "max": 150
+      }
+    },
+    {
+      "policy": "candidate-150ms",
+      "hz": 144,
+      "received": 5007,
+      "shown": 4882,
+      "dropped": 125,
+      "drops": {
+        "overflow": 111,
+        "stale": 14,
+        "clear": 0
+      },
+      "maxQueue": 9,
+      "displayFps": 58.08,
+      "decodedToDisplayWaitMs": {
+        "p50": 78.7,
+        "p95": 133.1,
+        "max": 149.8
+      }
+    }
+  ]
+}

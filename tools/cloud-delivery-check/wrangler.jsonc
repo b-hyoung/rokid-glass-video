@@ -1,0 +1,12 @@
+{
+  "name": "rokid-delivery-check",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-11-01",
+  "rules": [{"type": "Data", "globs": ["**/*.h264"], "fallthrough": false}],
+  "assets": {"directory": "../../dist", "binding": "ASSETS", "run_worker_first": true},
+  "durable_objects": {"bindings": [
+    {"name": "PACER", "class_name": "Pacer"},
+    {"name": "ROOM", "class_name": "GlassRoom"}
+  ]},
+  "migrations": [{"tag": "v1", "new_sqlite_classes": ["Pacer", "GlassRoom"]}]
+}

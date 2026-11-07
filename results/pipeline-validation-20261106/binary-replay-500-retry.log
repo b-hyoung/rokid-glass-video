@@ -1,0 +1,5 @@
+SOCKET wss://rokid-delivery-check.youqlrqod.workers.dev/cam/ws?binary=1
+page.waitForFunction: Timeout 60000ms exceeded.
+    at /Users/bobs/Desktop/bobs_project/rokid-glass-video/tools/check_live_freshness.cjs:6:44 {
+  name: 'TimeoutError'
+}

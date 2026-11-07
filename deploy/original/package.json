@@ -1,0 +1,11 @@
+{
+  "name": "rokid-original-baseline",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prepare-source": "node prepare-source.mjs",
+    "check": "npm run prepare-source && wrangler deploy --dry-run --containers-rollout=none --outdir build/worker"
+  },
+  "dependencies": {"@cloudflare/containers": "0.3.7"},
+  "devDependencies": {"wrangler": "4.157.0"}
+}

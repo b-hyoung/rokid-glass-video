@@ -1,0 +1,55 @@
+{
+  "duration": 61.0505,
+  "errors": [],
+  "decoder": {
+    "submitted": 2547,
+    "output": 2415,
+    "skippedUntilKey": 45,
+    "skippedNoConfig": 0,
+    "segmentGaps": 11,
+    "queueResets": 0,
+    "pendingDiscarded": 132,
+    "errors": 0,
+    "maxDecodeQueue": 95
+  },
+  "packets": 432,
+  "players": [
+    {
+      "name": "current",
+      "shown": 419,
+      "dropped": 1996,
+      "drops": {
+        "overflow": 1077,
+        "stale": 919,
+        "clear": 0
+      },
+      "maxWaitMs": 198.29999998807943
+    },
+    {
+      "name": "local-200ms",
+      "shown": 1113,
+      "dropped": 1302,
+      "drops": {
+        "overflow": 1302,
+        "stale": 0,
+        "clear": 0
+      },
+      "maxWaitMs": 198.499999994041
+    },
+    {
+      "name": "adaptive",
+      "shown": 422,
+      "dropped": 1993,
+      "drops": {
+        "overflow": 453,
+        "stale": 1540,
+        "clear": 0
+      },
+      "maxWaitMs": 199.99999999403917
+    }
+  ],
+  "packetAgeMs": {
+    "p50": 1548.64990234375,
+    "p95": 5064.64990234375
+  }
+}

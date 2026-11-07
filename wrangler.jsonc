@@ -1,7 +1,14 @@
-// Cloudflare Workers 정적 배포(2412호 데모 + 안경 영상 + 시연 녹화). 먼저 python tools/build_pages.py 로 dist/ 생성.
-//   npx wrangler deploy
 {
   "name": "glass-2412",
+  "main": "cloud/worker.mjs",
   "compatibility_date": "2026-11-01",
-  "assets": { "directory": "./dist", "html_handling": "auto-trailing-slash", "not_found_handling": "none" }
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "run_worker_first": ["/", "/control", "/control/", "/server.txt", "/recognition", "/recognition/*", "/status", "/play", "/stop", "/next", "/log", "/cam", "/cam/*", "/frame", "/stream", "/tele"],
+    "html_handling": "none",
+    "not_found_handling": "none"
+  },
+  "durable_objects": {"bindings": [{"name":"ROOM", "class_name":"GlassRoom"}]},
+  "migrations": [{"tag":"v1", "new_sqlite_classes":["GlassRoom"]}]
 }

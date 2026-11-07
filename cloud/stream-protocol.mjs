@@ -1,0 +1,7 @@
+// Binary WebSocket packet: uint32 big-endian JSON length, UTF-8 JSON, Annex-B bytes.
+const utf8=new TextEncoder(),text=new TextDecoder();
+export function pack(meta,bytes){const h=utf8.encode(JSON.stringify(meta)),out=new Uint8Array(4+h.length+bytes.length);new DataView(out.buffer).setUint32(0,h.length);out.set(h,4);out.set(bytes,4+h.length);return out.buffer}
+export function unpack(buffer){if(buffer.byteLength<4||buffer.byteLength>4*1024*1024)throw Error('Invalid stream packet');const n=new DataView(buffer).getUint32(0);if(n>8192||4+n>buffer.byteLength)throw Error('Invalid stream header');return {meta:JSON.parse(text.decode(new Uint8Array(buffer,4,n))),bytes:new Uint8Array(buffer,4+n)}}
+export function nals(bytes){const starts=[];for(let i=0;i<bytes.length-3;i++){if(bytes[i]===0&&bytes[i+1]===0){if(bytes[i+2]===1){starts.push([i,i+3]);i+=2}else if(bytes[i+2]===0&&bytes[i+3]===1){starts.push([i,i+4]);i+=3}}}return starts.map(([_,s],i)=>bytes.subarray(s,starts[i+1]?.[0]??bytes.length))}
+export function firstMb(n){let bit=8,zeros=0;const read=()=>{if(bit%8===0&&bit>=24&&n[bit/8]===3&&n[bit/8-1]===0&&n[bit/8-2]===0)bit+=8;return bit<n.length*8?(n[bit>>3]>>(7-(bit++%8)))&1:1};while(read()===0&&zeros<24)zeros++;let value=1;for(let i=0;i<zeros;i++)value=(value<<1)|read();return value-1}
+export function inspect(bytes){let frames=0,key=false;for(const n of nals(bytes)){const t=n[0]&31;if((t===1||t===5)&&firstMb(n)===0)frames++;if(t===5)key=true}return {frames,key}}

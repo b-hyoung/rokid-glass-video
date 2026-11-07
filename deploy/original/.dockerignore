@@ -1,0 +1,8 @@
+*
+!Dockerfile
+!build
+!build/server
+!build/server/**
+!build/demo
+!build/demo/**
+!build/source.json

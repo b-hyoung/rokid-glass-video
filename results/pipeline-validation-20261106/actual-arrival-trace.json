@@ -1,0 +1,3109 @@
+{
+  "description": "Actual glasses HTTP arrivals, about 84 seconds, 60fps configured. Timing only; H.264 payloads are not stored.",
+  "packets": [
+    {
+      "clientAt": 0.0,
+      "frames": 8
+    },
+    {
+      "clientAt": 84.0,
+      "frames": 5
+    },
+    {
+      "clientAt": 147.9,
+      "frames": 7
+    },
+    {
+      "clientAt": 260.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 361.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 473.2,
+      "frames": 6
+    },
+    {
+      "clientAt": 587.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 702.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 807.4,
+      "frames": 6
+    },
+    {
+      "clientAt": 968.4,
+      "frames": 8
+    },
+    {
+      "clientAt": 1073.5,
+      "frames": 6
+    },
+    {
+      "clientAt": 1149.0,
+      "frames": 6
+    },
+    {
+      "clientAt": 1299.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 1368.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 1465.5,
+      "frames": 5
+    },
+    {
+      "clientAt": 1575.3,
+      "frames": 7
+    },
+    {
+      "clientAt": 1691.9,
+      "frames": 7
+    },
+    {
+      "clientAt": 1795.0,
+      "frames": 7
+    },
+    {
+      "clientAt": 1955.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 2046.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 2151.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 2263.3,
+      "frames": 6
+    },
+    {
+      "clientAt": 2636.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 2637.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 2637.6,
+      "frames": 6
+    },
+    {
+      "clientAt": 2850.8,
+      "frames": 6
+    },
+    {
+      "clientAt": 2851.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 2966.4,
+      "frames": 8
+    },
+    {
+      "clientAt": 3054.2,
+      "frames": 6
+    },
+    {
+      "clientAt": 3160.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 3274.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 3363.8,
+      "frames": 5
+    },
+    {
+      "clientAt": 3484.8,
+      "frames": 7
+    },
+    {
+      "clientAt": 3591.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 3706.8,
+      "frames": 7
+    },
+    {
+      "clientAt": 3799.6,
+      "frames": 6
+    },
+    {
+      "clientAt": 3985.1,
+      "frames": 8
+    },
+    {
+      "clientAt": 4048.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 4141.2,
+      "frames": 5
+    },
+    {
+      "clientAt": 4257.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 4366.9,
+      "frames": 7
+    },
+    {
+      "clientAt": 4489.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 4591.6,
+      "frames": 6
+    },
+    {
+      "clientAt": 4843.3,
+      "frames": 5
+    },
+    {
+      "clientAt": 4843.6,
+      "frames": 8
+    },
+    {
+      "clientAt": 4960.5,
+      "frames": 7
+    },
+    {
+      "clientAt": 5042.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 5177.0,
+      "frames": 7
+    },
+    {
+      "clientAt": 5273.6,
+      "frames": 6
+    },
+    {
+      "clientAt": 5376.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 5503.3,
+      "frames": 6
+    },
+    {
+      "clientAt": 5612.0,
+      "frames": 8
+    },
+    {
+      "clientAt": 5711.3,
+      "frames": 6
+    },
+    {
+      "clientAt": 5821.5,
+      "frames": 6
+    },
+    {
+      "clientAt": 5974.3,
+      "frames": 8
+    },
+    {
+      "clientAt": 6044.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 6151.3,
+      "frames": 6
+    },
+    {
+      "clientAt": 6276.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 6386.0,
+      "frames": 7
+    },
+    {
+      "clientAt": 6495.8,
+      "frames": 6
+    },
+    {
+      "clientAt": 6612.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 6712.8,
+      "frames": 7
+    },
+    {
+      "clientAt": 6843.1,
+      "frames": 5
+    },
+    {
+      "clientAt": 6981.5,
+      "frames": 8
+    },
+    {
+      "clientAt": 7046.5,
+      "frames": 7
+    },
+    {
+      "clientAt": 7163.9,
+      "frames": 6
+    },
+    {
+      "clientAt": 7272.4,
+      "frames": 4
+    },
+    {
+      "clientAt": 7419.8,
+      "frames": 7
+    },
+    {
+      "clientAt": 7515.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 7617.8,
+      "frames": 6
+    },
+    {
+      "clientAt": 7723.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 7836.5,
+      "frames": 7
+    },
+    {
+      "clientAt": 7850.9,
+      "frames": 1
+    },
+    {
+      "clientAt": 8031.6,
+      "frames": 8
+    },
+    {
+      "clientAt": 8116.1,
+      "frames": 6
+    },
+    {
+      "clientAt": 8218.3,
+      "frames": 8
+    },
+    {
+      "clientAt": 8328.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 8434.5,
+      "frames": 6
+    },
+    {
+      "clientAt": 8556.8,
+      "frames": 7
+    },
+    {
+      "clientAt": 8666.0,
+      "frames": 7
+    },
+    {
+      "clientAt": 8768.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 8862.2,
+      "frames": 4
+    },
+    {
+      "clientAt": 9009.2,
+      "frames": 8
+    },
+    {
+      "clientAt": 9093.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 9202.0,
+      "frames": 6
+    },
+    {
+      "clientAt": 9310.6,
+      "frames": 6
+    },
+    {
+      "clientAt": 9417.5,
+      "frames": 7
+    },
+    {
+      "clientAt": 9516.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 9631.4,
+      "frames": 6
+    },
+    {
+      "clientAt": 9752.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 9851.2,
+      "frames": 6
+    },
+    {
+      "clientAt": 9983.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 10060.6,
+      "frames": 6
+    },
+    {
+      "clientAt": 10173.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 10301.2,
+      "frames": 6
+    },
+    {
+      "clientAt": 10424.8,
+      "frames": 6
+    },
+    {
+      "clientAt": 10536.0,
+      "frames": 8
+    },
+    {
+      "clientAt": 10626.8,
+      "frames": 6
+    },
+    {
+      "clientAt": 10748.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 10858.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 11014.1,
+      "frames": 8
+    },
+    {
+      "clientAt": 11089.7,
+      "frames": 6
+    },
+    {
+      "clientAt": 11197.9,
+      "frames": 7
+    },
+    {
+      "clientAt": 11303.5,
+      "frames": 6
+    },
+    {
+      "clientAt": 11403.4,
+      "frames": 6
+    },
+    {
+      "clientAt": 11519.9,
+      "frames": 7
+    },
+    {
+      "clientAt": 11631.2,
+      "frames": 6
+    },
+    {
+      "clientAt": 11740.4,
+      "frames": 8
+    },
+    {
+      "clientAt": 11849.2,
+      "frames": 6
+    },
+    {
+      "clientAt": 11999.9,
+      "frames": 8
+    },
+    {
+      "clientAt": 12091.2,
+      "frames": 6
+    },
+    {
+      "clientAt": 12212.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 12310.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 12426.0,
+      "frames": 7
+    },
+    {
+      "clientAt": 12531.6,
+      "frames": 6
+    },
+    {
+      "clientAt": 12645.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 12768.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 12864.3,
+      "frames": 5
+    },
+    {
+      "clientAt": 13002.3,
+      "frames": 7
+    },
+    {
+      "clientAt": 13087.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 13206.0,
+      "frames": 6
+    },
+    {
+      "clientAt": 13310.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 13411.9,
+      "frames": 7
+    },
+    {
+      "clientAt": 13524.9,
+      "frames": 7
+    },
+    {
+      "clientAt": 13637.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 13756.7,
+      "frames": 6
+    },
+    {
+      "clientAt": 13860.5,
+      "frames": 6
+    },
+    {
+      "clientAt": 14000.2,
+      "frames": 8
+    },
+    {
+      "clientAt": 14066.8,
+      "frames": 5
+    },
+    {
+      "clientAt": 14181.0,
+      "frames": 7
+    },
+    {
+      "clientAt": 14294.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 14403.3,
+      "frames": 7
+    },
+    {
+      "clientAt": 14516.4,
+      "frames": 6
+    },
+    {
+      "clientAt": 14622.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 14751.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 14856.4,
+      "frames": 6
+    },
+    {
+      "clientAt": 15023.2,
+      "frames": 8
+    },
+    {
+      "clientAt": 15098.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 15217.5,
+      "frames": 7
+    },
+    {
+      "clientAt": 15311.5,
+      "frames": 6
+    },
+    {
+      "clientAt": 15433.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 15565.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 15670.9,
+      "frames": 6
+    },
+    {
+      "clientAt": 15772.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 15867.4,
+      "frames": 5
+    },
+    {
+      "clientAt": 16007.9,
+      "frames": 7
+    },
+    {
+      "clientAt": 16068.7,
+      "frames": 6
+    },
+    {
+      "clientAt": 16175.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 16300.8,
+      "frames": 7
+    },
+    {
+      "clientAt": 16407.2,
+      "frames": 6
+    },
+    {
+      "clientAt": 16517.3,
+      "frames": 7
+    },
+    {
+      "clientAt": 16634.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 16741.4,
+      "frames": 6
+    },
+    {
+      "clientAt": 16866.0,
+      "frames": 7
+    },
+    {
+      "clientAt": 17018.0,
+      "frames": 8
+    },
+    {
+      "clientAt": 17101.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 17206.6,
+      "frames": 5
+    },
+    {
+      "clientAt": 17321.6,
+      "frames": 8
+    },
+    {
+      "clientAt": 17421.0,
+      "frames": 7
+    },
+    {
+      "clientAt": 17532.6,
+      "frames": 6
+    },
+    {
+      "clientAt": 17649.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 17774.9,
+      "frames": 7
+    },
+    {
+      "clientAt": 17868.1,
+      "frames": 5
+    },
+    {
+      "clientAt": 18012.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 18125.0,
+      "frames": 7
+    },
+    {
+      "clientAt": 18214.9,
+      "frames": 7
+    },
+    {
+      "clientAt": 18310.0,
+      "frames": 6
+    },
+    {
+      "clientAt": 18456.0,
+      "frames": 7
+    },
+    {
+      "clientAt": 18531.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 18656.4,
+      "frames": 6
+    },
+    {
+      "clientAt": 18770.8,
+      "frames": 7
+    },
+    {
+      "clientAt": 18856.2,
+      "frames": 6
+    },
+    {
+      "clientAt": 19006.5,
+      "frames": 8
+    },
+    {
+      "clientAt": 19081.2,
+      "frames": 6
+    },
+    {
+      "clientAt": 19207.0,
+      "frames": 7
+    },
+    {
+      "clientAt": 19309.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 19422.6,
+      "frames": 6
+    },
+    {
+      "clientAt": 19549.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 19652.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 19759.9,
+      "frames": 7
+    },
+    {
+      "clientAt": 19870.2,
+      "frames": 5
+    },
+    {
+      "clientAt": 20021.3,
+      "frames": 8
+    },
+    {
+      "clientAt": 20101.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 20200.9,
+      "frames": 6
+    },
+    {
+      "clientAt": 20344.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 20432.9,
+      "frames": 7
+    },
+    {
+      "clientAt": 20543.9,
+      "frames": 6
+    },
+    {
+      "clientAt": 20656.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 20769.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 20862.8,
+      "frames": 5
+    },
+    {
+      "clientAt": 21011.3,
+      "frames": 7
+    },
+    {
+      "clientAt": 21096.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 21191.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 21307.3,
+      "frames": 6
+    },
+    {
+      "clientAt": 21414.3,
+      "frames": 7
+    },
+    {
+      "clientAt": 21529.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 21627.3,
+      "frames": 7
+    },
+    {
+      "clientAt": 21743.8,
+      "frames": 6
+    },
+    {
+      "clientAt": 21858.6,
+      "frames": 6
+    },
+    {
+      "clientAt": 21996.6,
+      "frames": 8
+    },
+    {
+      "clientAt": 22075.3,
+      "frames": 6
+    },
+    {
+      "clientAt": 22183.0,
+      "frames": 6
+    },
+    {
+      "clientAt": 22306.5,
+      "frames": 8
+    },
+    {
+      "clientAt": 22417.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 22527.2,
+      "frames": 6
+    },
+    {
+      "clientAt": 22635.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 22751.9,
+      "frames": 7
+    },
+    {
+      "clientAt": 22864.6,
+      "frames": 5
+    },
+    {
+      "clientAt": 23014.7,
+      "frames": 8
+    },
+    {
+      "clientAt": 23086.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 23189.3,
+      "frames": 5
+    },
+    {
+      "clientAt": 23301.8,
+      "frames": 7
+    },
+    {
+      "clientAt": 23406.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 23520.8,
+      "frames": 7
+    },
+    {
+      "clientAt": 23648.9,
+      "frames": 6
+    },
+    {
+      "clientAt": 23783.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 23878.6,
+      "frames": 6
+    },
+    {
+      "clientAt": 23990.6,
+      "frames": 5
+    },
+    {
+      "clientAt": 24079.9,
+      "frames": 7
+    },
+    {
+      "clientAt": 24183.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 24292.9,
+      "frames": 7
+    },
+    {
+      "clientAt": 24389.3,
+      "frames": 5
+    },
+    {
+      "clientAt": 24518.8,
+      "frames": 7
+    },
+    {
+      "clientAt": 24611.8,
+      "frames": 6
+    },
+    {
+      "clientAt": 24729.7,
+      "frames": 6
+    },
+    {
+      "clientAt": 24852.1,
+      "frames": 8
+    },
+    {
+      "clientAt": 24868.9,
+      "frames": 2
+    },
+    {
+      "clientAt": 25035.9,
+      "frames": 8
+    },
+    {
+      "clientAt": 25103.4,
+      "frames": 6
+    },
+    {
+      "clientAt": 25218.5,
+      "frames": 7
+    },
+    {
+      "clientAt": 25331.8,
+      "frames": 7
+    },
+    {
+      "clientAt": 25425.1,
+      "frames": 5
+    },
+    {
+      "clientAt": 25543.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 25656.7,
+      "frames": 6
+    },
+    {
+      "clientAt": 25775.2,
+      "frames": 8
+    },
+    {
+      "clientAt": 25879.6,
+      "frames": 6
+    },
+    {
+      "clientAt": 26039.1,
+      "frames": 8
+    },
+    {
+      "clientAt": 26128.3,
+      "frames": 7
+    },
+    {
+      "clientAt": 26235.7,
+      "frames": 6
+    },
+    {
+      "clientAt": 26356.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 26464.9,
+      "frames": 7
+    },
+    {
+      "clientAt": 26561.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 26682.3,
+      "frames": 6
+    },
+    {
+      "clientAt": 26776.6,
+      "frames": 6
+    },
+    {
+      "clientAt": 26888.4,
+      "frames": 6
+    },
+    {
+      "clientAt": 27020.8,
+      "frames": 7
+    },
+    {
+      "clientAt": 27113.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 27214.2,
+      "frames": 6
+    },
+    {
+      "clientAt": 27328.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 27433.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 27550.5,
+      "frames": 7
+    },
+    {
+      "clientAt": 27665.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 27756.2,
+      "frames": 5
+    },
+    {
+      "clientAt": 27866.9,
+      "frames": 6
+    },
+    {
+      "clientAt": 27875.7,
+      "frames": 1
+    },
+    {
+      "clientAt": 28022.6,
+      "frames": 4
+    },
+    {
+      "clientAt": 28108.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 28218.6,
+      "frames": 6
+    },
+    {
+      "clientAt": 28344.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 28449.5,
+      "frames": 7
+    },
+    {
+      "clientAt": 28566.2,
+      "frames": 6
+    },
+    {
+      "clientAt": 28665.5,
+      "frames": 6
+    },
+    {
+      "clientAt": 28791.9,
+      "frames": 5
+    },
+    {
+      "clientAt": 28897.3,
+      "frames": 7
+    },
+    {
+      "clientAt": 29000.6,
+      "frames": 5
+    },
+    {
+      "clientAt": 29165.8,
+      "frames": 8
+    },
+    {
+      "clientAt": 29234.3,
+      "frames": 7
+    },
+    {
+      "clientAt": 29343.5,
+      "frames": 7
+    },
+    {
+      "clientAt": 29460.2,
+      "frames": 6
+    },
+    {
+      "clientAt": 29564.7,
+      "frames": 8
+    },
+    {
+      "clientAt": 29669.3,
+      "frames": 7
+    },
+    {
+      "clientAt": 29760.8,
+      "frames": 5
+    },
+    {
+      "clientAt": 29880.0,
+      "frames": 7
+    },
+    {
+      "clientAt": 29984.8,
+      "frames": 5
+    },
+    {
+      "clientAt": 30139.5,
+      "frames": 8
+    },
+    {
+      "clientAt": 30227.3,
+      "frames": 7
+    },
+    {
+      "clientAt": 30323.6,
+      "frames": 5
+    },
+    {
+      "clientAt": 30429.5,
+      "frames": 8
+    },
+    {
+      "clientAt": 30531.4,
+      "frames": 6
+    },
+    {
+      "clientAt": 30655.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 30761.5,
+      "frames": 7
+    },
+    {
+      "clientAt": 30865.2,
+      "frames": 6
+    },
+    {
+      "clientAt": 30967.3,
+      "frames": 6
+    },
+    {
+      "clientAt": 31115.7,
+      "frames": 8
+    },
+    {
+      "clientAt": 31202.8,
+      "frames": 6
+    },
+    {
+      "clientAt": 31324.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 31430.0,
+      "frames": 7
+    },
+    {
+      "clientAt": 31523.6,
+      "frames": 6
+    },
+    {
+      "clientAt": 31633.8,
+      "frames": 6
+    },
+    {
+      "clientAt": 31756.3,
+      "frames": 7
+    },
+    {
+      "clientAt": 31846.4,
+      "frames": 6
+    },
+    {
+      "clientAt": 31948.6,
+      "frames": 6
+    },
+    {
+      "clientAt": 31979.7,
+      "frames": 1
+    },
+    {
+      "clientAt": 32143.9,
+      "frames": 8
+    },
+    {
+      "clientAt": 32209.5,
+      "frames": 7
+    },
+    {
+      "clientAt": 32321.8,
+      "frames": 7
+    },
+    {
+      "clientAt": 32419.3,
+      "frames": 5
+    },
+    {
+      "clientAt": 32529.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 32650.4,
+      "frames": 6
+    },
+    {
+      "clientAt": 32759.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 32871.9,
+      "frames": 7
+    },
+    {
+      "clientAt": 32982.6,
+      "frames": 6
+    },
+    {
+      "clientAt": 33107.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 33213.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 33332.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 33419.2,
+      "frames": 5
+    },
+    {
+      "clientAt": 33538.1,
+      "frames": 8
+    },
+    {
+      "clientAt": 33655.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 33760.3,
+      "frames": 7
+    },
+    {
+      "clientAt": 33867.9,
+      "frames": 6
+    },
+    {
+      "clientAt": 34004.0,
+      "frames": 6
+    },
+    {
+      "clientAt": 34134.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 34213.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 34294.8,
+      "frames": 6
+    },
+    {
+      "clientAt": 34415.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 34547.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 34642.2,
+      "frames": 6
+    },
+    {
+      "clientAt": 34757.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 34859.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 34968.4,
+      "frames": 6
+    },
+    {
+      "clientAt": 35106.5,
+      "frames": 7
+    },
+    {
+      "clientAt": 35206.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 35325.8,
+      "frames": 5
+    },
+    {
+      "clientAt": 35422.8,
+      "frames": 8
+    },
+    {
+      "clientAt": 35522.4,
+      "frames": 5
+    },
+    {
+      "clientAt": 35646.3,
+      "frames": 8
+    },
+    {
+      "clientAt": 35742.8,
+      "frames": 6
+    },
+    {
+      "clientAt": 35854.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 35964.0,
+      "frames": 6
+    },
+    {
+      "clientAt": 35966.3,
+      "frames": 1
+    },
+    {
+      "clientAt": 36122.7,
+      "frames": 8
+    },
+    {
+      "clientAt": 36209.3,
+      "frames": 6
+    },
+    {
+      "clientAt": 36318.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 36423.0,
+      "frames": 6
+    },
+    {
+      "clientAt": 36543.5,
+      "frames": 7
+    },
+    {
+      "clientAt": 36649.4,
+      "frames": 6
+    },
+    {
+      "clientAt": 36768.4,
+      "frames": 8
+    },
+    {
+      "clientAt": 36874.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 36977.2,
+      "frames": 5
+    },
+    {
+      "clientAt": 37131.8,
+      "frames": 7
+    },
+    {
+      "clientAt": 37224.4,
+      "frames": 8
+    },
+    {
+      "clientAt": 37339.8,
+      "frames": 6
+    },
+    {
+      "clientAt": 37432.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 37547.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 37672.5,
+      "frames": 6
+    },
+    {
+      "clientAt": 37772.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 37872.7,
+      "frames": 6
+    },
+    {
+      "clientAt": 37978.0,
+      "frames": 6
+    },
+    {
+      "clientAt": 38098.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 38192.2,
+      "frames": 6
+    },
+    {
+      "clientAt": 38288.3,
+      "frames": 6
+    },
+    {
+      "clientAt": 38392.2,
+      "frames": 6
+    },
+    {
+      "clientAt": 38517.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 38624.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 38724.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 38842.1,
+      "frames": 6
+    },
+    {
+      "clientAt": 38955.0,
+      "frames": 7
+    },
+    {
+      "clientAt": 38964.7,
+      "frames": 1
+    },
+    {
+      "clientAt": 39121.4,
+      "frames": 8
+    },
+    {
+      "clientAt": 39194.9,
+      "frames": 5
+    },
+    {
+      "clientAt": 39316.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 39431.1,
+      "frames": 6
+    },
+    {
+      "clientAt": 39539.0,
+      "frames": 8
+    },
+    {
+      "clientAt": 39629.3,
+      "frames": 6
+    },
+    {
+      "clientAt": 39744.3,
+      "frames": 7
+    },
+    {
+      "clientAt": 39855.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 39970.1,
+      "frames": 6
+    },
+    {
+      "clientAt": 40129.6,
+      "frames": 8
+    },
+    {
+      "clientAt": 40220.3,
+      "frames": 7
+    },
+    {
+      "clientAt": 40327.6,
+      "frames": 6
+    },
+    {
+      "clientAt": 40442.3,
+      "frames": 6
+    },
+    {
+      "clientAt": 40549.8,
+      "frames": 7
+    },
+    {
+      "clientAt": 40672.3,
+      "frames": 8
+    },
+    {
+      "clientAt": 40770.3,
+      "frames": 6
+    },
+    {
+      "clientAt": 40891.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 40980.4,
+      "frames": 5
+    },
+    {
+      "clientAt": 41104.9,
+      "frames": 7
+    },
+    {
+      "clientAt": 41178.4,
+      "frames": 6
+    },
+    {
+      "clientAt": 41290.4,
+      "frames": 6
+    },
+    {
+      "clientAt": 41401.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 41496.6,
+      "frames": 6
+    },
+    {
+      "clientAt": 41617.3,
+      "frames": 7
+    },
+    {
+      "clientAt": 41722.5,
+      "frames": 7
+    },
+    {
+      "clientAt": 41837.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 41954.0,
+      "frames": 6
+    },
+    {
+      "clientAt": 41961.5,
+      "frames": 1
+    },
+    {
+      "clientAt": 42122.0,
+      "frames": 8
+    },
+    {
+      "clientAt": 42213.5,
+      "frames": 7
+    },
+    {
+      "clientAt": 42314.7,
+      "frames": 6
+    },
+    {
+      "clientAt": 42426.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 42529.1,
+      "frames": 6
+    },
+    {
+      "clientAt": 42642.6,
+      "frames": 6
+    },
+    {
+      "clientAt": 42737.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 42852.5,
+      "frames": 7
+    },
+    {
+      "clientAt": 42958.4,
+      "frames": 5
+    },
+    {
+      "clientAt": 43012.3,
+      "frames": 1
+    },
+    {
+      "clientAt": 43160.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 43265.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 43376.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 43476.0,
+      "frames": 6
+    },
+    {
+      "clientAt": 43571.2,
+      "frames": 6
+    },
+    {
+      "clientAt": 43678.5,
+      "frames": 7
+    },
+    {
+      "clientAt": 43794.0,
+      "frames": 7
+    },
+    {
+      "clientAt": 43905.4,
+      "frames": 6
+    },
+    {
+      "clientAt": 44010.3,
+      "frames": 7
+    },
+    {
+      "clientAt": 44164.6,
+      "frames": 8
+    },
+    {
+      "clientAt": 44258.9,
+      "frames": 6
+    },
+    {
+      "clientAt": 44376.8,
+      "frames": 7
+    },
+    {
+      "clientAt": 44487.8,
+      "frames": 7
+    },
+    {
+      "clientAt": 44590.1,
+      "frames": 6
+    },
+    {
+      "clientAt": 44697.3,
+      "frames": 6
+    },
+    {
+      "clientAt": 44813.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 44921.8,
+      "frames": 7
+    },
+    {
+      "clientAt": 45020.8,
+      "frames": 6
+    },
+    {
+      "clientAt": 45185.4,
+      "frames": 8
+    },
+    {
+      "clientAt": 45273.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 45370.6,
+      "frames": 6
+    },
+    {
+      "clientAt": 45504.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 45622.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 45724.7,
+      "frames": 6
+    },
+    {
+      "clientAt": 45820.5,
+      "frames": 7
+    },
+    {
+      "clientAt": 45931.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 46040.3,
+      "frames": 5
+    },
+    {
+      "clientAt": 46161.9,
+      "frames": 7
+    },
+    {
+      "clientAt": 46238.2,
+      "frames": 6
+    },
+    {
+      "clientAt": 46346.5,
+      "frames": 7
+    },
+    {
+      "clientAt": 46457.3,
+      "frames": 6
+    },
+    {
+      "clientAt": 46567.8,
+      "frames": 7
+    },
+    {
+      "clientAt": 46666.1,
+      "frames": 6
+    },
+    {
+      "clientAt": 46779.5,
+      "frames": 7
+    },
+    {
+      "clientAt": 46888.0,
+      "frames": 6
+    },
+    {
+      "clientAt": 47000.9,
+      "frames": 7
+    },
+    {
+      "clientAt": 47030.4,
+      "frames": 1
+    },
+    {
+      "clientAt": 47170.9,
+      "frames": 8
+    },
+    {
+      "clientAt": 47250.1,
+      "frames": 6
+    },
+    {
+      "clientAt": 47365.8,
+      "frames": 7
+    },
+    {
+      "clientAt": 47491.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 47600.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 47705.9,
+      "frames": 6
+    },
+    {
+      "clientAt": 47817.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 47924.0,
+      "frames": 7
+    },
+    {
+      "clientAt": 48041.0,
+      "frames": 5
+    },
+    {
+      "clientAt": 48182.8,
+      "frames": 8
+    },
+    {
+      "clientAt": 48255.1,
+      "frames": 6
+    },
+    {
+      "clientAt": 48362.8,
+      "frames": 6
+    },
+    {
+      "clientAt": 48477.3,
+      "frames": 7
+    },
+    {
+      "clientAt": 48594.2,
+      "frames": 6
+    },
+    {
+      "clientAt": 48700.5,
+      "frames": 7
+    },
+    {
+      "clientAt": 48796.1,
+      "frames": 5
+    },
+    {
+      "clientAt": 48894.2,
+      "frames": 5
+    },
+    {
+      "clientAt": 49041.0,
+      "frames": 9
+    },
+    {
+      "clientAt": 49041.5,
+      "frames": 1
+    },
+    {
+      "clientAt": 49192.6,
+      "frames": 8
+    },
+    {
+      "clientAt": 49249.9,
+      "frames": 4
+    },
+    {
+      "clientAt": 49375.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 49470.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 49570.3,
+      "frames": 6
+    },
+    {
+      "clientAt": 49699.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 49798.9,
+      "frames": 7
+    },
+    {
+      "clientAt": 49908.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 50001.1,
+      "frames": 5
+    },
+    {
+      "clientAt": 50034.2,
+      "frames": 2
+    },
+    {
+      "clientAt": 50189.0,
+      "frames": 7
+    },
+    {
+      "clientAt": 50262.8,
+      "frames": 8
+    },
+    {
+      "clientAt": 50366.8,
+      "frames": 6
+    },
+    {
+      "clientAt": 50481.3,
+      "frames": 6
+    },
+    {
+      "clientAt": 50594.3,
+      "frames": 8
+    },
+    {
+      "clientAt": 50718.0,
+      "frames": 5
+    },
+    {
+      "clientAt": 50834.8,
+      "frames": 8
+    },
+    {
+      "clientAt": 50954.8,
+      "frames": 7
+    },
+    {
+      "clientAt": 51038.4,
+      "frames": 5
+    },
+    {
+      "clientAt": 51198.9,
+      "frames": 7
+    },
+    {
+      "clientAt": 51262.1,
+      "frames": 6
+    },
+    {
+      "clientAt": 51378.3,
+      "frames": 7
+    },
+    {
+      "clientAt": 51485.0,
+      "frames": 7
+    },
+    {
+      "clientAt": 51592.5,
+      "frames": 7
+    },
+    {
+      "clientAt": 51703.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 51807.0,
+      "frames": 7
+    },
+    {
+      "clientAt": 51918.5,
+      "frames": 6
+    },
+    {
+      "clientAt": 52014.2,
+      "frames": 6
+    },
+    {
+      "clientAt": 52179.9,
+      "frames": 8
+    },
+    {
+      "clientAt": 52243.6,
+      "frames": 5
+    },
+    {
+      "clientAt": 52376.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 52481.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 52579.9,
+      "frames": 6
+    },
+    {
+      "clientAt": 52783.5,
+      "frames": 7
+    },
+    {
+      "clientAt": 52822.4,
+      "frames": 6
+    },
+    {
+      "clientAt": 52932.3,
+      "frames": 7
+    },
+    {
+      "clientAt": 53028.7,
+      "frames": 6
+    },
+    {
+      "clientAt": 53031.3,
+      "frames": 1
+    },
+    {
+      "clientAt": 53204.8,
+      "frames": 8
+    },
+    {
+      "clientAt": 53275.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 53372.3,
+      "frames": 4
+    },
+    {
+      "clientAt": 53477.3,
+      "frames": 4
+    },
+    {
+      "clientAt": 53586.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 53698.9,
+      "frames": 7
+    },
+    {
+      "clientAt": 53813.7,
+      "frames": 6
+    },
+    {
+      "clientAt": 53925.0,
+      "frames": 7
+    },
+    {
+      "clientAt": 54033.0,
+      "frames": 7
+    },
+    {
+      "clientAt": 54099.4,
+      "frames": 3
+    },
+    {
+      "clientAt": 54258.6,
+      "frames": 8
+    },
+    {
+      "clientAt": 54328.3,
+      "frames": 7
+    },
+    {
+      "clientAt": 54445.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 54547.8,
+      "frames": 5
+    },
+    {
+      "clientAt": 54644.8,
+      "frames": 5
+    },
+    {
+      "clientAt": 54767.7,
+      "frames": 8
+    },
+    {
+      "clientAt": 54872.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 54978.4,
+      "frames": 6
+    },
+    {
+      "clientAt": 55072.6,
+      "frames": 6
+    },
+    {
+      "clientAt": 55089.7,
+      "frames": 1
+    },
+    {
+      "clientAt": 55258.9,
+      "frames": 8
+    },
+    {
+      "clientAt": 55336.9,
+      "frames": 4
+    },
+    {
+      "clientAt": 55449.0,
+      "frames": 8
+    },
+    {
+      "clientAt": 55553.0,
+      "frames": 7
+    },
+    {
+      "clientAt": 55657.4,
+      "frames": 6
+    },
+    {
+      "clientAt": 55781.5,
+      "frames": 7
+    },
+    {
+      "clientAt": 55888.7,
+      "frames": 6
+    },
+    {
+      "clientAt": 55995.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 56100.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 56264.2,
+      "frames": 8
+    },
+    {
+      "clientAt": 56332.1,
+      "frames": 5
+    },
+    {
+      "clientAt": 56430.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 56538.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 56639.4,
+      "frames": 6
+    },
+    {
+      "clientAt": 56752.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 56882.4,
+      "frames": 6
+    },
+    {
+      "clientAt": 56961.0,
+      "frames": 6
+    },
+    {
+      "clientAt": 57078.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 57080.1,
+      "frames": 1
+    },
+    {
+      "clientAt": 57299.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 57342.9,
+      "frames": 6
+    },
+    {
+      "clientAt": 57450.4,
+      "frames": 8
+    },
+    {
+      "clientAt": 57537.1,
+      "frames": 6
+    },
+    {
+      "clientAt": 57650.8,
+      "frames": 7
+    },
+    {
+      "clientAt": 57771.0,
+      "frames": 7
+    },
+    {
+      "clientAt": 57898.5,
+      "frames": 6
+    },
+    {
+      "clientAt": 57998.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 58124.4,
+      "frames": 6
+    },
+    {
+      "clientAt": 58281.9,
+      "frames": 8
+    },
+    {
+      "clientAt": 58340.6,
+      "frames": 6
+    },
+    {
+      "clientAt": 58468.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 58570.4,
+      "frames": 5
+    },
+    {
+      "clientAt": 58674.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 58778.3,
+      "frames": 6
+    },
+    {
+      "clientAt": 58881.2,
+      "frames": 6
+    },
+    {
+      "clientAt": 59019.6,
+      "frames": 8
+    },
+    {
+      "clientAt": 59079.5,
+      "frames": 6
+    },
+    {
+      "clientAt": 59097.3,
+      "frames": 1
+    },
+    {
+      "clientAt": 59269.8,
+      "frames": 8
+    },
+    {
+      "clientAt": 59354.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 59440.7,
+      "frames": 5
+    },
+    {
+      "clientAt": 59534.4,
+      "frames": 4
+    },
+    {
+      "clientAt": 59658.1,
+      "frames": 6
+    },
+    {
+      "clientAt": 59761.8,
+      "frames": 6
+    },
+    {
+      "clientAt": 59850.3,
+      "frames": 5
+    },
+    {
+      "clientAt": 59979.9,
+      "frames": 8
+    },
+    {
+      "clientAt": 60087.8,
+      "frames": 7
+    },
+    {
+      "clientAt": 60155.6,
+      "frames": 4
+    },
+    {
+      "clientAt": 60304.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 60388.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 60496.0,
+      "frames": 7
+    },
+    {
+      "clientAt": 60607.8,
+      "frames": 6
+    },
+    {
+      "clientAt": 60716.0,
+      "frames": 7
+    },
+    {
+      "clientAt": 60843.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 60946.9,
+      "frames": 6
+    },
+    {
+      "clientAt": 61063.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 61171.1,
+      "frames": 6
+    },
+    {
+      "clientAt": 61325.5,
+      "frames": 8
+    },
+    {
+      "clientAt": 61381.2,
+      "frames": 5
+    },
+    {
+      "clientAt": 61519.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 61604.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 61701.1,
+      "frames": 6
+    },
+    {
+      "clientAt": 61816.1,
+      "frames": 6
+    },
+    {
+      "clientAt": 61936.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 62045.3,
+      "frames": 6
+    },
+    {
+      "clientAt": 62155.9,
+      "frames": 7
+    },
+    {
+      "clientAt": 62168.4,
+      "frames": 1
+    },
+    {
+      "clientAt": 62331.1,
+      "frames": 8
+    },
+    {
+      "clientAt": 62402.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 62505.7,
+      "frames": 6
+    },
+    {
+      "clientAt": 62627.9,
+      "frames": 6
+    },
+    {
+      "clientAt": 62740.2,
+      "frames": 8
+    },
+    {
+      "clientAt": 62859.2,
+      "frames": 6
+    },
+    {
+      "clientAt": 62981.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 63075.9,
+      "frames": 7
+    },
+    {
+      "clientAt": 63175.1,
+      "frames": 5
+    },
+    {
+      "clientAt": 63315.2,
+      "frames": 8
+    },
+    {
+      "clientAt": 63390.8,
+      "frames": 6
+    },
+    {
+      "clientAt": 63507.8,
+      "frames": 7
+    },
+    {
+      "clientAt": 63605.9,
+      "frames": 7
+    },
+    {
+      "clientAt": 63718.0,
+      "frames": 6
+    },
+    {
+      "clientAt": 63842.3,
+      "frames": 7
+    },
+    {
+      "clientAt": 63925.6,
+      "frames": 5
+    },
+    {
+      "clientAt": 64047.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 64155.9,
+      "frames": 7
+    },
+    {
+      "clientAt": 64324.3,
+      "frames": 8
+    },
+    {
+      "clientAt": 64392.5,
+      "frames": 5
+    },
+    {
+      "clientAt": 64487.8,
+      "frames": 6
+    },
+    {
+      "clientAt": 64596.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 64727.9,
+      "frames": 7
+    },
+    {
+      "clientAt": 64816.0,
+      "frames": 6
+    },
+    {
+      "clientAt": 64919.3,
+      "frames": 6
+    },
+    {
+      "clientAt": 65029.2,
+      "frames": 5
+    },
+    {
+      "clientAt": 65143.7,
+      "frames": 9
+    },
+    {
+      "clientAt": 65160.7,
+      "frames": 1
+    },
+    {
+      "clientAt": 65319.1,
+      "frames": 8
+    },
+    {
+      "clientAt": 65395.9,
+      "frames": 6
+    },
+    {
+      "clientAt": 65497.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 65608.7,
+      "frames": 6
+    },
+    {
+      "clientAt": 65738.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 65833.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 65941.2,
+      "frames": 6
+    },
+    {
+      "clientAt": 66044.8,
+      "frames": 7
+    },
+    {
+      "clientAt": 66166.7,
+      "frames": 6
+    },
+    {
+      "clientAt": 66298.0,
+      "frames": 8
+    },
+    {
+      "clientAt": 66379.3,
+      "frames": 6
+    },
+    {
+      "clientAt": 66494.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 66607.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 66721.0,
+      "frames": 6
+    },
+    {
+      "clientAt": 66835.8,
+      "frames": 6
+    },
+    {
+      "clientAt": 66961.9,
+      "frames": 8
+    },
+    {
+      "clientAt": 67066.2,
+      "frames": 6
+    },
+    {
+      "clientAt": 67188.0,
+      "frames": 6
+    },
+    {
+      "clientAt": 67320.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 67393.0,
+      "frames": 7
+    },
+    {
+      "clientAt": 67482.8,
+      "frames": 6
+    },
+    {
+      "clientAt": 67592.6,
+      "frames": 6
+    },
+    {
+      "clientAt": 67697.8,
+      "frames": 6
+    },
+    {
+      "clientAt": 67808.0,
+      "frames": 8
+    },
+    {
+      "clientAt": 67918.3,
+      "frames": 6
+    },
+    {
+      "clientAt": 68029.8,
+      "frames": 7
+    },
+    {
+      "clientAt": 68143.5,
+      "frames": 7
+    },
+    {
+      "clientAt": 68297.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 68376.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 68492.8,
+      "frames": 7
+    },
+    {
+      "clientAt": 68611.3,
+      "frames": 6
+    },
+    {
+      "clientAt": 68728.3,
+      "frames": 6
+    },
+    {
+      "clientAt": 68826.0,
+      "frames": 3
+    },
+    {
+      "clientAt": 68947.1,
+      "frames": 6
+    },
+    {
+      "clientAt": 69059.0,
+      "frames": 7
+    },
+    {
+      "clientAt": 69175.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 69250.8,
+      "frames": 4
+    },
+    {
+      "clientAt": 69404.8,
+      "frames": 8
+    },
+    {
+      "clientAt": 69486.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 69591.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 69714.1,
+      "frames": 6
+    },
+    {
+      "clientAt": 69820.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 69944.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 70050.0,
+      "frames": 6
+    },
+    {
+      "clientAt": 70167.6,
+      "frames": 4
+    },
+    {
+      "clientAt": 70279.1,
+      "frames": 8
+    },
+    {
+      "clientAt": 70451.9,
+      "frames": 9
+    },
+    {
+      "clientAt": 70521.4,
+      "frames": 5
+    },
+    {
+      "clientAt": 70643.7,
+      "frames": 9
+    },
+    {
+      "clientAt": 70753.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 70861.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 70970.1,
+      "frames": 6
+    },
+    {
+      "clientAt": 71078.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 71195.9,
+      "frames": 7
+    },
+    {
+      "clientAt": 71264.5,
+      "frames": 3
+    },
+    {
+      "clientAt": 71413.3,
+      "frames": 8
+    },
+    {
+      "clientAt": 71502.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 71617.8,
+      "frames": 7
+    },
+    {
+      "clientAt": 71720.3,
+      "frames": 6
+    },
+    {
+      "clientAt": 71839.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 71948.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 72053.5,
+      "frames": 6
+    },
+    {
+      "clientAt": 72166.5,
+      "frames": 7
+    },
+    {
+      "clientAt": 72274.2,
+      "frames": 5
+    },
+    {
+      "clientAt": 72441.5,
+      "frames": 8
+    },
+    {
+      "clientAt": 72513.0,
+      "frames": 7
+    },
+    {
+      "clientAt": 72637.5,
+      "frames": 7
+    },
+    {
+      "clientAt": 72748.0,
+      "frames": 7
+    },
+    {
+      "clientAt": 72839.3,
+      "frames": 5
+    },
+    {
+      "clientAt": 72950.1,
+      "frames": 8
+    },
+    {
+      "clientAt": 73070.3,
+      "frames": 7
+    },
+    {
+      "clientAt": 73175.7,
+      "frames": 6
+    },
+    {
+      "clientAt": 73271.4,
+      "frames": 5
+    },
+    {
+      "clientAt": 73418.8,
+      "frames": 8
+    },
+    {
+      "clientAt": 73501.3,
+      "frames": 7
+    },
+    {
+      "clientAt": 73609.1,
+      "frames": 6
+    },
+    {
+      "clientAt": 73711.3,
+      "frames": 7
+    },
+    {
+      "clientAt": 73819.6,
+      "frames": 6
+    },
+    {
+      "clientAt": 73922.6,
+      "frames": 6
+    },
+    {
+      "clientAt": 74041.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 74148.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 74267.8,
+      "frames": 6
+    },
+    {
+      "clientAt": 74404.1,
+      "frames": 6
+    },
+    {
+      "clientAt": 74486.9,
+      "frames": 8
+    },
+    {
+      "clientAt": 74605.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 74712.7,
+      "frames": 6
+    },
+    {
+      "clientAt": 74815.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 74929.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 75053.8,
+      "frames": 6
+    },
+    {
+      "clientAt": 75158.6,
+      "frames": 7
+    },
+    {
+      "clientAt": 75274.8,
+      "frames": 6
+    },
+    {
+      "clientAt": 75414.9,
+      "frames": 8
+    },
+    {
+      "clientAt": 75475.3,
+      "frames": 4
+    },
+    {
+      "clientAt": 75601.5,
+      "frames": 8
+    },
+    {
+      "clientAt": 75711.8,
+      "frames": 7
+    },
+    {
+      "clientAt": 75832.0,
+      "frames": 6
+    },
+    {
+      "clientAt": 75943.5,
+      "frames": 7
+    },
+    {
+      "clientAt": 76038.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 76150.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 76253.6,
+      "frames": 6
+    },
+    {
+      "clientAt": 76409.0,
+      "frames": 8
+    },
+    {
+      "clientAt": 76490.3,
+      "frames": 7
+    },
+    {
+      "clientAt": 76589.4,
+      "frames": 5
+    },
+    {
+      "clientAt": 76698.7,
+      "frames": 6
+    },
+    {
+      "clientAt": 77013.7,
+      "frames": 8
+    },
+    {
+      "clientAt": 77031.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 77044.1,
+      "frames": 6
+    },
+    {
+      "clientAt": 77143.9,
+      "frames": 7
+    },
+    {
+      "clientAt": 77262.1,
+      "frames": 6
+    },
+    {
+      "clientAt": 77397.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 77481.5,
+      "frames": 5
+    },
+    {
+      "clientAt": 77633.9,
+      "frames": 6
+    },
+    {
+      "clientAt": 77697.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 77813.1,
+      "frames": 8
+    },
+    {
+      "clientAt": 77913.2,
+      "frames": 7
+    },
+    {
+      "clientAt": 78026.8,
+      "frames": 7
+    },
+    {
+      "clientAt": 78145.0,
+      "frames": 5
+    },
+    {
+      "clientAt": 78261.4,
+      "frames": 8
+    },
+    {
+      "clientAt": 78424.7,
+      "frames": 8
+    },
+    {
+      "clientAt": 78500.4,
+      "frames": 6
+    },
+    {
+      "clientAt": 78600.3,
+      "frames": 7
+    },
+    {
+      "clientAt": 78701.8,
+      "frames": 5
+    },
+    {
+      "clientAt": 78826.2,
+      "frames": 8
+    },
+    {
+      "clientAt": 78919.7,
+      "frames": 6
+    },
+    {
+      "clientAt": 79036.0,
+      "frames": 5
+    },
+    {
+      "clientAt": 79141.4,
+      "frames": 5
+    },
+    {
+      "clientAt": 79249.1,
+      "frames": 6
+    },
+    {
+      "clientAt": 79336.5,
+      "frames": 4
+    },
+    {
+      "clientAt": 79474.9,
+      "frames": 8
+    },
+    {
+      "clientAt": 79564.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 79671.9,
+      "frames": 6
+    },
+    {
+      "clientAt": 79782.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 79887.0,
+      "frames": 6
+    },
+    {
+      "clientAt": 80003.8,
+      "frames": 6
+    },
+    {
+      "clientAt": 80127.8,
+      "frames": 7
+    },
+    {
+      "clientAt": 80242.8,
+      "frames": 6
+    },
+    {
+      "clientAt": 80353.2,
+      "frames": 6
+    },
+    {
+      "clientAt": 80357.1,
+      "frames": 1
+    },
+    {
+      "clientAt": 80493.2,
+      "frames": 3
+    },
+    {
+      "clientAt": 80582.3,
+      "frames": 7
+    },
+    {
+      "clientAt": 80704.3,
+      "frames": 6
+    },
+    {
+      "clientAt": 80806.9,
+      "frames": 6
+    },
+    {
+      "clientAt": 80923.0,
+      "frames": 6
+    },
+    {
+      "clientAt": 81020.9,
+      "frames": 8
+    },
+    {
+      "clientAt": 81126.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 81229.3,
+      "frames": 6
+    },
+    {
+      "clientAt": 81344.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 81408.5,
+      "frames": 4
+    },
+    {
+      "clientAt": 81564.1,
+      "frames": 6
+    },
+    {
+      "clientAt": 81661.9,
+      "frames": 8
+    },
+    {
+      "clientAt": 81781.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 81874.4,
+      "frames": 5
+    },
+    {
+      "clientAt": 82008.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 82106.4,
+      "frames": 5
+    },
+    {
+      "clientAt": 82246.0,
+      "frames": 8
+    },
+    {
+      "clientAt": 82395.7,
+      "frames": 7
+    },
+    {
+      "clientAt": 82421.6,
+      "frames": 5
+    },
+    {
+      "clientAt": 82437.3,
+      "frames": 2
+    },
+    {
+      "clientAt": 82610.2,
+      "frames": 8
+    },
+    {
+      "clientAt": 82665.2,
+      "frames": 5
+    },
+    {
+      "clientAt": 82811.8,
+      "frames": 8
+    },
+    {
+      "clientAt": 82919.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 83013.4,
+      "frames": 6
+    },
+    {
+      "clientAt": 83127.5,
+      "frames": 7
+    },
+    {
+      "clientAt": 83238.4,
+      "frames": 7
+    },
+    {
+      "clientAt": 83355.0,
+      "frames": 7
+    },
+    {
+      "clientAt": 83453.4,
+      "frames": 5
+    },
+    {
+      "clientAt": 83633.3,
+      "frames": 8
+    },
+    {
+      "clientAt": 83704.0,
+      "frames": 7
+    },
+    {
+      "clientAt": 83822.1,
+      "frames": 7
+    },
+    {
+      "clientAt": 83924.3,
+      "frames": 5
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "base": "https://rokid-delivery-check.youqlrqod.workers.dev",
+  "targets": [
+    "HUD 시험 상자",
+    "HUD 시험 VR"
+  ],
+  "cameraBytesBefore": 0,
+  "cameraBytesAfter": 0,
+  "metadataOnly": true,
+  "playbackEvents": "loading → playing → stopped"
+}

@@ -1,0 +1,73 @@
+{
+  "at": "2026-11-05T22:02:00.675Z",
+  "ref": "b321635",
+  "sourceSha256": "5c22a18521c030606030895d69e549692cf57027846c41f8eadf81a7f30768c6",
+  "fixtureSha256": "d873f658c1e24d826e8ef677d5ec244e6881ac23a6fc8b0dfb8414f0af4ee381",
+  "seconds": 20,
+  "inputFrames": 1200,
+  "decodedFrames": 1200,
+  "mjpegOutputFrames": 1200,
+  "decodedFps": 60.549109469839074,
+  "mjpegOutputFps": 60.08785229791014,
+  "decoderDelayMs": {
+    "median": 118.31083299999955,
+    "p95": 127.55695800000012
+  },
+  "jpegBytesPerFrame": 49815.23583333333,
+  "mjpegMbpsAt60fps": 23.9113132,
+  "decoderCommands": [
+    [
+      "ffmpeg",
+      "-hide_banner",
+      "-loglevel",
+      "error",
+      "-threads",
+      "1",
+      "-probesize",
+      "32",
+      "-analyzeduration",
+      "0",
+      "-f",
+      "h264",
+      "-i",
+      "pipe:0",
+      "-f",
+      "image2pipe",
+      "-c:v",
+      "mjpeg",
+      "-q:v",
+      "6",
+      "pipe:1"
+    ]
+  ],
+  "serverStats": {
+    "no": 1,
+    "mode": "video",
+    "fps": 60,
+    "sec": 0,
+    "crop": 0.5,
+    "q": 80,
+    "kbps": 2000,
+    "frames": 1200,
+    "real": 60.5,
+    "first": 129,
+    "kb": 4.7,
+    "rate": 2318,
+    "drop": 0,
+    "fail": 0,
+    "w": 1280,
+    "h": 720,
+    "why": null,
+    "z0": null,
+    "z1": null,
+    "zTop": null,
+    "headTop": null,
+    "maxTh": 0,
+    "elapsed": 20.8,
+    "done": false
+  },
+  "limitations": [
+    "No network or camera capture in this benchmark.",
+    "MJPEG output is counted at the original server response, not at browser presentation."
+  ]
+}

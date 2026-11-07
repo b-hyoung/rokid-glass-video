@@ -1,0 +1,11 @@
+{
+  "production": "https://glass-2412.youqlrqod.workers.dev/recognition",
+  "version": "0.2.10",
+  "versionCode": 12,
+  "bytes": 127454,
+  "sha256": "f1864343ed8488da33b89718489fbcec386d4b2f4425ed1c9e9aea7051cbb637",
+  "sameSigningCertificate": true,
+  "targetsPreserved": 1,
+  "imagesPreserved": 8,
+  "deployedVersion": "4311be15-7cde-4489-8b4c-32ec054e53bb"
+}

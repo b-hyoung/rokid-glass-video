@@ -1,0 +1,156 @@
+{
+  "count": 7,
+  "savedId": "4884a84c-6ab9-4624-b2a2-639e9e9aae21",
+  "errors": [],
+  "samples": [
+    {
+      "text": "설정 60fps · 서버 78.3fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.5fps",
+      "note": "추적이 끊겼습니다. 물체를 테두리에 맞추고 다시 잡기를 누르세요."
+    },
+    {
+      "text": "설정 60fps · 서버 59.9fps · 웹 도착 57.0fps · 해석 57.0fps · 표시 58.0fps",
+      "note": "추적이 끊겼습니다. 물체를 테두리에 맞추고 다시 잡기를 누르세요."
+    },
+    {
+      "text": "설정 60fps · 서버 59.7fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 59.0fps",
+      "note": "추적이 끊겼습니다. 물체를 테두리에 맞추고 다시 잡기를 누르세요."
+    },
+    {
+      "text": "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 49.5fps",
+      "note": "추적이 끊겼습니다. 물체를 테두리에 맞추고 다시 잡기를 누르세요."
+    },
+    {
+      "text": "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 52.5fps",
+      "note": "추적이 끊겼습니다. 물체를 테두리에 맞추고 다시 잡기를 누르세요."
+    },
+    {
+      "text": "설정 60fps · 서버 60.1fps · 웹 도착 63.0fps · 해석 63.0fps · 표시 46.0fps",
+      "note": "추적이 끊겼습니다. 물체를 테두리에 맞추고 다시 잡기를 누르세요."
+    },
+    {
+      "text": "설정 60fps · 서버 60.1fps · 웹 도착 57.0fps · 해석 57.0fps · 표시 25.5fps",
+      "note": "추적이 끊겼습니다. 물체를 테두리에 맞추고 다시 잡기를 누르세요."
+    },
+    {
+      "text": "설정 60fps · 서버 60fps · 웹 도착 54.0fps · 해석 54.0fps · 표시 45.5fps",
+      "note": "추적이 끊겼습니다. 물체를 테두리에 맞추고 다시 잡기를 누르세요."
+    },
+    {
+      "text": "설정 60fps · 서버 60.6fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 58.5fps"
+    },
+    {
+      "text": "설정 60fps · 서버 59.7fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 52.0fps"
+    },
+    {
+      "text": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 24.5fps"
+    },
+    {
+      "text": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 46.0fps"
+    },
+    {
+      "text": "설정 60fps · 서버 60.3fps · 웹 도착 63.0fps · 해석 63.0fps · 표시 40.5fps"
+    },
+    {
+      "text": "설정 60fps · 서버 59.7fps · 웹 도착 57.0fps · 해석 57.0fps · 표시 59.0fps"
+    },
+    {
+      "text": "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 38.5fps"
+    },
+    {
+      "text": "설정 60fps · 서버 60.2fps · 웹 도착 63.0fps · 해석 63.0fps · 표시 42.5fps"
+    },
+    {
+      "text": "설정 60fps · 서버 60.2fps · 웹 도착 57.0fps · 해석 57.0fps · 표시 58.5fps"
+    },
+    {
+      "text": "설정 60fps · 서버 59.8fps · 웹 도착 36.0fps · 해석 36.0fps · 표시 26.5fps"
+    },
+    {
+      "text": "설정 60fps · 서버 60.2fps · 웹 도착 72.0fps · 해석 72.0fps · 표시 24.0fps"
+    },
+    {
+      "text": "설정 60fps · 서버 59.8fps · 웹 도착 9.0fps · 해석 9.0fps · 표시 9.5fps"
+    },
+    {
+      "text": "설정 60fps · 서버 0fps · 웹 도착 0.0fps · 해석 0.0fps · 표시 0.0fps"
+    },
+    {
+      "text": "설정 60fps · 서버 0fps · 웹 도착 0.0fps · 해석 0.0fps · 표시 0.0fps"
+    },
+    {
+      "text": "설정 60fps · 서버 60.6fps · 웹 도착 51.0fps · 해석 51.0fps · 표시 41.0fps"
+    },
+    {
+      "text": "설정 60fps · 서버 60.6fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+    }
+  ],
+  "stats": {
+    "test": {
+      "cmd": "cam",
+      "mode": "video",
+      "fps": 60,
+      "sec": 0,
+      "crop": 1,
+      "q": 80,
+      "kbps": 2000,
+      "test": 1793921221633,
+      "transport": "websocket",
+      "frames": 2862,
+      "cmdAt": 1793921221633,
+      "done": false,
+      "segments": 477,
+      "retries": 0,
+      "firstAt": 1793921223185,
+      "lastAt": 1793921277009
+    },
+    "keyRequests": 0,
+    "tele": null,
+    "latest": null,
+    "bytes": 13594314,
+    "receiveFps": 59.9,
+    "viewers": [
+      {
+        "media": "http",
+        "dropped": 0,
+        "droppedBackpressure": 0,
+        "droppedWaitingKey": 0,
+        "metrics": {
+          "seq": 29,
+          "visible": true,
+          "frozen": false,
+          "at": 1793921276136,
+          "networkFps": 60,
+          "decodedFps": 60,
+          "displayFps": 60,
+          "frameAgeMs": 209,
+          "totalReceived": 2796,
+          "totalDecoded": 2796,
+          "totalDisplayed": 2173,
+          "displayDrops": 615,
+          "queueFrames": 8,
+          "maxFrameQueue": 12,
+          "maxRafGap": 133.3000000000029,
+          "displayWaitMs": 155.00000001191802,
+          "maxDisplayWaitMs": 198.10000000595755,
+          "decoder": {
+            "submitted": 2796,
+            "output": 2796,
+            "skippedUntilKey": 0,
+            "skippedNoConfig": 0,
+            "segmentGaps": 2,
+            "queueResets": 0,
+            "pendingDiscarded": 0,
+            "errors": 0,
+            "maxDecodeQueue": 73
+          },
+          "playerDrops": {
+            "overflow": 611,
+            "stale": 4,
+            "clear": 0
+          }
+        }
+      }
+    ],
+    "logs": []
+  }
+}

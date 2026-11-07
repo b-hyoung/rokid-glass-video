@@ -1,0 +1,12 @@
+{
+  "deployment": "236cae6b-8462-46cf-9fbe-d0779ae5b7fc",
+  "targetsPreserved": true,
+  "imageCount": 8,
+  "status": {
+    "glasses": 0,
+    "now": null,
+    "hosting": "cloudflare",
+    "viewers": 1
+  },
+  "viewers": []
+}

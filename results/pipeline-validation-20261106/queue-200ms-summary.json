@@ -1,0 +1,12 @@
+{
+  "durationSeconds": 180,
+  "source": "Recorded H.264 replay through original Java LiveVideoSocket and isolated Cloudflare Worker; not live glasses",
+  "recognition": "OFF first minute, ON with two references final two minutes",
+  "decoded": 10758,
+  "displayed": 10675,
+  "displayDrops": 83,
+  "averageDisplayFpsExcludingStartupAndDrain": 59.6073296912747,
+  "sampledDisplayWaitMedianMs": 123.85000000595755,
+  "maxDisplayWaitMs": 198.5,
+  "errors": []
+}

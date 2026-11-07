@@ -1,0 +1,560 @@
+{
+  "base": "https://rokid-delivery-check.youqlrqod.workers.dev",
+  "errors": [],
+  "samples": [
+    {
+      "at": 1793923859505,
+      "text": "설정 60fps · 서버 0fps · 웹 도착 0.0fps · 해석 0.0fps · 표시 0.0fps",
+      "note": "새 영상 대기 중",
+      "viewers": [],
+      "sourceFrames": 18
+    },
+    {
+      "at": 1793923861902,
+      "text": "설정 60fps · 서버 74.9fps · 웹 도착 33.0fps · 해석 33.0fps · 표시 0.0fps",
+      "note": "새 영상 대기 중",
+      "viewers": [
+        {
+          "media": "websocket",
+          "pending": 15,
+          "window": 22,
+          "rtt": 790,
+          "dropped": 12,
+          "metrics": {
+            "seq": 6,
+            "visible": true,
+            "frozen": false,
+            "at": 1793923863559,
+            "networkFps": 32.98350824587706,
+            "decodedFps": 32.98350824587706,
+            "displayFps": 0,
+            "frameAgeMs": 0,
+            "totalReceived": 84,
+            "totalDecoded": 84,
+            "totalDisplayed": 12,
+            "displayDrops": 72,
+            "stalePackets": 0,
+            "recoveries": 1,
+            "relayAgeMs": null,
+            "clockUncertaintyMs": 152.34999999403954,
+            "queueFrames": 0,
+            "maxFrameQueue": 12,
+            "maxRafGap": 16.80000000000109,
+            "displayWaitMs": 178,
+            "maxDisplayWaitMs": 178,
+            "decoder": {
+              "submitted": 84,
+              "output": 84,
+              "skippedUntilKey": 0,
+              "skippedNoConfig": 0,
+              "segmentGaps": 0,
+              "queueResets": 0,
+              "pendingDiscarded": 0,
+              "errors": 0,
+              "maxDecodeQueue": 19
+            },
+            "playerDrops": {
+              "overflow": 12,
+              "stale": 60,
+              "clear": 0
+            }
+          }
+        }
+      ],
+      "sourceFrames": 246
+    },
+    {
+      "at": 1793923864294,
+      "text": "설정 60fps · 서버 59.9fps · 웹 도착 36.0fps · 해석 0.5fps · 표시 0.0fps",
+      "note": "지난 영상 건너뛰는 중 · 최신 화면에 다시 연결합니다",
+      "viewers": [
+        {
+          "media": "websocket",
+          "pending": 26,
+          "window": 31,
+          "rtt": 790,
+          "dropped": 12,
+          "metrics": {
+            "seq": 7,
+            "visible": true,
+            "frozen": false,
+            "at": 1793923865551,
+            "networkFps": 35.98380728661379,
+            "decodedFps": 0.49977510120296925,
+            "displayFps": 0,
+            "frameAgeMs": 0,
+            "totalReceived": 156,
+            "totalDecoded": 85,
+            "totalDisplayed": 12,
+            "displayDrops": 73,
+            "stalePackets": 11,
+            "recoveries": 1,
+            "relayAgeMs": null,
+            "clockUncertaintyMs": 152.34999999403954,
+            "queueFrames": 0,
+            "maxFrameQueue": 12,
+            "maxRafGap": 16.80000000000109,
+            "displayWaitMs": 0,
+            "maxDisplayWaitMs": 178,
+            "decoder": {
+              "submitted": 85,
+              "output": 85,
+              "skippedUntilKey": 5,
+              "skippedNoConfig": 0,
+              "segmentGaps": 0,
+              "queueResets": 0,
+              "pendingDiscarded": 0,
+              "errors": 0,
+              "maxDecodeQueue": 19
+            },
+            "playerDrops": {
+              "overflow": 12,
+              "stale": 61,
+              "clear": 0
+            }
+          }
+        }
+      ],
+      "sourceFrames": 390
+    },
+    {
+      "at": 1793923866731,
+      "text": "설정 60fps · 서버 60.2fps · 웹 도착 12.0fps · 해석 0.0fps · 표시 0.0fps",
+      "note": "새 영상 대기 중",
+      "viewers": [],
+      "sourceFrames": 534
+    },
+    {
+      "at": 1793923870005,
+      "text": "설정 60fps · 서버 58.6fps · 웹 도착 45.0fps · 해석 42.5fps · 표시 13.5fps",
+      "note": "실시간 바이너리 연결",
+      "viewers": [
+        {
+          "media": "websocket",
+          "pending": 8,
+          "window": 17,
+          "rtt": 359,
+          "dropped": 1,
+          "metrics": {
+            "seq": 9,
+            "visible": true,
+            "frozen": false,
+            "at": 1793923869629,
+            "networkFps": 45.0112528132033,
+            "decodedFps": 42.510627656914224,
+            "displayFps": 13.50337584396099,
+            "frameAgeMs": 0,
+            "totalReceived": 270,
+            "totalDecoded": 170,
+            "totalDisplayed": 39,
+            "displayDrops": 125,
+            "stalePackets": 15,
+            "recoveries": 2,
+            "relayAgeMs": 520.650146484375,
+            "clockUncertaintyMs": 152.34999999403954,
+            "queueFrames": 6,
+            "maxFrameQueue": 12,
+            "maxRafGap": 16.80000000000109,
+            "displayWaitMs": 105.40000001191947,
+            "maxDisplayWaitMs": 178,
+            "decoder": {
+              "submitted": 170,
+              "output": 170,
+              "skippedUntilKey": 10,
+              "skippedNoConfig": 0,
+              "segmentGaps": 0,
+              "queueResets": 0,
+              "pendingDiscarded": 0,
+              "errors": 0,
+              "maxDecodeQueue": 43
+            },
+            "playerDrops": {
+              "overflow": 40,
+              "stale": 85,
+              "clear": 0
+            }
+          }
+        }
+      ],
+      "sourceFrames": 678
+    },
+    {
+      "at": 1793923872392,
+      "text": "설정 60fps · 서버 61fps · 웹 도착 60.1fps · 해석 60.1fps · 표시 37.5fps",
+      "note": "실시간 바이너리 연결",
+      "viewers": [
+        {
+          "media": "websocket",
+          "pending": 8,
+          "window": 16,
+          "rtt": 323,
+          "dropped": 1,
+          "metrics": {
+            "seq": 11,
+            "visible": true,
+            "frozen": false,
+            "at": 1793923873558,
+            "networkFps": 60.0510433874162,
+            "decodedFps": 60.0510433874162,
+            "displayFps": 37.531902117135125,
+            "frameAgeMs": 0,
+            "totalReceived": 516,
+            "totalDecoded": 416,
+            "totalDisplayed": 193,
+            "displayDrops": 219,
+            "stalePackets": 15,
+            "recoveries": 2,
+            "relayAgeMs": 322.35009765625,
+            "clockUncertaintyMs": 152.34999999403954,
+            "queueFrames": 4,
+            "maxFrameQueue": 12,
+            "maxRafGap": 16.80000000000291,
+            "displayWaitMs": 109.10000001788285,
+            "maxDisplayWaitMs": 187.59999999999854,
+            "decoder": {
+              "submitted": 416,
+              "output": 416,
+              "skippedUntilKey": 10,
+              "skippedNoConfig": 0,
+              "segmentGaps": 0,
+              "queueResets": 0,
+              "pendingDiscarded": 0,
+              "errors": 0,
+              "maxDecodeQueue": 43
+            },
+            "playerDrops": {
+              "overflow": 132,
+              "stale": 87,
+              "clear": 0
+            }
+          }
+        }
+      ],
+      "sourceFrames": 876
+    },
+    {
+      "at": 1793923875770,
+      "text": "설정 60fps · 서버 60.9fps · 웹 도착 57.0fps · 해석 57.0fps · 표시 29.5fps",
+      "note": "실시간 바이너리 연결",
+      "viewers": [
+        {
+          "media": "websocket",
+          "pending": 5,
+          "window": 16,
+          "rtt": 323,
+          "dropped": 1,
+          "metrics": {
+            "seq": 12,
+            "visible": true,
+            "frozen": false,
+            "at": 1793923875556,
+            "networkFps": 56.99430056943349,
+            "decodedFps": 56.99430056943349,
+            "displayFps": 29.497050294706806,
+            "frameAgeMs": 0,
+            "totalReceived": 630,
+            "totalDecoded": 530,
+            "totalDisplayed": 252,
+            "displayDrops": 272,
+            "stalePackets": 15,
+            "recoveries": 2,
+            "relayAgeMs": 518.449951171875,
+            "clockUncertaintyMs": 152.34999999403954,
+            "queueFrames": 6,
+            "maxFrameQueue": 12,
+            "maxRafGap": 16.80000000000291,
+            "displayWaitMs": 103.60000001788285,
+            "maxDisplayWaitMs": 187.59999999999854,
+            "decoder": {
+              "submitted": 530,
+              "output": 530,
+              "skippedUntilKey": 10,
+              "skippedNoConfig": 0,
+              "segmentGaps": 0,
+              "queueResets": 0,
+              "pendingDiscarded": 0,
+              "errors": 0,
+              "maxDecodeQueue": 43
+            },
+            "playerDrops": {
+              "overflow": 185,
+              "stale": 87,
+              "clear": 0
+            }
+          }
+        }
+      ],
+      "sourceFrames": 1014
+    },
+    {
+      "at": 1793923878148,
+      "text": "설정 60fps · 서버 59.9fps · 웹 도착 51.0fps · 해석 51.0fps · 표시 34.0fps",
+      "note": "실시간 바이너리 연결",
+      "viewers": [
+        {
+          "media": "websocket",
+          "pending": 11,
+          "window": 16,
+          "rtt": 323,
+          "dropped": 1,
+          "metrics": {
+            "seq": 14,
+            "visible": true,
+            "frozen": false,
+            "at": 1793923879584,
+            "networkFps": 51.00255012735437,
+            "decodedFps": 51.00255012735437,
+            "displayFps": 34.001700084902915,
+            "frameAgeMs": 0,
+            "totalReceived": 852,
+            "totalDecoded": 752,
+            "totalDisplayed": 414,
+            "displayDrops": 338,
+            "stalePackets": 15,
+            "recoveries": 2,
+            "relayAgeMs": 721.64990234375,
+            "clockUncertaintyMs": 154.1499999910593,
+            "queueFrames": 0,
+            "maxFrameQueue": 12,
+            "maxRafGap": 16.80000000000291,
+            "displayWaitMs": 139.20000000000073,
+            "maxDisplayWaitMs": 195.70000000000073,
+            "decoder": {
+              "submitted": 752,
+              "output": 752,
+              "skippedUntilKey": 10,
+              "skippedNoConfig": 0,
+              "segmentGaps": 0,
+              "queueResets": 0,
+              "pendingDiscarded": 0,
+              "errors": 0,
+              "maxDecodeQueue": 43
+            },
+            "playerDrops": {
+              "overflow": 251,
+              "stale": 87,
+              "clear": 0
+            }
+          }
+        }
+      ],
+      "sourceFrames": 1218
+    },
+    {
+      "at": 1793923880538,
+      "text": "설정 60fps · 서버 60.1fps · 웹 도착 66.0fps · 해석 66.0fps · 표시 23.0fps",
+      "note": "실시간 바이너리 연결",
+      "viewers": [
+        {
+          "media": "websocket",
+          "pending": 9,
+          "window": 18,
+          "rtt": 323,
+          "dropped": 1,
+          "metrics": {
+            "seq": 15,
+            "visible": true,
+            "frozen": false,
+            "at": 1793923881556,
+            "networkFps": 66.0165041260315,
+            "decodedFps": 66.0165041260315,
+            "displayFps": 23.005751437859463,
+            "frameAgeMs": 0,
+            "totalReceived": 984,
+            "totalDecoded": 884,
+            "totalDisplayed": 460,
+            "displayDrops": 424,
+            "stalePackets": 15,
+            "recoveries": 2,
+            "relayAgeMs": 514.14990234375,
+            "clockUncertaintyMs": 154.1499999910593,
+            "queueFrames": 0,
+            "maxFrameQueue": 12,
+            "maxRafGap": 16.80000000000291,
+            "displayWaitMs": 136.10000001788285,
+            "maxDisplayWaitMs": 195.70000000000073,
+            "decoder": {
+              "submitted": 884,
+              "output": 884,
+              "skippedUntilKey": 10,
+              "skippedNoConfig": 0,
+              "segmentGaps": 0,
+              "queueResets": 0,
+              "pendingDiscarded": 0,
+              "errors": 0,
+              "maxDecodeQueue": 44
+            },
+            "playerDrops": {
+              "overflow": 337,
+              "stale": 87,
+              "clear": 0
+            }
+          }
+        }
+      ],
+      "sourceFrames": 1362
+    },
+    {
+      "at": 1793923882892,
+      "text": "설정 60fps · 서버 59.7fps · 웹 도착 54.0fps · 해석 54.0fps · 표시 37.5fps",
+      "note": "실시간 바이너리 연결",
+      "viewers": [
+        {
+          "media": "websocket",
+          "pending": 8,
+          "window": 16,
+          "rtt": 323,
+          "dropped": 1,
+          "metrics": {
+            "seq": 16,
+            "visible": true,
+            "frozen": false,
+            "at": 1793923883560,
+            "networkFps": 53.97571092992068,
+            "decodedFps": 53.97571092992068,
+            "displayFps": 37.483132590222695,
+            "frameAgeMs": 0,
+            "totalReceived": 1092,
+            "totalDecoded": 992,
+            "totalDisplayed": 535,
+            "displayDrops": 454,
+            "stalePackets": 15,
+            "recoveries": 2,
+            "relayAgeMs": 682.050048828125,
+            "clockUncertaintyMs": 154.1499999910593,
+            "queueFrames": 3,
+            "maxFrameQueue": 12,
+            "maxRafGap": 16.80000000000291,
+            "displayWaitMs": 148.29999999403663,
+            "maxDisplayWaitMs": 198.60000001788285,
+            "decoder": {
+              "submitted": 992,
+              "output": 992,
+              "skippedUntilKey": 10,
+              "skippedNoConfig": 0,
+              "segmentGaps": 0,
+              "queueResets": 0,
+              "pendingDiscarded": 0,
+              "errors": 0,
+              "maxDecodeQueue": 44
+            },
+            "playerDrops": {
+              "overflow": 343,
+              "stale": 111,
+              "clear": 0
+            }
+          }
+        }
+      ],
+      "sourceFrames": 1506
+    },
+    {
+      "at": 1793923885264,
+      "text": "설정 60fps · 서버 60.2fps · 웹 도착 69.0fps · 해석 69.0fps · 표시 43.5fps",
+      "note": "실시간 바이너리 연결",
+      "viewers": [
+        {
+          "media": "websocket",
+          "pending": 9,
+          "window": 16,
+          "rtt": 323,
+          "dropped": 1,
+          "metrics": {
+            "seq": 17,
+            "visible": true,
+            "frozen": false,
+            "at": 1793923885557,
+            "networkFps": 69.03106397899627,
+            "decodedFps": 69.03106397899627,
+            "displayFps": 43.51958381284548,
+            "frameAgeMs": 0,
+            "totalReceived": 1230,
+            "totalDecoded": 1130,
+            "totalDisplayed": 622,
+            "displayDrops": 497,
+            "stalePackets": 15,
+            "recoveries": 2,
+            "relayAgeMs": 517.14990234375,
+            "clockUncertaintyMs": 154.1499999910593,
+            "queueFrames": 11,
+            "maxFrameQueue": 12,
+            "maxRafGap": 16.80000000000291,
+            "displayWaitMs": 80.40000000596046,
+            "maxDisplayWaitMs": 198.70000000596337,
+            "decoder": {
+              "submitted": 1130,
+              "output": 1130,
+              "skippedUntilKey": 10,
+              "skippedNoConfig": 0,
+              "segmentGaps": 0,
+              "queueResets": 0,
+              "pendingDiscarded": 0,
+              "errors": 0,
+              "maxDecodeQueue": 44
+            },
+            "playerDrops": {
+              "overflow": 384,
+              "stale": 113,
+              "clear": 0
+            }
+          }
+        }
+      ],
+      "sourceFrames": 1644
+    },
+    {
+      "at": 1793923887748,
+      "text": "설정 60fps · 서버 60fps · 웹 도착 63.0fps · 해석 63.0fps · 표시 40.0fps",
+      "note": "실시간 바이너리 연결",
+      "viewers": [
+        {
+          "media": "websocket",
+          "pending": 4,
+          "window": 16,
+          "rtt": 323,
+          "dropped": 1,
+          "metrics": {
+            "seq": 18,
+            "visible": true,
+            "frozen": false,
+            "at": 1793923887559,
+            "networkFps": 63,
+            "decodedFps": 63,
+            "displayFps": 40,
+            "frameAgeMs": 0,
+            "totalReceived": 1356,
+            "totalDecoded": 1256,
+            "totalDisplayed": 702,
+            "displayDrops": 543,
+            "stalePackets": 15,
+            "recoveries": 2,
+            "relayAgeMs": 425.14990234375,
+            "clockUncertaintyMs": 154.1499999910593,
+            "queueFrames": 11,
+            "maxFrameQueue": 12,
+            "maxRafGap": 16.80000000000291,
+            "displayWaitMs": 73.40000000000146,
+            "maxDisplayWaitMs": 198.70000000596337,
+            "decoder": {
+              "submitted": 1256,
+              "output": 1256,
+              "skippedUntilKey": 10,
+              "skippedNoConfig": 0,
+              "segmentGaps": 0,
+              "queueResets": 0,
+              "pendingDiscarded": 0,
+              "errors": 0,
+              "maxDecodeQueue": 44
+            },
+            "playerDrops": {
+              "overflow": 420,
+              "stale": 123,
+              "clear": 0
+            }
+          }
+        }
+      ],
+      "sourceFrames": 1794
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "samples": [
+    "촬영 대기",
+    "설정 60fps · 서버 74.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 60.2fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 59.7fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 60.1fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 60.1fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 60.1fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 60.1fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 59.8fps · 웹 도착 54.0fps · 해석 54.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 60fps · 웹 도착 66.0fps · 해석 66.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 60.1fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 60.1fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 60fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 59.8fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 60.2fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps",
+    "설정 60fps · 서버 59.9fps · 웹 도착 60.0fps · 해석 60.0fps · 표시 60.0fps"
+  ],
+  "errors": [],
+  "stats": {
+    "test": {
+      "cmd": "cam",
+      "mode": "video",
+      "fps": 60,
+      "sec": 0,
+      "crop": 1,
+      "q": 80,
+      "kbps": 2000,
+      "test": 1793916763895,
+      "transport": "websocket",
+      "frames": 3558,
+      "cmdAt": 1793916763895,
+      "done": false,
+      "segments": 593,
+      "retries": 0,
+      "firstAt": 1793916764960,
+      "lastAt": 1793916824005
+    },
+    "tele": null,
+    "latest": null,
+    "bytes": 17027408,
+    "receiveFps": 60.3,
+    "viewers": [
+      {
+        "media": "http",
+        "dropped": 0,
+        "metrics": {
+          "seq": 31,
+          "visible": true,
+          "frozen": false,
+          "at": 1793916823636,
+          "networkFps": 60.00600060059656,
+          "decodedFps": 60.00600060059656,
+          "displayFps": 60.00600060059656,
+          "frameAgeMs": 591,
+          "totalReceived": 3522,
+          "totalDecoded": 3522,
+          "totalDisplayed": 3489,
+          "displayDrops": 0
+        }
+      }
+    ],
+    "logs": []
+  }
+}

@@ -35,7 +35,7 @@ import java.nio.charset.StandardCharsets;
  * 서버 주소: 켤 때와 연결이 3번 연속 실패할 때 server.txt(R.string.server_txt, 첫 줄)를 읽어 자동으로 잡는다.
  *   터널 주소가 바뀌어도 앱을 다시 설치할 필요 없음. adb로 직접 넘기면 그 주소로 고정(-d auto 로 자동 복귀):
  *   adb shell am start -n com.hoonartis.glassvideo/.MainActivity -d https://xxx.trycloudflare.com
- * 터치패드 탭·확인 키로 멈춤/재생. 안 만져도 신호가 오면 저절로 튼다.
+ * 터치패드 탭·확인 키로 영상 종료. 안 만져도 신호가 오면 저절로 튼다.
  * {"cmd":"cam",...} 이면 카메라 전송 시험(CameraStreamer). 카메라 권한이 없으면 처음 켤 때 묻는다.
  *
  * VideoView(SurfaceView) 대신 TextureView 를 쓴다: 첫 버전은 안경에서 영상을 받아 갔는데도 화면에 안 보였다(11-03).
@@ -55,6 +55,19 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
     private volatile boolean running;
     private volatile HttpURLConnection conn;
     private CameraStreamer cam;
+    private RecognitionOverlay recognitionOverlay;
+    private LocalTracking localTracking;
+    private HudChannel hudChannel;
+    private final PlaybackGate playbackGate=new PlaybackGate();
+    private String playbackToken="";
+    private static final class PlaybackReport {
+        final String token,event;PlaybackReport(String token,String event){this.token=token;this.event=event;}
+    }
+    private volatile PlaybackReport playbackReport=new PlaybackReport("","");
+    private Thread playbackReporter;
+    private String playbackTitle="";
+    private boolean renderedVideo;
+    private double aimX=.5,aimY=.5;
 
     @Override
     protected void onCreate(Bundle state) {
@@ -68,10 +81,13 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         view.setAlpha(0f);
         root.addView(view, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT, Gravity.CENTER));
+        recognitionOverlay = new RecognitionOverlay(this);
+        root.addView(recognitionOverlay, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
         status = new TextView(this);
         status.setTextColor(Color.GREEN);
         status.setTextSize(16);
-        status.setText("연결 중… (v0.2.5)");
+        status.setText("연결 중… (v0.2.10)");
         status.setGravity(Gravity.CENTER);
         root.addView(status, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
@@ -88,10 +104,13 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         pinned = prefs.getBoolean("pinned", false);
         server = trim(prefs.getString("server", getString(R.string.default_server)));
         id = android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
+        localTracking=new LocalTracking(()->recognitionOverlay.postInvalidateOnAnimation());
+        hudChannel=new HudChannel(()->server);
+        recognitionOverlay.attach(localTracking,hudChannel);
         cam = new CameraStreamer(this, () -> server, id, new CameraStreamer.Out() {
             @Override public void report(String m) { MainActivity.this.report(m); }
-            @Override public void status(String m) { ui.post(() -> status.setText(m)); }
-        });
+            @Override public void status(String m) { ui.post(() -> {if(!playbackGate.busy())status.setText(m);}); }
+        },localTracking);
         if (checkSelfPermission(android.Manifest.permission.CAMERA) != android.content.pm.PackageManager.PERMISSION_GRANTED)
             requestPermissions(new String[]{android.Manifest.permission.CAMERA}, 1);
     }
@@ -116,7 +135,39 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         running = true;
         new Thread(this::listen, "next").start();
         new Thread(this::syncLoop, "sync").start();
+        new Thread(this::recognitionLoop, "recognition").start();
+        new Thread(this::discoveryLoop, "discovery").start();
+        hudChannel.start();
+        if(playbackReporter==null||!playbackReporter.isAlive()){playbackReporter=new Thread(this::playbackLoop,"playback-state");playbackReporter.start();}
         report("앱 시작");
+    }
+
+    private void discoveryLoop() {
+        while (running) {
+            for (int i=0; i<30 && running; i++) try { Thread.sleep(1000); } catch (InterruptedException ignored) { }
+            if (running) resolve();
+        }
+    }
+
+    private void recognitionLoop() {
+        while (running) {
+            try {
+                long sent=android.os.SystemClock.elapsedRealtime();
+                JSONObject result = new JSONObject(get(server + "/recognition/status?hud=2&app=0.2.10"));
+                if(!running)break;
+                localTracking.update(result,android.os.SystemClock.elapsedRealtime()-sent);
+                ui.post(() -> {
+                    if(!running)return;
+                    recognitionOverlay.update(result);
+                    if(playbackGate.busy())publishVideoHud();
+                    JSONObject guide=result.optJSONObject("guide"),camera=guide==null?null:guide.optJSONObject("camera");
+                    boolean calibrated=guide!=null&&guide.optBoolean("calibrated");
+                    aimX=calibrated&&camera!=null?camera.optDouble("cx",.5):.5;
+                    aimY=calibrated&&camera!=null?camera.optDouble("cy",.5):.5;
+                });
+            } catch (Exception e) { localTracking.update(null,0);ui.post(() -> recognitionOverlay.update(null)); }
+            try { Thread.sleep(500); } catch (InterruptedException ignored) { }
+        }
     }
 
     /** 서버 영상 파일 이름 → 안경에 받아 둔 파일. 신호가 오면 이걸 먼저 튼다(받는 시간 없음). */
@@ -178,11 +229,12 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
     @Override
     protected void onStop() {
         super.onStop();
+        endPlayback("stopped");
         running = false;
         cam.stop(true);
         HttpURLConnection c = conn;
         if (c != null) c.disconnect();
-        hide();
+        hudChannel.stop();
     }
 
     /**
@@ -195,11 +247,11 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
      */
     private void resolve() {
         if (pinned) return;
-        if (pick(getString(R.string.local_servers))) return;
+        if (pick(getString(R.string.control_server))) return;
         String text;
         try { text = get(getString(R.string.server_txt) + "?t=" + System.currentTimeMillis()); }
-        catch (Exception e) { say("PC 주소 응답 없음 · server.txt 확인 실패\n" + why(e)); report("server.txt 실패 " + e); return; }
-        if (!pick(text)) say("PC 주소·server.txt 주소 모두 응답 없음");
+        catch (Exception e) { say("Cloudflare 연결 실패 · Wi-Fi·인터넷 확인\n" + why(e)); report("server.txt 실패 " + e); return; }
+        if (!pick(text) && !pick(getString(R.string.local_servers))) say("고정 주소·server.txt 주소 모두 응답 없음");
     }
 
     /** 공백·줄바꿈으로 나뉜 주소들을 차례로 찔러 먼저 답하는 곳으로 바꾼다. 붙었으면 true. */
@@ -210,8 +262,10 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
             if (!reachable(url)) continue;
             if (!url.equals(server)) {
                 server = url;
+                HttpURLConnection previous = conn;
+                if (previous != null) previous.disconnect();
                 prefs.edit().putString("server", server).apply();
-                report("서버 주소 자동 설정 " + server + (url.startsWith("https") ? " (터널)" : " (같은 와이파이 직접)"));
+                report("서버 주소 자동 설정 " + server + (url.startsWith("https") ? " (Cloudflare)" : " (같은 와이파이 직접)"));
             }
             return true;
         }
@@ -234,9 +288,12 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         long after = -1;
         long t0 = System.currentTimeMillis(); int tries = 0;
         boolean online = false;
+        String listeningServer = null;
         while (running) {
             try {
-                String q = server + "/next?id=" + id + (after < 0 ? "" : "&after=" + after);
+                String currentServer = server;
+                if (!currentServer.equals(listeningServer)) { listeningServer = currentServer; after = -1; }
+                String q = currentServer + "/next?id=" + id + (after < 0 ? "" : "&after=" + after);
                 HttpURLConnection c = (HttpURLConnection) new URL(q).openConnection();
                 conn = c;
                 c.setConnectTimeout(10000);
@@ -248,6 +305,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
                 }
                 JSONObject m = new JSONObject(body.toString());
                 if (!online) { online = true; say("연결됨 · 신호 대기"); report("연결됨 " + (System.currentTimeMillis() - t0) + "ms, 시도 " + (tries + 1) + "번"); }
+                if (!currentServer.equals(server)) continue;
                 if (after >= 0 && m.has("cmd")) handle(m);
                 after = m.optLong("seq", after);
                 continue;
@@ -268,7 +326,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
             int fps = m.optInt("fps");
             if (fps <= 0) cam.stop(true);
             else cam.start(m.optString("mode", "photo"), fps, m.optInt("sec", 5), (float) m.optDouble("crop", 0.5),
-                    m.optInt("q", 80), m.optInt("kbps", 2000), m.optLong("test"));
+                    m.optInt("q", 80), m.optInt("kbps", 2000), m.optLong("test"), "websocket".equals(m.optString("transport")));
             return;
         }
         String title = m.optString("title");
@@ -279,13 +337,24 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         String url = u;
         boolean loop = m.optBoolean("loop");
         ui.post(() -> {
+            if(!running)return;
             if (cmd.equals("play")) {
+                boolean automatic="recognition".equals(m.optString("source"));
+                String token=m.optString("playbackId","legacy-"+m.optLong("seq"));
+                if(automatic&&localTracking.available()&&!localTracking.centered(m.optString("targetId"),aimX,aimY)){
+                    report("자동 재생 건너뜀 · 현재 안경 중앙에서 대상 확인 안 됨");
+                    rejectPlayback(token);return;
+                }
+                if(!playbackGate.accept(token,m.optLong("seq"),automatic)){rejectPlayback(token);return;}
+                hide();playbackTitle=title;playbackToken=token;playbackReport=new PlaybackReport(token,"loading");renderedVideo=false;
+                recognitionOverlay.setVisibility(android.view.View.INVISIBLE);
+                publishVideoHud();
                 status.setText("불러오는 중 · " + title);
                 report("신호 받음 " + title + (url.startsWith("file:") ? " (받아 둔 파일)" : " (서버에서 받는 중)"));
                 if (surface == null) { pending = url; pendingLoop = loop; report("화면 아직 준비 안 됨, 기다림"); }
                 else play(url, loop);
             } else if (cmd.equals("stop")) {
-                hide();
+                endPlayback("stopped");
                 status.setText("신호 대기");
             }
         });
@@ -293,6 +362,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
 
     private void play(String url, boolean loop) {
         release();
+        final String token=playbackGate.id();
         MediaPlayer mp = new MediaPlayer();
         player = mp;
         try {
@@ -300,23 +370,29 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
             mp.setSurface(surface);
             mp.setLooping(loop);
             mp.setOnPreparedListener(p -> {
+                if(player!=p||!playbackGate.current(token))return;
                 fit(p.getVideoWidth(), p.getVideoHeight());
                 view.setAlpha(1f);
+                recognitionOverlay.setVisibility(android.view.View.INVISIBLE);
                 status.setText("");
                 p.start();
+                playbackReport=new PlaybackReport(token,"playing");
                 report("재생 시작 " + p.getVideoWidth() + "x" + p.getVideoHeight() + " 화면 " + view.getWidth() + "x" + view.getHeight());
             });
-            mp.setOnCompletionListener(p -> { hide(); status.setText("신호 대기"); report("재생 끝"); });
+            mp.setOnInfoListener((p,what,extra)->{if(player==p&&what==MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START){renderedVideo=true;publishVideoHud();}return false;});
+            mp.setOnCompletionListener(p -> { if(player==p&&playbackGate.current(token)){endPlayback("completed");status.setText("신호 대기");report("재생 끝");} });
             mp.setOnErrorListener((p, what, extra) -> {
+                if(player!=p||!playbackGate.current(token))return true;
                 status.setText("재생 실패 " + what + "/" + extra);
                 report("재생 실패 " + what + "/" + extra);
-                hide();
+                endPlayback("error");
                 return true;
             });
             mp.prepareAsync();
         } catch (Exception e) {
             status.setText("재생 실패 " + e.getClass().getSimpleName());
             report("재생 예외 " + e);
+            endPlayback("error");
         }
     }
 
@@ -336,6 +412,8 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
 
     /** 영상을 끄고 화면을 비운다(안경에서 투명). */
     private void hide() {
+        pending=null;renderedVideo=false;
+        recognitionOverlay.setVisibility(android.view.View.VISIBLE);
         release();
         view.setAlpha(0f);
     }
@@ -365,19 +443,57 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
     }
 
     @Override public void onSurfaceTextureSizeChanged(SurfaceTexture t, int w, int h) { }
-    @Override public boolean onSurfaceTextureDestroyed(SurfaceTexture t) { hide(); surface = null; return true; }
-    @Override public void onSurfaceTextureUpdated(SurfaceTexture t) { }
+    @Override public boolean onSurfaceTextureDestroyed(SurfaceTexture t) { endPlayback("stopped");if(surface!=null)surface.release();surface = null;return true; }
+    @Override public void onSurfaceTextureUpdated(SurfaceTexture t) {if(playbackGate.busy())publishVideoHud();}
 
-    private void toggle() {
-        if (player == null) return;
-        if (player.isPlaying()) player.pause(); else player.start();
+    private void endPlayback(String event){
+        hide();
+        if(playbackGate.busy()){
+            playbackGate.stop();playbackReport=new PlaybackReport(playbackToken,event);
+            report("영상 종료 · "+event);
+        }
+        recognitionOverlay.invalidate();
+    }
+    private void stopFromButton(){if(playbackGate.busy()){endPlayback("stopped");status.setText("영상 종료 · 중앙을 다른 곳으로 옮겨 다시 선택하세요");}}
+    private void publishVideoHud(){
+        if(hudChannel==null||!playbackGate.busy())return;
+        try{JSONObject state=new JSONObject();state.put("mode",renderedVideo?"playback":"loading");state.put("width",view.getWidth());state.put("height",view.getHeight());state.put("objects",new org.json.JSONArray());state.put("title",playbackTitle);state.put("playbackId",playbackToken);hudChannel.drawn(state);}catch(Exception ignored){}
+    }
+    private JSONObject playbackPost(String token,String event)throws Exception{
+        HttpURLConnection c=(HttpURLConnection)new URL(server+"/recognition/playback").openConnection();
+        try{
+            c.setConnectTimeout(3000);c.setReadTimeout(3000);c.setRequestMethod("POST");c.setDoOutput(true);c.setRequestProperty("Content-Type","application/json");
+            byte[] body=new JSONObject().put("id",token).put("event",event).toString().getBytes(StandardCharsets.UTF_8);c.setFixedLengthStreamingMode(body.length);
+            try(java.io.OutputStream out=c.getOutputStream()){out.write(body);}
+            try(BufferedReader in=new BufferedReader(new InputStreamReader(c.getInputStream(),StandardCharsets.UTF_8))){return new JSONObject(in.readLine());}
+        }finally{c.disconnect();}
+    }
+    private void rejectPlayback(String token){
+        // No media callback and no change to the video already playing.
+        new Thread(()->{try{playbackPost(token,"rejected");}catch(Exception ignored){}},"playback-rejected").start();
+    }
+    private void playbackLoop(){
+        PlaybackReport sentReport=null;long lastSent=0,stoppedAt=android.os.SystemClock.elapsedRealtime();
+        while(running||android.os.SystemClock.elapsedRealtime()-stoppedAt<10000){
+            if(running)stoppedAt=android.os.SystemClock.elapsedRealtime();
+            PlaybackReport current=playbackReport;long now=android.os.SystemClock.elapsedRealtime();
+            String token=current.token,event=current.event;
+            boolean busy="loading".equals(event)||"playing".equals(event);
+            if(!token.isEmpty()&&(current!=sentReport||(busy&&now-lastSent>5000)))try{
+                JSONObject response=playbackPost(token,event);sentReport=current;lastSent=now;
+                if(!busy){long seq=response.optLong("seq");ui.post(()->playbackGate.acknowledged(token,seq));}
+            }catch(Exception ignored){}
+            if(!running&&current==sentReport)break;
+            try{Thread.sleep(500);}catch(InterruptedException ignored){}
+        }
     }
 
     @Override
     public boolean onKeyDown(int code, KeyEvent e) {
         if (code == KeyEvent.KEYCODE_DPAD_CENTER || code == KeyEvent.KEYCODE_ENTER
-                || code == KeyEvent.KEYCODE_SPACE || code == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE) {
-            toggle();
+                || code == KeyEvent.KEYCODE_SPACE || code == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE
+                || code == KeyEvent.KEYCODE_MEDIA_STOP || (code == KeyEvent.KEYCODE_BACK && playbackGate.busy())) {
+            if(e.getRepeatCount()==0)stopFromButton();
             return true;
         }
         return super.onKeyDown(code, e);
@@ -385,7 +501,8 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
 
     @Override
     public boolean onTouchEvent(MotionEvent e) {
-        if (e.getAction() == MotionEvent.ACTION_UP) { toggle(); return true; }
+        if(e.getAction()==MotionEvent.ACTION_DOWN&&playbackGate.busy())return true;
+        if (e.getAction() == MotionEvent.ACTION_UP) { stopFromButton(); return true; }
         return super.onTouchEvent(e);
     }
 }

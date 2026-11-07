@@ -1,0 +1,1102 @@
+[
+  {
+    "recognition": false,
+    "serverFrames": 60,
+    "metrics": {
+      "seq": 5,
+      "visible": true,
+      "frozen": false,
+      "at": 1793921334223,
+      "networkFps": 20.99895005255995,
+      "decodedFps": 20.99895005255995,
+      "displayFps": 10.499475026279976,
+      "frameAgeMs": 116,
+      "totalReceived": 42,
+      "totalDecoded": 42,
+      "totalDisplayed": 21,
+      "displayDrops": 9,
+      "queueFrames": 12,
+      "maxFrameQueue": 12,
+      "maxRafGap": 16.80000000000109,
+      "displayWaitMs": 26.899999999999636,
+      "maxDisplayWaitMs": 185.0999999880787,
+      "decoder": {
+        "submitted": 42,
+        "output": 42,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 5
+      },
+      "playerDrops": {
+        "overflow": 9,
+        "stale": 0,
+        "clear": 0
+      }
+    }
+  },
+  {
+    "recognition": false,
+    "serverFrames": 198,
+    "metrics": {
+      "seq": 6,
+      "visible": true,
+      "frozen": false,
+      "at": 1793921336220,
+      "networkFps": 60.039025365951076,
+      "decodedFps": 60.039025365951076,
+      "displayFps": 51.03317156105842,
+      "frameAgeMs": 257,
+      "totalReceived": 162,
+      "totalDecoded": 162,
+      "totalDisplayed": 123,
+      "displayDrops": 27,
+      "queueFrames": 12,
+      "maxFrameQueue": 12,
+      "maxRafGap": 16.80000000000109,
+      "displayWaitMs": 183.20000000000073,
+      "maxDisplayWaitMs": 195.40000000596046,
+      "decoder": {
+        "submitted": 162,
+        "output": 162,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 5
+      },
+      "playerDrops": {
+        "overflow": 27,
+        "stale": 0,
+        "clear": 0
+      }
+    }
+  },
+  {
+    "recognition": false,
+    "serverFrames": 330,
+    "metrics": {
+      "seq": 7,
+      "visible": true,
+      "frozen": false,
+      "at": 1793921338222,
+      "networkFps": 56.974361537987086,
+      "decodedFps": 56.974361537987086,
+      "displayFps": 59.97301214524957,
+      "frameAgeMs": 263,
+      "totalReceived": 276,
+      "totalDecoded": 276,
+      "totalDisplayed": 243,
+      "displayDrops": 27,
+      "queueFrames": 6,
+      "maxFrameQueue": 12,
+      "maxRafGap": 16.80000000000109,
+      "displayWaitMs": 123.89999999403881,
+      "maxDisplayWaitMs": 195.40000000596046,
+      "decoder": {
+        "submitted": 276,
+        "output": 276,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 5
+      },
+      "playerDrops": {
+        "overflow": 27,
+        "stale": 0,
+        "clear": 0
+      }
+    }
+  },
+  {
+    "recognition": false,
+    "serverFrames": 462,
+    "metrics": {
+      "seq": 8,
+      "visible": true,
+      "frozen": false,
+      "at": 1793921340223,
+      "networkFps": 63.01260251975278,
+      "decodedFps": 63.01260251975278,
+      "displayFps": 59.01180235976848,
+      "frameAgeMs": 259,
+      "totalReceived": 402,
+      "totalDecoded": 402,
+      "totalDisplayed": 361,
+      "displayDrops": 29,
+      "queueFrames": 12,
+      "maxFrameQueue": 12,
+      "maxRafGap": 16.80000000000291,
+      "displayWaitMs": 189.49999998211933,
+      "maxDisplayWaitMs": 195.40000000596046,
+      "decoder": {
+        "submitted": 402,
+        "output": 402,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 5
+      },
+      "playerDrops": {
+        "overflow": 29,
+        "stale": 0,
+        "clear": 0
+      }
+    }
+  },
+  {
+    "recognition": false,
+    "serverFrames": 606,
+    "metrics": {
+      "seq": 9,
+      "visible": true,
+      "frozen": false,
+      "at": 1793921342221,
+      "networkFps": 60,
+      "decodedFps": 60,
+      "displayFps": 60,
+      "frameAgeMs": 261,
+      "totalReceived": 522,
+      "totalDecoded": 522,
+      "totalDisplayed": 481,
+      "displayDrops": 29,
+      "queueFrames": 12,
+      "maxFrameQueue": 12,
+      "maxRafGap": 16.80000000000291,
+      "displayWaitMs": 182.09999999403954,
+      "maxDisplayWaitMs": 195.40000000596046,
+      "decoder": {
+        "submitted": 522,
+        "output": 522,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 5
+      },
+      "playerDrops": {
+        "overflow": 29,
+        "stale": 0,
+        "clear": 0
+      }
+    }
+  },
+  {
+    "recognition": false,
+    "serverFrames": 762,
+    "metrics": {
+      "seq": 10,
+      "visible": true,
+      "frozen": false,
+      "at": 1793921344272,
+      "networkFps": 57.017105132219356,
+      "decodedFps": 57.017105132219356,
+      "displayFps": 60.018005402336165,
+      "frameAgeMs": 261,
+      "totalReceived": 636,
+      "totalDecoded": 636,
+      "totalDisplayed": 601,
+      "displayDrops": 29,
+      "queueFrames": 6,
+      "maxFrameQueue": 12,
+      "maxRafGap": 16.80000000000291,
+      "displayWaitMs": 167.69999998807907,
+      "maxDisplayWaitMs": 195.40000000596046,
+      "decoder": {
+        "submitted": 636,
+        "output": 636,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 5
+      },
+      "playerDrops": {
+        "overflow": 29,
+        "stale": 0,
+        "clear": 0
+      }
+    }
+  },
+  {
+    "recognition": false,
+    "serverFrames": 900,
+    "metrics": {
+      "seq": 12,
+      "visible": true,
+      "frozen": false,
+      "at": 1793921348213,
+      "networkFps": 62.99685015767986,
+      "decodedFps": 59.997000150171296,
+      "displayFps": 55.49722513890845,
+      "frameAgeMs": 264,
+      "totalReceived": 882,
+      "totalDecoded": 876,
+      "totalDisplayed": 832,
+      "displayDrops": 38,
+      "queueFrames": 6,
+      "maxFrameQueue": 12,
+      "maxRafGap": 16.80000000000291,
+      "displayWaitMs": 179.70000000595974,
+      "maxDisplayWaitMs": 197.49999998211933,
+      "decoder": {
+        "submitted": 882,
+        "output": 876,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "playerDrops": {
+        "overflow": 38,
+        "stale": 0,
+        "clear": 0
+      }
+    }
+  },
+  {
+    "recognition": false,
+    "serverFrames": 1044,
+    "metrics": {
+      "seq": 13,
+      "visible": true,
+      "frozen": false,
+      "at": 1793921350223,
+      "networkFps": 57,
+      "decodedFps": 60,
+      "displayFps": 59,
+      "frameAgeMs": 262,
+      "totalReceived": 996,
+      "totalDecoded": 996,
+      "totalDisplayed": 950,
+      "displayDrops": 39,
+      "queueFrames": 7,
+      "maxFrameQueue": 12,
+      "maxRafGap": 16.80000000000291,
+      "displayWaitMs": 157.1000000059612,
+      "maxDisplayWaitMs": 197.499999994041,
+      "decoder": {
+        "submitted": 996,
+        "output": 996,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "playerDrops": {
+        "overflow": 39,
+        "stale": 0,
+        "clear": 0
+      }
+    }
+  },
+  {
+    "recognition": false,
+    "serverFrames": 1176,
+    "metrics": {
+      "seq": 14,
+      "visible": true,
+      "frozen": false,
+      "at": 1793921352223,
+      "networkFps": 59.98500374906273,
+      "decodedFps": 59.98500374906273,
+      "displayFps": 50.98725318670332,
+      "frameAgeMs": 266,
+      "totalReceived": 1116,
+      "totalDecoded": 1116,
+      "totalDisplayed": 1052,
+      "displayDrops": 58,
+      "queueFrames": 6,
+      "maxFrameQueue": 12,
+      "maxRafGap": 16.80000000000291,
+      "displayWaitMs": 185.69999999403808,
+      "maxDisplayWaitMs": 197.499999994041,
+      "decoder": {
+        "submitted": 1116,
+        "output": 1116,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "playerDrops": {
+        "overflow": 58,
+        "stale": 0,
+        "clear": 0
+      }
+    }
+  },
+  {
+    "recognition": false,
+    "serverFrames": 1314,
+    "metrics": {
+      "seq": 15,
+      "visible": true,
+      "frozen": false,
+      "at": 1793921354219,
+      "networkFps": 63.05359555584664,
+      "decodedFps": 60.05104338652061,
+      "displayFps": 60.05104338652061,
+      "frameAgeMs": 260,
+      "totalReceived": 1242,
+      "totalDecoded": 1236,
+      "totalDisplayed": 1172,
+      "displayDrops": 58,
+      "queueFrames": 6,
+      "maxFrameQueue": 12,
+      "maxRafGap": 16.80000000000291,
+      "displayWaitMs": 175.39999998211715,
+      "maxDisplayWaitMs": 197.499999994041,
+      "decoder": {
+        "submitted": 1242,
+        "output": 1236,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "playerDrops": {
+        "overflow": 58,
+        "stale": 0,
+        "clear": 0
+      }
+    }
+  },
+  {
+    "recognition": true,
+    "serverFrames": 1470,
+    "metrics": {
+      "seq": 16,
+      "visible": true,
+      "frozen": false,
+      "at": 1793921356217,
+      "networkFps": 56.95728203847114,
+      "decodedFps": 59.95503372470647,
+      "displayFps": 59.95503372470647,
+      "frameAgeMs": 253,
+      "totalReceived": 1356,
+      "totalDecoded": 1356,
+      "totalDisplayed": 1292,
+      "displayDrops": 58,
+      "queueFrames": 6,
+      "maxFrameQueue": 12,
+      "maxRafGap": 16.80000000000291,
+      "displayWaitMs": 159,
+      "maxDisplayWaitMs": 197.499999994041,
+      "decoder": {
+        "submitted": 1356,
+        "output": 1356,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "playerDrops": {
+        "overflow": 58,
+        "stale": 0,
+        "clear": 0
+      }
+    }
+  },
+  {
+    "recognition": true,
+    "serverFrames": 1608,
+    "metrics": {
+      "seq": 17,
+      "visible": true,
+      "frozen": false,
+      "at": 1793921358222,
+      "networkFps": 59.994000600297554,
+      "decodedFps": 59.994000600297554,
+      "displayFps": 59.994000600297554,
+      "frameAgeMs": 264,
+      "totalReceived": 1476,
+      "totalDecoded": 1476,
+      "totalDisplayed": 1412,
+      "displayDrops": 58,
+      "queueFrames": 6,
+      "maxFrameQueue": 12,
+      "maxRafGap": 16.80000000000291,
+      "displayWaitMs": 192.19999998212006,
+      "maxDisplayWaitMs": 197.499999994041,
+      "decoder": {
+        "submitted": 1476,
+        "output": 1476,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "playerDrops": {
+        "overflow": 58,
+        "stale": 0,
+        "clear": 0
+      }
+    }
+  },
+  {
+    "recognition": true,
+    "serverFrames": 1740,
+    "metrics": {
+      "seq": 19,
+      "visible": true,
+      "frozen": false,
+      "at": 1793921362216,
+      "networkFps": 63.031515757878935,
+      "decodedFps": 60.03001500750375,
+      "displayFps": 54.02701350675338,
+      "frameAgeMs": 262,
+      "totalReceived": 1722,
+      "totalDecoded": 1716,
+      "totalDisplayed": 1639,
+      "displayDrops": 70,
+      "queueFrames": 7,
+      "maxFrameQueue": 12,
+      "maxRafGap": 16.80000000000291,
+      "displayWaitMs": 179.3000000000029,
+      "maxDisplayWaitMs": 197.499999994041,
+      "decoder": {
+        "submitted": 1722,
+        "output": 1716,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "playerDrops": {
+        "overflow": 70,
+        "stale": 0,
+        "clear": 0
+      }
+    }
+  },
+  {
+    "recognition": true,
+    "serverFrames": 1872,
+    "metrics": {
+      "seq": 20,
+      "visible": true,
+      "frozen": false,
+      "at": 1793921364219,
+      "networkFps": 56.96012791029304,
+      "decodedFps": 59.958029379255834,
+      "displayFps": 59.958029379255834,
+      "frameAgeMs": 259,
+      "totalReceived": 1836,
+      "totalDecoded": 1836,
+      "totalDisplayed": 1759,
+      "displayDrops": 71,
+      "queueFrames": 6,
+      "maxFrameQueue": 12,
+      "maxRafGap": 16.80000000000291,
+      "displayWaitMs": 158.79999998807762,
+      "maxDisplayWaitMs": 197.499999994041,
+      "decoder": {
+        "submitted": 1836,
+        "output": 1836,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "playerDrops": {
+        "overflow": 71,
+        "stale": 0,
+        "clear": 0
+      }
+    }
+  },
+  {
+    "recognition": true,
+    "serverFrames": 2058,
+    "metrics": {
+      "seq": 21,
+      "visible": true,
+      "frozen": false,
+      "at": 1793921366216,
+      "networkFps": 63.050440352093766,
+      "decodedFps": 60.04803843056549,
+      "displayFps": 60.04803843056549,
+      "frameAgeMs": 263,
+      "totalReceived": 1962,
+      "totalDecoded": 1956,
+      "totalDisplayed": 1879,
+      "displayDrops": 71,
+      "queueFrames": 6,
+      "maxFrameQueue": 12,
+      "maxRafGap": 16.80000000000291,
+      "displayWaitMs": 184.000000005959,
+      "maxDisplayWaitMs": 197.499999994041,
+      "decoder": {
+        "submitted": 1962,
+        "output": 1956,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "playerDrops": {
+        "overflow": 71,
+        "stale": 0,
+        "clear": 0
+      }
+    }
+  },
+  {
+    "recognition": true,
+    "serverFrames": 2190,
+    "metrics": {
+      "seq": 22,
+      "visible": true,
+      "frozen": false,
+      "at": 1793921368224,
+      "networkFps": 59.994000600297554,
+      "decodedFps": 59.994000600297554,
+      "displayFps": 53.9946005402678,
+      "frameAgeMs": 261,
+      "totalReceived": 2082,
+      "totalDecoded": 2076,
+      "totalDisplayed": 1987,
+      "displayDrops": 83,
+      "queueFrames": 6,
+      "maxFrameQueue": 12,
+      "maxRafGap": 16.80000000000291,
+      "displayWaitMs": 178,
+      "maxDisplayWaitMs": 197.499999994041,
+      "decoder": {
+        "submitted": 2082,
+        "output": 2076,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "playerDrops": {
+        "overflow": 83,
+        "stale": 0,
+        "clear": 0
+      }
+    }
+  },
+  {
+    "recognition": true,
+    "serverFrames": 2334,
+    "metrics": {
+      "seq": 24,
+      "visible": true,
+      "frozen": false,
+      "at": 1793921372217,
+      "networkFps": 60.05705420167057,
+      "decodedFps": 57.05420149158704,
+      "displayFps": 58.5556278466288,
+      "frameAgeMs": 264,
+      "totalReceived": 2322,
+      "totalDecoded": 2316,
+      "totalDisplayed": 2218,
+      "displayDrops": 92,
+      "queueFrames": 6,
+      "maxFrameQueue": 12,
+      "maxRafGap": 16.80000000000291,
+      "displayWaitMs": 180.59999998808053,
+      "maxDisplayWaitMs": 197.499999994041,
+      "decoder": {
+        "submitted": 2322,
+        "output": 2316,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "playerDrops": {
+        "overflow": 92,
+        "stale": 0,
+        "clear": 0
+      }
+    }
+  },
+  {
+    "recognition": true,
+    "serverFrames": 2466,
+    "metrics": {
+      "seq": 25,
+      "visible": true,
+      "frozen": false,
+      "at": 1793921374228,
+      "networkFps": 56.95728203847114,
+      "decodedFps": 59.95503372470647,
+      "displayFps": 59.95503372470647,
+      "frameAgeMs": 269,
+      "totalReceived": 2436,
+      "totalDecoded": 2436,
+      "totalDisplayed": 2338,
+      "displayDrops": 92,
+      "queueFrames": 6,
+      "maxFrameQueue": 12,
+      "maxRafGap": 16.80000000000291,
+      "displayWaitMs": 160.89999998807616,
+      "maxDisplayWaitMs": 197.499999994041,
+      "decoder": {
+        "submitted": 2436,
+        "output": 2436,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "playerDrops": {
+        "overflow": 92,
+        "stale": 0,
+        "clear": 0
+      }
+    }
+  },
+  {
+    "recognition": true,
+    "serverFrames": 2604,
+    "metrics": {
+      "seq": 26,
+      "visible": true,
+      "frozen": false,
+      "at": 1793921376227,
+      "networkFps": 60.00900135056026,
+      "decodedFps": 60.00900135056026,
+      "displayFps": 58.50877631679626,
+      "frameAgeMs": 261,
+      "totalReceived": 2556,
+      "totalDecoded": 2556,
+      "totalDisplayed": 2455,
+      "displayDrops": 95,
+      "queueFrames": 6,
+      "maxFrameQueue": 12,
+      "maxRafGap": 16.80000000000291,
+      "displayWaitMs": 165.79999999403663,
+      "maxDisplayWaitMs": 197.499999994041,
+      "decoder": {
+        "submitted": 2556,
+        "output": 2556,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "playerDrops": {
+        "overflow": 95,
+        "stale": 0,
+        "clear": 0
+      }
+    }
+  },
+  {
+    "recognition": true,
+    "serverFrames": 2748,
+    "metrics": {
+      "seq": 27,
+      "visible": true,
+      "frozen": false,
+      "at": 1793921378219,
+      "networkFps": 59.99100134944001,
+      "decodedFps": 59.99100134944001,
+      "displayFps": 59.99100134944001,
+      "frameAgeMs": 164,
+      "totalReceived": 2676,
+      "totalDecoded": 2676,
+      "totalDisplayed": 2575,
+      "displayDrops": 96,
+      "queueFrames": 5,
+      "maxFrameQueue": 12,
+      "maxRafGap": 16.80000000000291,
+      "displayWaitMs": 74.99999998808198,
+      "maxDisplayWaitMs": 197.499999994041,
+      "decoder": {
+        "submitted": 2676,
+        "output": 2676,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "playerDrops": {
+        "overflow": 96,
+        "stale": 0,
+        "clear": 0
+      }
+    }
+  },
+  {
+    "recognition": true,
+    "serverFrames": 2886,
+    "metrics": {
+      "seq": 28,
+      "visible": true,
+      "frozen": false,
+      "at": 1793921380215,
+      "networkFps": 60.02100735221552,
+      "decodedFps": 60.02100735221552,
+      "displayFps": 59.520832290947055,
+      "frameAgeMs": 263,
+      "totalReceived": 2796,
+      "totalDecoded": 2796,
+      "totalDisplayed": 2694,
+      "displayDrops": 96,
+      "queueFrames": 6,
+      "maxFrameQueue": 12,
+      "maxRafGap": 16.80000000000291,
+      "displayWaitMs": 99,
+      "maxDisplayWaitMs": 197.499999994041,
+      "decoder": {
+        "submitted": 2796,
+        "output": 2796,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "playerDrops": {
+        "overflow": 96,
+        "stale": 0,
+        "clear": 0
+      }
+    }
+  },
+  {
+    "recognition": true,
+    "serverFrames": 3066,
+    "metrics": {
+      "seq": 30,
+      "visible": true,
+      "frozen": false,
+      "at": 1793921384219,
+      "networkFps": 66.02310808743707,
+      "decodedFps": 66.02310808743707,
+      "displayFps": 52.018206371920115,
+      "frameAgeMs": 260,
+      "totalReceived": 3030,
+      "totalDecoded": 3030,
+      "totalDisplayed": 2906,
+      "displayDrops": 123,
+      "queueFrames": 1,
+      "maxFrameQueue": 12,
+      "maxRafGap": 16.80000000000291,
+      "displayWaitMs": 169.09999998808053,
+      "maxDisplayWaitMs": 197.499999994041,
+      "decoder": {
+        "submitted": 3030,
+        "output": 3030,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "playerDrops": {
+        "overflow": 123,
+        "stale": 0,
+        "clear": 0
+      }
+    }
+  },
+  {
+    "recognition": true,
+    "serverFrames": 3246,
+    "metrics": {
+      "seq": 31,
+      "visible": true,
+      "frozen": false,
+      "at": 1793921386286,
+      "networkFps": 62.99055141691201,
+      "decodedFps": 62.99055141691201,
+      "displayFps": 57.99130130445868,
+      "frameAgeMs": 263,
+      "totalReceived": 3156,
+      "totalDecoded": 3156,
+      "totalDisplayed": 3022,
+      "displayDrops": 128,
+      "queueFrames": 6,
+      "maxFrameQueue": 12,
+      "maxRafGap": 16.80000000000291,
+      "displayWaitMs": 184.10000000595755,
+      "maxDisplayWaitMs": 197.499999994041,
+      "decoder": {
+        "submitted": 3156,
+        "output": 3156,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "playerDrops": {
+        "overflow": 128,
+        "stale": 0,
+        "clear": 0
+      }
+    }
+  },
+  {
+    "recognition": true,
+    "serverFrames": 3384,
+    "metrics": {
+      "seq": 32,
+      "visible": true,
+      "frozen": false,
+      "at": 1793921388219,
+      "networkFps": 59.95203836948308,
+      "decodedFps": 59.95203836948308,
+      "displayFps": 60.45163868922877,
+      "frameAgeMs": 166,
+      "totalReceived": 3276,
+      "totalDecoded": 3276,
+      "totalDisplayed": 3143,
+      "displayDrops": 128,
+      "queueFrames": 5,
+      "maxFrameQueue": 12,
+      "maxRafGap": 16.80000000000291,
+      "displayWaitMs": 36.09999998807325,
+      "maxDisplayWaitMs": 197.499999994041,
+      "decoder": {
+        "submitted": 3276,
+        "output": 3276,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "playerDrops": {
+        "overflow": 128,
+        "stale": 0,
+        "clear": 0
+      }
+    }
+  },
+  {
+    "recognition": true,
+    "serverFrames": 3516,
+    "metrics": {
+      "seq": 33,
+      "visible": true,
+      "frozen": false,
+      "at": 1793921390217,
+      "networkFps": 57.05420149158704,
+      "decodedFps": 57.05420149158704,
+      "displayFps": 58.5556278466288,
+      "frameAgeMs": 261,
+      "totalReceived": 3390,
+      "totalDecoded": 3390,
+      "totalDisplayed": 3260,
+      "displayDrops": 128,
+      "queueFrames": 2,
+      "maxFrameQueue": 12,
+      "maxRafGap": 16.80000000000291,
+      "displayWaitMs": 52.600000005957554,
+      "maxDisplayWaitMs": 197.499999994041,
+      "decoder": {
+        "submitted": 3390,
+        "output": 3390,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 13
+      },
+      "playerDrops": {
+        "overflow": 128,
+        "stale": 0,
+        "clear": 0
+      }
+    }
+  },
+  {
+    "recognition": true,
+    "serverFrames": 3654,
+    "metrics": {
+      "seq": 35,
+      "visible": true,
+      "frozen": false,
+      "at": 1793921394217,
+      "networkFps": 57.00285014233724,
+      "decodedFps": 57.00285014233724,
+      "displayFps": 49.502475123608654,
+      "frameAgeMs": 262,
+      "totalReceived": 3630,
+      "totalDecoded": 3630,
+      "totalDisplayed": 3478,
+      "displayDrops": 148,
+      "queueFrames": 4,
+      "maxFrameQueue": 12,
+      "maxRafGap": 16.80000000000291,
+      "displayWaitMs": 74.19999999404536,
+      "maxDisplayWaitMs": 197.499999994041,
+      "decoder": {
+        "submitted": 3630,
+        "output": 3630,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 19
+      },
+      "playerDrops": {
+        "overflow": 148,
+        "stale": 0,
+        "clear": 0
+      }
+    }
+  },
+  {
+    "recognition": true,
+    "serverFrames": 3720,
+    "metrics": {
+      "seq": 36,
+      "visible": true,
+      "frozen": false,
+      "at": 1793921396225,
+      "networkFps": 44.99775011262847,
+      "decodedFps": 44.99775011262847,
+      "displayFps": 44.99775011262847,
+      "frameAgeMs": 764,
+      "totalReceived": 3720,
+      "totalDecoded": 3720,
+      "totalDisplayed": 3568,
+      "displayDrops": 152,
+      "queueFrames": 0,
+      "maxFrameQueue": 12,
+      "maxRafGap": 16.80000000000291,
+      "displayWaitMs": 192.60000000000582,
+      "maxDisplayWaitMs": 197.499999994041,
+      "decoder": {
+        "submitted": 3720,
+        "output": 3720,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 19
+      },
+      "playerDrops": {
+        "overflow": 152,
+        "stale": 0,
+        "clear": 0
+      }
+    }
+  },
+  {
+    "recognition": true,
+    "serverFrames": 3720,
+    "metrics": {
+      "seq": 37,
+      "visible": true,
+      "frozen": false,
+      "at": 1793921398233,
+      "networkFps": 0,
+      "decodedFps": 0,
+      "displayFps": 0,
+      "frameAgeMs": 2765,
+      "totalReceived": 3720,
+      "totalDecoded": 3720,
+      "totalDisplayed": 3568,
+      "displayDrops": 152,
+      "queueFrames": 0,
+      "maxFrameQueue": 12,
+      "maxRafGap": 16.80000000000291,
+      "displayWaitMs": 192.60000000000582,
+      "maxDisplayWaitMs": 197.499999994041,
+      "decoder": {
+        "submitted": 3720,
+        "output": 3720,
+        "skippedUntilKey": 0,
+        "skippedNoConfig": 0,
+        "segmentGaps": 0,
+        "queueResets": 0,
+        "pendingDiscarded": 0,
+        "errors": 0,
+        "maxDecodeQueue": 19
+      },
+      "playerDrops": {
+        "overflow": 152,
+        "stale": 0,
+        "clear": 0
+      }
+    }
+  },
+  {
+    "recognition": true,
+    "serverFrames": 0
+  },
+  {
+    "recognition": true,
+    "serverFrames": 0
+  }
+]

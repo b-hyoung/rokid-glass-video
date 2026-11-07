@@ -10,6 +10,7 @@
 import json
 import os
 import shutil
+import xml.etree.ElementTree as ET
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DIST = os.path.join(ROOT, 'dist')
@@ -38,6 +39,7 @@ def main():
     server = open(keep, encoding='utf-8').read() if os.path.exists(keep) else ''
     shutil.rmtree(DIST, ignore_errors=True)
     shutil.copytree(os.path.join(ROOT, 'demo'), os.path.join(DIST, 'demo'))
+    shutil.copytree(os.path.join(ROOT, 'cloud'), os.path.join(DIST, 'cloud'), ignore=shutil.ignore_patterns('worker.mjs', 'target-store.mjs'))
     with open(os.path.join(ROOT, 'server', 'videos.json'), encoding='utf-8') as f:
         videos = json.load(f)
     os.makedirs(os.path.join(DIST, 'v'))
@@ -45,7 +47,7 @@ def main():
     for key, v in videos.items():
         src = os.path.join(ROOT, 'server', 'videos', v['file'])
         shutil.copy2(src, os.path.join(DIST, 'v', v['file']))
-        out[key] = {'title': v['title'], 'file': v['file'], 'loop': bool(v.get('loop'))}
+        out[key] = {'title': v['title'], 'file': v['file'], 'loop': bool(v.get('loop')), 'size': os.path.getsize(src), 'ver': int(os.path.getmtime(src) * 1000)}
     with open(os.path.join(DIST, 'videos.json'), 'w', encoding='utf-8') as f:
         json.dump(out, f, ensure_ascii=False)
     if os.path.exists(REC):
@@ -53,13 +55,20 @@ def main():
         shutil.copy2(REC, os.path.join(DIST, 'video', '2412-demo.mp4'))
         with open(os.path.join(DIST, 'video', 'index.html'), 'w', encoding='utf-8') as f:
             f.write(PLAYER)
+    version = ET.parse(os.path.join(ROOT, 'AndroidManifest.xml')).getroot().get('{http://schemas.android.com/apk/res/android}versionName')
+    apk_name = f'glass-video-{version}.apk'
+    apk = os.path.join(ROOT, 'build', apk_name)
+    if os.path.exists(apk):
+        os.makedirs(os.path.join(DIST, 'downloads'), exist_ok=True)
+        shutil.copy2(apk, os.path.join(DIST, 'downloads', 'glass-video.apk'))
+        shutil.copy2(apk, os.path.join(DIST, 'downloads', apk_name))
     if server:
         with open(keep, 'w', encoding='utf-8') as f:
             f.write(server)
     with open(os.path.join(DIST, '_headers'), 'w', encoding='utf-8') as f:  # 안경이 늘 최신 주소를 읽게
-        f.write('/server.txt\n  Cache-Control: no-store\n  Content-Type: text/plain; charset=utf-8\n')
+        f.write('/server.txt\n  Cache-Control: no-store\n  Content-Type: text/plain; charset=utf-8\n/downloads/glass-video.apk\n  Cache-Control: no-store\n/cloud/*\n  Cache-Control: no-cache\n')
     with open(os.path.join(DIST, '_redirects'), 'w', encoding='utf-8') as f:
-        f.write('/ /demo/2412/ 302\n/demo/2412 /demo/2412/ 301\n')
+        f.write('/demo/2412 /demo/2412/index.html 302\n/demo/2412/ /demo/2412/index.html 302\n')
     total = sum(os.path.getsize(os.path.join(d, n)) for d, _, fs in os.walk(DIST) for n in fs)
     print(DIST, f'{total / 1e6:.1f} MB')
 

@@ -6,6 +6,7 @@ import http from 'node:http';
 import {readFileSync, statSync, createReadStream, createWriteStream, mkdirSync} from 'node:fs';
 import {join, basename, normalize, extname} from 'node:path';
 import {camRoutes} from './cam.mjs';
+import {recognition} from './recognition.mjs';
 
 const DIR = import.meta.dirname;
 const DEMO = join(DIR, '..', 'demo'); // 2412호 3D 데모(/demo/2412/)
@@ -58,14 +59,15 @@ button{font:inherit;padding:12px 16px;margin:4px;border:0;border-radius:8px;back
 </style></head><body><main><h1>안경 영상 신호</h1><div id="st">-</div>
 ${Object.entries(list()).map(([k, v]) => `<button onclick="go('${k}')">${k} · ${v.title}</button>`).join('')}
 <button class="stop" onclick="fetch('stop'+q)">끄기</button>
-<p><a style="color:#3dff5a" href="cam" onclick="this.href='cam'+location.search">안경 카메라 시험 →</a></p>
+<p><a style="color:#3dff5a" href="recognition" onclick="this.href='recognition'+location.search">대상 인식 시험 →</a></p><p><a style="color:#3dff5a" href="cam" onclick="this.href='cam'+location.search">안경 카메라 시험 →</a></p>
 <p>미리보기(안경에 보내는 것과 같은 영상)</p><video id="pv" controls muted playsinline></video>
 <script>const q=location.search;const L=${JSON.stringify(list())};
 function go(k){fetch('play?key='+k+(q?'&'+q.slice(1):''));document.getElementById('pv').src='v/'+L[k].file;document.getElementById('pv').play();}
 async function tick(){try{const s=await (await fetch('status')).json();document.getElementById('st').textContent='연결된 안경 '+s.glasses+'대 · 지금 '+(s.now?.key??'없음');}catch{}}
 tick();setInterval(tick,3000);</script></main></body></html>`;
 
-cam = camRoutes({dir: DIR, send: m => send(m), json: (res, code, body) => json(res, code, body)});
+const vision = recognition({dir: DIR, send, list, json});
+cam = camRoutes({dir: DIR, send, json, onFrame: vision.frame});
 
 http.createServer((req, res) => {
   const url = new URL(req.url, 'http://x');
@@ -79,6 +81,7 @@ http.createServer((req, res) => {
     req.on('close', () => { if (!res.writableFinished) console.log(new Date().toLocaleTimeString('ko-KR'), '끊김', req.url, `${Date.now() - t0}ms`); });
   }
 
+  if (vision.route(req, res, url, authed)) return;
   if (p === '/cam/set' && !authed) return json(res, 403, {error: 'token'});
   if (cam(req, res, url)) return;
 
@@ -143,6 +146,7 @@ http.createServer((req, res) => {
     res.writeHead(200, {'Content-Type': MIME[extname(file)] ?? 'application/octet-stream', 'Cache-Control': 'no-cache'});
     return createReadStream(file).pipe(res);
   }
+  if (p === '/recognition') { res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'}); return res.end(readFileSync(join(DIR, 'recognition.html'))); }
   if (p === '/') { res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'}); return res.end(PAGE()); }
   res.writeHead(404); res.end();
 }).listen(PORT, () => console.log(`안경 영상 서버 http://localhost:${PORT}`));

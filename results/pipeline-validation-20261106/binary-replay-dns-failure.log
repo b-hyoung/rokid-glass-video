@@ -1,0 +1,16 @@
+SOCKET wss://rokid-delivery-check.youqlrqod.workers.dev/cam/ws?binary=1
+SOCKET CLOSED
+SOCKET wss://rokid-delivery-check.youqlrqod.workers.dev/cam/ws?binary=1
+SOCKET CLOSED
+SOCKET wss://rokid-delivery-check.youqlrqod.workers.dev/cam/ws?binary=1
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo ENOTFOUND rokid-delivery-check.youqlrqod.workers.dev
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:121:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'rokid-delivery-check.youqlrqod.workers.dev'
+  }
+}
+SOCKET CLOSED
+SOCKET wss://rokid-delivery-check.youqlrqod.workers.dev/cam/ws?binary=1

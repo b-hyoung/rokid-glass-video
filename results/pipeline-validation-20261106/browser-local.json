@@ -1,0 +1,14 @@
+{
+  "inputFrames": 1200,
+  "decodedFrames": 1200,
+  "displayedFrames": 1200,
+  "dropped": 0,
+  "decodedFps": 60.43042185373721,
+  "displayFps": 60.00820796174077,
+  "maxQueue": 25,
+  "errors": [],
+  "limitations": [
+    "Paced local browser input; no Cloudflare or camera capture."
+  ],
+  "pageErrors": []
+}

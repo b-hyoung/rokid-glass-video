@@ -15,7 +15,7 @@ const TURN = 'transpose=2';
 // 안전 자동 멈춤: 발열 단계 3(심함) 이상 또는 배터리 온도 45°C 이상이면 시험을 끈다(긴 시험을 두고 자리를 비워도 되게).
 const STOP_TH = 3, STOP_TEMP = 450, STOP_HEAD = 100; // 발열 여유 100% = 시스템이 크게 느려지는 선(안드로이드 기준)
 
-export function camRoutes({dir, send, json}) {
+export function camRoutes({dir, send, json, onFrame = () => {}}) {
   const rec = join(dir, '..', 'recordings');
   mkdirSync(rec, {recursive: true});
   const testsCsv = join(rec, 'cam_tests.csv'), teleCsv = join(rec, 'cam_tele.csv');
@@ -95,6 +95,7 @@ export function camRoutes({dir, send, json}) {
 
   function frame(t, buf, w, h) {
     const at = now();
+    onFrame(buf);
     latest = {buf, at, n: (latest?.n ?? 0) + 1};
     queue.push(buf);
     if (!t || t.done) return;
