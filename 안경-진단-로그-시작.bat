@@ -1,0 +1,5 @@
+@echo off
+cd /d "%~dp0"
+python -X utf8 tools\collect_glass_diagnostics.py
+if errorlevel 1 echo Python ?? ?? ?? ??? ??????.
+pause

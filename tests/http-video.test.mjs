@@ -19,3 +19,10 @@ test('HTTP reader reports an incomplete final packet instead of silently accepti
  const stream=new ReadableStream({start(c){c.enqueue(data.slice(0,-1));c.close()}});
  await assert.rejects(readVideo(stream,()=>assert.fail('partial packet delivered'),new AbortController().signal),/중간에 끊겼습니다/);
 });
+
+test('HTTP read observations identify the chunk completing each packet',async()=>{
+ const a=packet({seg:1},new Uint8Array([1,2])),b=packet({seg:2},new Uint8Array([3]));const combined=new Uint8Array(a.length+b.length);combined.set(a);combined.set(b,a.length);let reads=0;const seen=[];
+ const stream=new ReadableStream({start(c){c.enqueue(combined.slice(0,3));c.enqueue(combined.slice(3));c.close()}});
+ await readVideo(stream,(m,read)=>seen.push([m.seg,read.id]),new AbortController().signal,()=>({id:++reads}));
+ assert.equal(reads,2);assert.deepEqual(seen,[[1,2],[2,2]]);
+});

@@ -400,6 +400,36 @@ final class CameraStreamer {
     /** 조각 길이: 0.25초였을 때 웹 화면이 그만큼 늦어서 0.1초로(같은 와이파이 조각 처리 7~9ms라 요청 수가 늘어도 괜찮음). */
     private static final long SEG_MS = 100;
 
+    private static final class VideoSegment {
+        final byte[] data;
+        final int sequence;
+        final boolean key;
+        final long queuedAt = android.os.SystemClock.elapsedRealtime();
+
+        VideoSegment(byte[] data, int sequence, boolean key) {
+            this.data = data;
+            this.sequence = sequence;
+            this.key = key;
+        }
+    }
+
+    private void enqueueLive(ArrayBlockingQueue<VideoSegment> queue, LiveVideoSocket socket,
+                             VideoSegment segment, boolean[] waitingForKey) {
+        if (!waitingForKey[0] && queue.offer(segment)) return;
+        if (!waitingForKey[0]) {
+            java.util.ArrayList<VideoSegment> discarded = new java.util.ArrayList<>();
+            queue.drainTo(discarded);
+            dropped.addAndGet(discarded.size());
+        }
+        if (segment.key && queue.offer(segment)) {
+            waitingForKey[0] = false;
+        } else {
+            dropped.incrementAndGet();
+            if (!waitingForKey[0]) socket.requestKey();
+            waitingForKey[0] = true;
+        }
+    }
+
     /** Same Camera2/MediaCodec configuration and 100ms chunks; continuous Cloudflare upload. */
     private void pumpLive(MediaCodec enc, LiveVideoSocket socket) {
         ByteArrayOutputStream segment = new ByteArrayOutputStream(256 * 1024);
@@ -407,6 +437,28 @@ final class CameraStreamer {
         int sequence = 0;
         boolean key = false;
         long segmentAt = android.os.SystemClock.elapsedRealtime();
+        ArrayBlockingQueue<VideoSegment> queue = new ArrayBlockingQueue<>(2);
+        boolean[] waitingForKey = {false};
+        Thread sender = new Thread(() -> {
+            try {
+                boolean needsKey = false;
+                while (!Thread.currentThread().isInterrupted()) {
+                    VideoSegment next = queue.take();
+                    boolean expired = android.os.SystemClock.elapsedRealtime() - next.queuedAt > 250;
+                    if (expired || (needsKey && !next.key)) {
+                        dropped.incrementAndGet();
+                        if (!needsKey || next.key) socket.requestKey();
+                        needsKey = true;
+                        continue;
+                    }
+                    sendLive(socket, next.data, next.sequence, next.key);
+                    needsKey = false;
+                }
+            } catch (InterruptedException ignored) {
+                Thread.currentThread().interrupt();
+            }
+        }, "video-send");
+        sender.start();
         try {
             MediaCodec.BufferInfo info = new MediaCodec.BufferInfo();
             while (encoder == enc) {
@@ -427,7 +479,7 @@ final class CameraStreamer {
                             boolean isKey = (info.flags & MediaCodec.BUFFER_FLAG_KEY_FRAME) != 0;
                             // A reconnect starts on a complete key frame, never midway through a GOP.
                             if (isKey) {
-                                if (segment.size() > 0) sendLive(socket, segment.toByteArray(), sequence++, key);
+                                if (segment.size() > 0) enqueueLive(queue, socket, new VideoSegment(segment.toByteArray(), sequence++, key), waitingForKey);
                                 segment.reset(); segment.write(config, 0, config.length); key = true;
                                 segmentAt = android.os.SystemClock.elapsedRealtime();
                             }
@@ -438,13 +490,18 @@ final class CameraStreamer {
                 }
                 long now = android.os.SystemClock.elapsedRealtime();
                 if (segment.size() > 0 && now - segmentAt >= SEG_MS) {
-                    sendLive(socket, segment.toByteArray(), sequence++, key);
+                    enqueueLive(queue, socket, new VideoSegment(segment.toByteArray(), sequence++, key), waitingForKey);
                     segment.reset(); key = false; segmentAt = now;
                 }
                 info();
             }
         } catch (Exception e) { failed.incrementAndGet(); out.report("동영상 전송 오류 " + e); }
-        finally { socket.close(); try { enc.stop(); } catch (Exception ignored) { } enc.release(); }
+        finally {
+            sender.interrupt();
+            try { enc.stop(); } catch (Exception ignored) { }
+            enc.release();
+            socket.close();
+        }
     }
     private void sendLive(LiveVideoSocket socket, byte[] data, int sequence, boolean key) {
         if (socket.send(data, sequence, key)) { sent.incrementAndGet(); bytes.addAndGet(data.length); }

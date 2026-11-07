@@ -273,3 +273,10 @@ test('HUD metadata is independent of camera delivery, acknowledged and bounded f
  r.webSocketMessage(cameraViewer,JSON.stringify({seq:100,mode:'recognition',visible:true,objects:[]}));assert.equal(r.deviceHud.seq,21);
  r.deviceHud.at-=2300;assert.equal((await request('/recognition/status')).deviceHud,null);
 });
+
+test('server trace retains metadata without video and exposes cursor loss and epoch reset',async()=>{
+ const {r,request}=room();await request('/cam/set?fps=60');const frame=new Uint8Array([0,0,0,1,0x65,0x80]);r.stream(frame,{test:r.test.test,seg:7,sentAt:1200,transport:'websocket'});
+ const initial=await request('/cam/diagnostics');assert.equal(initial.reset,true);const p=initial.events.find(x=>x.type==='camera_packet');assert.equal(p.segment,7);assert.equal(p.sourceSentAt,1200);assert.equal(p.bytes,frame.length);assert.equal('data' in p,false);assert.equal('body' in p,false);
+ const empty=await request('/cam/diagnostics?epoch='+initial.epoch+'&after='+initial.latest);assert.equal(empty.events.length,0);assert.equal(empty.reset,false);
+ for(let i=0;i<4100;i++)r.trace('test');const overwritten=await request('/cam/diagnostics?epoch='+initial.epoch+'&after='+initial.latest);assert.equal(overwritten.lost,true);assert.equal(overwritten.events.length,4096);assert.equal(overwritten.events.at(-1).seq,overwritten.latest);
+});

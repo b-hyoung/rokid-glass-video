@@ -1,3 +1,4 @@
+import {LiveDiagnostics} from './live-diagnostics.mjs';
 import {GlassDecoder} from './decoder.js';
 import {FramePlayer} from './frame-player.js';
 import {LiveTiming} from './live-timing.mjs';
@@ -12,16 +13,23 @@ let frozen=false,selected=null,drag=null,frameAt=0,frameCount=0,matchedFrame=0,c
 const api=async(path,options)=>{const r=await fetch(path,options);const j=await r.json();if(!r.ok)throw Error(j.error||r.status);return j};
 const showError=e=>{message=e.message||String(e);$('#capture-note').textContent=message};
 const timing=new LiveTiming();
+const diagnostics=new LiveDiagnostics();
+let diagnosticCleared=false;
+function diagState(){return {transport:useHttp?'http':'websocket',visible:document.visibilityState,frameAgeMs:frameAt?timing.age(frameAt):null,uncertaintyMs:timing.uncertainty,msSinceDisplay:frameDrawnAt?performance.now()-frameDrawnAt:null,queueFrames:player.queue.length,drops:{...player.drops},decoder:decoder?{...decoder.counters}:null}}
+
 const recovery=new LiveRecovery();
 const player=new FramePlayer((f,at)=>drawFrame(f,f.displayWidth,f.displayHeight,at),(at,now)=>timing.fresh(at,now));
 let lastLiveAt=0,frameDrawnAt=0,lastPacketAt=0,recovering=false,recoveryAt=0,httpController=null,connectedAt=0;
 let streamTest=null,transport='',networkFrames=0,controlsSynced=false;
 const decoder=typeof VideoDecoder==='function'?new GlassDecoder((f,at,fps)=>player.push(f,at,fps),e=>showError(new Error('동영상 해석: '+e.message))):null;
-function drawFrame(image,w,h,at){const scale=Math.min(1,960/Math.max(w,h));const width=Math.round(h*scale),height=Math.round(w*scale);if(frame.width!==width||frame.height!==height){frame.width=width;frame.height=height}fg.save();fg.translate(0,frame.height);fg.rotate(-Math.PI/2);fg.drawImage(image,0,0,frame.height,frame.width);fg.restore();frameAt=at;frameDrawnAt=performance.now();frameCount++}
+function drawFrame(image,w,h,at){if(diagnosticCleared){diagnostics.record('display_resumed',diagState());diagnosticCleared=false}const scale=Math.min(1,960/Math.max(w,h));const width=Math.round(h*scale),height=Math.round(w*scale);if(frame.width!==width||frame.height!==height){frame.width=width;frame.height=height}fg.save();fg.translate(0,frame.height);fg.rotate(-Math.PI/2);fg.drawImage(image,0,0,frame.height,frame.width);fg.restore();frameAt=at;frameDrawnAt=performance.now();frameCount++}
 const requestedMedia=new URLSearchParams(location.search).get('media'),viewerId=crypto.randomUUID();
+$('#diagnostic-toggle').onclick=()=>{if(diagnostics.enabled){diagnostics.stop();$('#diagnostic-toggle').textContent='진단 기록 시작';$('#diagnostic-status').textContent='기록 중지 · 로그를 내려받을 수 있습니다.'}else{diagnostics.start();diagnostics.record('state',diagState());$('#diagnostic-toggle').textContent='진단 기록 중지';$('#diagnostic-status').textContent='기록 중 · 끊김을 재현한 뒤 로그를 내려받으세요.'}$('#diagnostic-download').disabled=false};
+$('#diagnostic-download').onclick=()=>{const blob=new Blob([JSON.stringify(diagnostics.export())],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='glass-diagnostics-'+new Date().toISOString().replace(/[:.]/g,'-')+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
 let useHttp=requestedMedia==='http',connectTimer=null;
-async function receive(m){if(m.pong){timing.pong(m);return}if(m.kind==='hello')return;if(Number.isSafeInteger(m.n)&&socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify({ack:m.n}));if(streamTest!==m.test){streamTest=m.test;player.clear();frameAt=0}if(m.transport)transport=m.transport;if(Number.isFinite(m.frames))networkFrames+=m.frames;
+async function receive(m,read=null){if(m.pong){timing.pong(m);return}if(m.kind==='hello')return;if(Number.isSafeInteger(m.n)&&socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify({ack:m.n}));if(streamTest!==m.test){streamTest=m.test;player.clear();frameAt=0}if(m.transport)transport=m.transport;if(Number.isFinite(m.frames))networkFrames+=m.frames;
 if(m.kind==='h264'||m.kind==='jpeg'){
+ diagnostics.packet(m,useHttp?'http':'websocket',read);
  lastPacketAt=performance.now();
  // Decode through short bursts to preserve H.264 reference frames. Display still
  // rejects stale pictures. Abandon the encoded chain only for a real backlog.
@@ -30,15 +38,17 @@ if(m.kind==='h264'||m.kind==='jpeg'){
 }
 if(m.kind==='h264'){if(!decoder)throw Error('이 브라우저는 동영상 해석을 지원하지 않습니다. Chrome 또는 연속 사진을 선택하세요.');decoder.push(m)}else if(m.kind==='jpeg'){const blob=m.bytes?new Blob([m.bytes],{type:'image/jpeg'}):await (await fetch('data:image/jpeg;base64,'+m.data)).blob();const b=await createImageBitmap(blob);if(streamTest===m.test&&m.at>=frameAt)drawFrame(b,b.width,b.height,m.at);b.close()}}
 function connect(){
+ diagnostics.resetPacket();diagnostics.record('connect',{transport:useHttp?'http':'websocket'});
  clearTimeout(connectTimer);connectedAt=performance.now();lastPacketAt=lastLiveAt=frameDrawnAt=0;
- if(useHttp){const controller=new AbortController();httpController=controller;fetch('/cam/live?viewer='+viewerId,{signal:controller.signal,cache:'no-store'}).then(r=>{if(!r.ok)throw Error('영상 연결 '+r.status);return readVideo(r.body,m=>{if(httpController===controller&&!controller.signal.aborted)return receive(m)},controller.signal)}).catch(e=>{if(httpController===controller&&!controller.signal.aborted)showError(e)}).finally(()=>{if(httpController!==controller)return;httpController=null;decoder?.reset();player.clear();connectTimer=setTimeout(connect,1000)});return}
+ if(useHttp){const controller=new AbortController();httpController=controller;fetch('/cam/live?viewer='+viewerId,{signal:controller.signal,cache:'no-store'}).then(r=>{if(!r.ok)throw Error('영상 연결 '+r.status);return readVideo(r.body,(m,read)=>{if(httpController===controller&&!controller.signal.aborted)return receive(m,read)},controller.signal,bytes=>diagnostics.read('http',bytes))}).catch(e=>{if(httpController===controller&&!controller.signal.aborted)showError(e)}).finally(()=>{if(httpController!==controller)return;httpController=null;decoder?.reset();player.clear();connectTimer=setTimeout(connect,1000)});return}
  const ws=new WebSocket(location.origin.replace(/^http/,'ws')+'/cam/ws?binary=1');socket=ws;ws.binaryType='arraybuffer';
  ws.onopen=()=>{if(socket!==ws)return;connectedAt=performance.now();ws.send(JSON.stringify(timing.ping()))};
- ws.onmessage=async e=>{if(socket!==ws)return;try{if(e.data instanceof ArrayBuffer){const packet=unpack(e.data);await receive({...packet.meta,bytes:packet.bytes})}else await receive(JSON.parse(e.data))}catch(e){showError(e)}};
+ ws.onmessage=async e=>{if(socket!==ws)return;const read=diagnostics.read('websocket',e.data instanceof ArrayBuffer?e.data.byteLength:null);try{if(e.data instanceof ArrayBuffer){const packet=unpack(e.data);await receive({...packet.meta,bytes:packet.bytes},read)}else await receive(JSON.parse(e.data),read)}catch(e){showError(e)}};
  ws.onclose=()=>{if(socket!==ws)return;socket=null;decoder?.reset();player.clear();connectTimer=setTimeout(connect,500)};
  ws.onerror=()=>{if(socket===ws)restartConnection()};
 }
 function restartConnection(){
+ diagnostics.record('restart',diagState());diagnostics.resetPacket();
  clearTimeout(connectTimer);
  const old=socket;socket=null;const controller=httpController;httpController=null;controller?.abort();
  // Do not wait for a close handshake behind queued media before opening a live socket.
@@ -89,7 +99,7 @@ async function recognize(){
  }catch(e){showError(e);if(registration.phase==='capture'){registration.lost=true;registration.error(Error('영역 추적을 멈췄습니다. '+(e.message||e)))}}
  setTimeout(recognize,100);
 }
-function draw(now){player.tick(now);if(!frozen&&frameAt&&!timing.fresh(frameAt,now)){frameAt=0;g.clearRect(0,0,screen.width,screen.height)}const f=frozen?frozenFrame:frame;if(frameAt){if(screen.width!==f.width||screen.height!==f.height){screen.width=f.width;screen.height=f.height}g.drawImage(f,0,0);if(!frozen&&(timing.age(state.at)??Infinity)<2200){for(const d of state.detections){g.strokeStyle='#68ff8a';g.lineWidth=3;g.beginPath();d.corners.forEach(([x,y],i)=>i?g.lineTo(x*screen.width,y*screen.height):g.moveTo(x*screen.width,y*screen.height));g.closePath();g.stroke();g.font='bold 18px sans-serif';g.fillStyle='#68ff8a';g.fillText(d.name,Math.max(4,d.corners[0][0]*screen.width),Math.max(20,d.corners[0][1]*screen.height-8))}}
+function draw(now){player.tick(now);if(!frozen&&frameAt&&!timing.fresh(frameAt,now)){diagnostics.record('screen_clear',{reason:'frame_stale',...diagState()});diagnosticCleared=true;frameAt=0;g.clearRect(0,0,screen.width,screen.height)}const f=frozen?frozenFrame:frame;if(frameAt){if(screen.width!==f.width||screen.height!==f.height){screen.width=f.width;screen.height=f.height}g.drawImage(f,0,0);if(!frozen&&(timing.age(state.at)??Infinity)<2200){for(const d of state.detections){g.strokeStyle='#68ff8a';g.lineWidth=3;g.beginPath();d.corners.forEach(([x,y],i)=>i?g.lineTo(x*screen.width,y*screen.height):g.moveTo(x*screen.width,y*screen.height));g.closePath();g.stroke();g.font='bold 18px sans-serif';g.fillStyle='#68ff8a';g.fillText(d.name,Math.max(4,d.corners[0][0]*screen.width),Math.max(20,d.corners[0][1]*screen.height-8))}}
 registration.draw(g,screen.width,screen.height);if(selected){g.strokeStyle='#68ff8a';g.lineWidth=2;g.strokeRect(selected.x,selected.y,selected.w,selected.h)}if(!registration.enabled){const aim=state.guide?.calibrated?state.guide.camera:{cx:.5,cy:.5};const x=screen.width*aim.cx,y=screen.height*aim.cy;g.strokeStyle='#68ff8a';g.lineWidth=2;g.beginPath();g.arc(x,y,20,0,Math.PI*2);g.moveTo(x-6,y);g.lineTo(x+6,y);g.moveTo(x,y-6);g.lineTo(x,y+6);g.stroke();g.lineWidth=5;g.beginPath();g.arc(x,y,26,-Math.PI/2,-Math.PI/2+Math.PI*2*(frozen?0:state.progress||0));g.stroke()}}requestAnimationFrame(draw)}
 matcher.ready.then(()=>{cvReady=true}).catch(showError);
 api('/videos.json').then(data=>{library.videos=data;$('#video-key').replaceChildren(...Object.entries(data).map(([key,v])=>{const o=document.createElement('option');o.value=key;o.textContent=v.title;return o}));library.render()}).catch(showError);
@@ -98,9 +108,10 @@ setInterval(()=>{
  const active=cameraStats?.test&&!cameraStats.test.done,visible=document.visibilityState==='visible';
  const stalled=visible&&active&&cameraStats.receiveFps>0&&connectedAt&&now-Math.max(lastLiveAt,connectedAt)>2500;
  const noFreshDisplay=displayStalled({now,connectedAt,packetAt:lastPacketAt,presentedAt:frameDrawnAt,active,visible});
- if(visible&&((recovering&&now-recoveryAt>1500)||stalled||noFreshDisplay)){
+ if(visible&&active&&cameraStats.receiveFps>0&&((recovering&&now-recoveryAt>1500)||stalled||noFreshDisplay)){
+   diagnostics.record('screen_clear',{reason:'recovery',recovering,stalled,noFreshDisplay,...diagState()});
    useHttp=recovery.transport(useHttp?'http':'websocket',now,['http','ws','websocket'].includes(requestedMedia))==='http';
-   timing.recoveries++;recovering=false;connectedAt=now;lastLiveAt=0;decoder?.reset();player.clear();frameAt=0;g.clearRect(0,0,screen.width,screen.height);
+   diagnosticCleared=true;timing.recoveries++;recovering=false;connectedAt=now;lastLiveAt=0;decoder?.reset();player.clear();frameAt=0;g.clearRect(0,0,screen.width,screen.height);
    restartConnection();
  }
  $('#live-status').textContent=recovering||stalled||noFreshDisplay?'영상 지연 감지 · 최신 화면에 다시 연결합니다':frameAt?(useHttp?'연속 영상 연결':'실시간 영상 연결'):'새 영상 대기 중';
@@ -108,6 +119,7 @@ setInterval(()=>{
 let metricAt=performance.now(),decodedAt=0,shownAt=0,networkAt=0,cameraStats=null,statsBusy=false,metricSequence=0;
 setInterval(()=>{const now=performance.now(),seconds=(now-metricAt)/1000,decoded=(player.decoded-decodedAt)/seconds,shown=(player.shown-shownAt)/seconds,network=(networkFrames-networkAt)/seconds;networkAt=networkFrames;metricAt=now;decodedAt=player.decoded;shownAt=player.shown;
 const metrics={stalePackets:timing.stalePackets,recoveries:timing.recoveries,relayAgeMs:frameAt?timing.age(frameAt):null,clockUncertaintyMs:timing.uncertainty,seq:++metricSequence,networkFps:network,visible:document.visibilityState==='visible',decodedFps:decoded,displayFps:frozen?0:shown,frameAgeMs:frameAt?(timing.age(frameAt)??0):0,frozen,totalReceived:networkFrames,totalDecoded:player.decoded,totalDisplayed:player.shown,displayDrops:player.dropped,queueFrames:player.queue.length,maxFrameQueue:player.maxQueue,maxRafGap:player.maxRafGap,displayWaitMs:player.lastWaitMs,maxDisplayWaitMs:player.maxWaitMs,playerDrops:player.drops,decoder:decoder?.counters};
+diagnostics.record('metrics',{...metrics,transport:useHttp?'http':'websocket'});
 if(useHttp)api('/cam/viewer-metrics?viewer='+viewerId,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(metrics)}).catch(()=>{});else if(socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify({metrics}));
 const active=cameraStats?.test&&!cameraStats.test.done;
 $('#stream-stats').textContent=active?'설정 '+cameraStats.test.fps+'fps · 서버 '+cameraStats.receiveFps+'fps · 웹 도착 '+network.toFixed(1)+'fps · 해석 '+decoded.toFixed(1)+'fps · 표시 '+(frozen?'정지':shown.toFixed(1)+'fps'):'촬영 대기';

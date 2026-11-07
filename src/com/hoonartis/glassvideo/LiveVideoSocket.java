@@ -30,6 +30,7 @@ final class LiveVideoSocket {
     LiveVideoSocket(Supplier<String> url, long test, int fps, Consumer<String> report) {
         this.url = url; this.test = test; this.fps = fps; this.report = report;
     }
+    void requestKey() { keyRequest.set(true); }
     boolean takeKeyRequest() { return keyRequest.getAndSet(false); }
     private static long now() { return System.nanoTime() / 1000000; }
 

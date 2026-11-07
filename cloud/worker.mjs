@@ -29,19 +29,22 @@ export class GlassRoom {
     this.playback=new PlaybackLock(ctx.storage);this.rearm=false;this.deviceHud=null;this.hudDelivery=new Map();
     this.guide=new RegistrationGuide(ctx.storage);
     this.config=new Map();this.rate=[];this.logs=[];this.delivery=new Map();this.httpViewers=new Map();this.lastKeyRequestAt=0;this.keyRequests=0;
+    this.traceEpoch=crypto.randomUUID();this.traceSequence=0;this.traceBuffer=new Array(4096);this.traceCount=0;
     this.ctx.storage.sql.exec('CREATE TABLE IF NOT EXISTS camera_state (id INTEGER PRIMARY KEY, data TEXT NOT NULL)');
     const saved=this.ctx.storage.sql.exec('SELECT data FROM camera_state WHERE id=1').toArray()[0];
     if(saved){try{this.test={...JSON.parse(saved.data),frames:0,segments:0};}catch{}}
     this.startedAt=Date.now();
   }
   saveCamera(){this.ctx.storage.sql.exec('INSERT OR REPLACE INTO camera_state VALUES (1,?)',JSON.stringify(this.test))}
+  trace(type,data={}){const seq=++this.traceSequence;this.traceBuffer[(seq-1)%this.traceBuffer.length]={seq,at:Date.now(),type,...data};this.traceCount=Math.min(this.traceCount+1,this.traceBuffer.length)}
+  traceSince(epoch,after){const first=this.traceSequence-this.traceCount+1;const reset=epoch!==this.traceEpoch;const cursor=reset?first-1:Math.max(0,after);const events=[];for(let n=Math.max(first,cursor+1);n<=this.traceSequence;n++)events.push(this.traceBuffer[(n-1)%this.traceBuffer.length]);return {epoch:this.traceEpoch,reset,lost:!reset&&cursor<first-1,first,latest:this.traceSequence,events}}
   cameraCommand(){const {mode,fps,sec,crop,q,kbps,test,transport}=this.test;return {cmd:'cam',mode,fps,sec,crop,q,kbps,test,transport}}
   recoverCamera(){
     const now=Date.now(),t=this.test;
     if(!t||t.done||now-Math.max(this.startedAt,t.lastAt||t.cmdAt)<(t.lastAt?12000:30000)||![...this.seen.values()].some(at=>now-at<25000)||(t.retries||0)>=3)return;
     const cfg={...this.cameraCommand(),test:now};this.test={...cfg,frames:0,segments:0,cmdAt:now,done:false,retries:(t.retries||0)+1};
     this.config.clear();this.rate=[];this.delivery.clear();this.saveCamera();this.send(cfg);
-    this.logs.push({at:now,message:'영상 수신 중단 감지 · 카메라 자동 재연결 '+this.test.retries});this.logs=this.logs.slice(-20);
+    this.trace('camera_recovery',{previousTest:t.test,test:this.test.test,retries:this.test.retries,lastReceivedAt:t.lastAt??null});this.logs.push({at:now,message:'영상 수신 중단 감지 · 카메라 자동 재연결 '+this.test.retries});this.logs=this.logs.slice(-20);
   }
   targets(images=false){return this.store.list(images)}
   changed(){this.version=Math.max(Date.now(),this.version+1);this.reset()}
@@ -102,6 +105,7 @@ export class GlassRoom {
     this.rate.push({at,frames:info.frames});this.rate=this.rate.filter(x=>at-x.at<2000);
     if(!this.test.firstAt)this.test.firstAt=at;this.test.lastAt=at;
     const m={kind:video?'h264':'jpeg',test:this.test.test,seg:meta.seg,fps:this.test.fps,at,sourceSentAt:Number.isFinite(meta.sentAt)?meta.sentAt:null,n:++this.frameNo,frames:info.frames,complete:true,transport:meta.transport};
+    this.trace('camera_packet',{test:m.test,segment:m.seg,sourceSentAt:m.sourceSentAt,serverAt:at,frames:m.frames,bytes:body.length,transport:m.transport});
     if(video){for(const nal of nals(body)){const type=nal[0]&31;if(type===7||type===8)this.config.set(type,nal.slice())}if(body.length){body=this.withConfig(body,info.key);this.relay(m,body,info.key);this.relayHttp(m,body,info.key)}}
     else {this.latest={...m,data:encode(body)};this.broadcast(this.latest);this.relayHttp(m,body,true)}
     return true;
@@ -134,13 +138,14 @@ export class GlassRoom {
     if(p==='/log'){this.logs.push({at:Date.now(),message:(q.get('m')||'').slice(0,1000)});this.logs=this.logs.slice(-20);return json({ok:true})}
     if(p==='/cam/set'){
       const fps=Math.max(0,Math.min(60,+q.get('fps')||0));
-      if(!fps){if(this.test){this.test.done=true;this.saveCamera()}this.send({cmd:'cam',fps:0});this.active=false;this.reset();return json({ok:true,stop:true})}
+      if(!fps){this.trace('camera_stop',{test:this.test?.test??null});if(this.test){this.test.done=true;this.saveCamera()}this.send({cmd:'cam',fps:0});this.active=false;this.reset();return json({ok:true,stop:true})}
       const cfg={cmd:'cam',mode:q.get('mode')==='photo'?'photo':'video',fps,sec:Math.max(0,Math.min(3600,+q.get('sec')||0)),crop:1,q:80,kbps:Math.max(500,Math.min(4000,+q.get('kbps')||2000)),test:Date.now(),transport:'websocket'};
-      this.test={...cfg,frames:0,cmdAt:Date.now(),done:false};this.saveCamera();this.latest=null;this.first=null;this.recent=[];this.bytes=0;this.config.clear();this.rate=[];this.delivery.clear();this.reset();this.send(cfg);return json({ok:true,test:cfg.test});
+      this.test={...cfg,frames:0,cmdAt:Date.now(),done:false};this.trace('camera_start',{test:cfg.test,fps:cfg.fps,kbps:cfg.kbps,mode:cfg.mode});this.saveCamera();this.latest=null;this.first=null;this.recent=[];this.bytes=0;this.config.clear();this.rate=[];this.delivery.clear();this.reset();this.send(cfg);return json({ok:true,test:cfg.test});
     }
     if(p==='/cam/upload' && req.headers.get('Upgrade')?.toLowerCase()==='websocket'){
       if(!this.test||this.test.done||String(this.test.test)!==q.get('test'))return json({error:'촬영을 다시 시작하세요'},409);
       const pair=new WebSocketPair();this.ctx.acceptWebSocket(pair[1]);pair[1].serializeAttachment({role:'camera',test:this.test.test,id:q.get('id')||'glasses'});
+      this.trace('camera_socket_open',{test:this.test.test});
       return new Response(null,{status:101,webSocket:pair[0]});
     }
     if(p==='/cam/live'){
@@ -181,6 +186,7 @@ export class GlassRoom {
       this.stream(body,{kind:p==='/stream'?'h264':'jpeg',test:q.get('test'),seg:+q.get('seg'),transport:'http'});return json({ok:true});
     }
     if(p==='/tele'){this.note(q);return json({ok:true})}
+    if(p==='/cam/diagnostics'){const raw=q.get('after'),after=raw&&/^\d+$/.test(raw)?Number(raw):0;return json(this.traceSince(q.get('epoch'),Number.isSafeInteger(after)?after:0))}
     if(p==='/cam/stats'){const r=this.rate.filter(x=>Date.now()-x.at<2000),span=r.length>1?(r.at(-1).at-r[0].at)/1000:0;return json({test:this.test,keyRequests:this.keyRequests,tele:this.tele,latest:this.latest?{n:this.latest.n,at:this.latest.at}:null,bytes:this.bytes,receiveFps:span>0?Math.round(r.slice(1).reduce((n,x)=>n+x.frames,0)/span*10)/10:0,viewers:[...[...this.delivery.values()].map(x=>({media:'websocket',pending:x.pending.length,window:x.window,rtt:Number.isFinite(x.minRtt)?x.minRtt:null,dropped:x.dropped,metrics:x.metrics})),...[...this.httpViewers.values()].map(x=>({media:'http',dropped:x.dropped,droppedBackpressure:x.droppedBackpressure,droppedWaitingKey:x.droppedWaitingKey,metrics:x.metrics}))],logs:this.logs})}
     if((p==='/recognition/device'||p==='/recognition/hud')&&req.headers.get('Upgrade')?.toLowerCase()==='websocket'){
       const role=p==='/recognition/device'?'hud-device':'hud-viewer';
@@ -308,11 +314,12 @@ export class GlassRoom {
     }catch{ws.close(1008,'Invalid stream packet')}
   }
   webSocketClose(ws,code,reason){
+    const attachment=ws.deserializeAttachment?.();if(attachment?.role==='camera')this.trace('camera_socket_close',{test:attachment.test,code,reason:String(reason||'').slice(0,120)});
     this.delivery.delete(ws);this.hudDelivery.delete(ws);
     // 1005/1006/1015 are local event codes, never valid codes for a close frame.
     // Echoing them threw before the close reply, leaving browsers waiting ~30s.
     const sendable=code>=1000&&code<=1014&&![1004,1005,1006].includes(code)||code>=3000&&code<=4999;
     try{ws.close(sendable?code:1000,reason)}catch{try{ws.close(1000,'')}catch{}}
   }
-  webSocketError(ws){this.delivery.delete(ws);try{ws.close(1011,'stream error')}catch{}}
+  webSocketError(ws){const attachment=ws.deserializeAttachment?.();if(attachment?.role==='camera')this.trace('camera_socket_error',{test:attachment.test});this.delivery.delete(ws);try{ws.close(1011,'stream error')}catch{}}
 }
