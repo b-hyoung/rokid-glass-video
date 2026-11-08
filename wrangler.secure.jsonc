@@ -1,0 +1,9 @@
+{
+  "name": "glass-video-paired-candidate",
+  "main": "cloud/worker.mjs",
+  "compatibility_date": "2026-11-01",
+  "assets": {"directory":"./build/paired-web-candidate","binding":"ASSETS","run_worker_first":true,"html_handling":"none","not_found_handling":"none"},
+  "vars": {"ACCESS_MODE":"paired", "TRUST_CF_IP":"1"},
+  "durable_objects": {"bindings":[{"name":"ROOM","class_name":"GlassRoom"},{"name":"ACCESS","class_name":"PairingRegistry"}]},
+  "migrations": [{"tag":"paired-v1","new_sqlite_classes":["GlassRoom","PairingRegistry"]}]
+}

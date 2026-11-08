@@ -2,6 +2,7 @@ package com.hoonartis.glassvideo;
 
 /** UI-thread playback policy, also used by the JVM regression tests. */
 final class PlaybackGate {
+    void serverChanged(){id="";busy=false;awaitingStop=false;barrier=-1;}
     private String id="";
     private boolean busy,awaitingStop;
     private long barrier=-1;

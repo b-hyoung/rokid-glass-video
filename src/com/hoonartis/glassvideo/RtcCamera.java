@@ -111,7 +111,7 @@ final class RtcCamera {
 
     private void connect() {
         if (stopped) return;
-        signal = new WebSocketClient(URI.create(url), new Draft_6455(), Collections.emptyMap(), 5000) {
+        signal = new WebSocketClient(URI.create(url), new Draft_6455(), DeviceAccess.headers(url), 5000) {
             @Override public void onOpen(ServerHandshake handshake) {}
             @Override public void onMessage(String text) {
                 handler.post(() -> {

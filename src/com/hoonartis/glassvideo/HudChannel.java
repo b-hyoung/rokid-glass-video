@@ -29,7 +29,7 @@ final class HudChannel {
         if(socket!=null&&(!address.equals(origin)||(waiting!=0&&now-waitAt>2000)))close();
         if(socket==null){
             if(now-attemptAt<2000)return;attemptAt=now;origin=address;
-            WebSocketClient client=new WebSocketClient(URI.create(address.replaceFirst("^http","ws")+"/recognition/device"),new org.java_websocket.drafts.Draft_6455(),java.util.Collections.emptyMap(),5000){
+            WebSocketClient client=new WebSocketClient(URI.create(address.replaceFirst("^http","ws")+"/recognition/device"),new org.java_websocket.drafts.Draft_6455(),DeviceAccess.headers(address),5000){
                 @Override public void onOpen(ServerHandshake h){}
                 @Override public void onMessage(String m){try{long ack=new JSONObject(m).optLong("ack");synchronized(HudChannel.this){if(socket==this&&ack==waiting)waiting=0;}}catch(Exception ignored){}}
                 @Override public void onClose(int c,String r,boolean remote){synchronized(HudChannel.this){if(socket==this){socket=null;waiting=0;}}}

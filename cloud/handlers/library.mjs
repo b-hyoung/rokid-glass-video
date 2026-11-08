@@ -1,9 +1,15 @@
+import {validateSnapshot,restoreSnapshot} from '../library-snapshot.mjs';
 import {json} from '../request-policy.mjs';
 import {MAX_IMAGES} from '../target-store.mjs';
 import {validateVectors} from '../appearance-format.mjs';
 
 export async function handleLibrary(req,u){
   const p=u.pathname,q=u.searchParams;
+    if(p==='/recognition/backup'&&req.method==='GET')return json({schema:1,version:this.version,targets:this.targets(true),guide:this.guide.config});
+    if(p==='/recognition/import'&&req.method==='POST'){
+      if(this.env.ACCESS_MODE!=='paired'||req.headers.get('X-Glass-Role')!=='controller')return json({error:'페어링된 제어 화면에서 가져오세요.'},403);
+      try{const text=await req.text();if(text.length>32*1024*1024)throw Error('등록 사본이 너무 큽니다.');return json(restoreSnapshot(this,validateSnapshot(JSON.parse(text),await this.videos(req))))}catch(error){return json({error:error.message},400)}
+    }
     if(p==='/recognition/guide'){
       if(req.method==='GET')return json(this.guide.read());
       if(req.method!=='POST')return json({error:'POST 요청이 필요합니다.'},405);

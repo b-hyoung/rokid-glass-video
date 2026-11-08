@@ -38,7 +38,7 @@ def build(root, output, mode='release'):
     with tempfile.TemporaryDirectory(prefix='glass-assets-', dir=output.parent) as temporary:
         stage = Path(temporary) / 'assets'
         shutil.copytree(root / 'demo', stage / 'demo')
-        shutil.copytree(root / 'cloud', stage / 'cloud', ignore=shutil.ignore_patterns('worker.mjs', 'target-store.mjs', 'state-feed.mjs', 'request-policy.mjs', 'handlers', 'session-*.mjs'))
+        shutil.copytree(root / 'cloud', stage / 'cloud', ignore=shutil.ignore_patterns('worker.mjs', 'target-store.mjs', 'state-feed.mjs', 'request-policy.mjs', 'session-access.mjs', 'library-snapshot.mjs', 'handlers', 'session-*.mjs'))
         for asset in release['assets']:
             destination = stage / asset['destination']
             destination.parent.mkdir(parents=True, exist_ok=True)

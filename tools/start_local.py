@@ -39,12 +39,17 @@ def lan_urls(port):
             and not ipaddress.ip_address(address).is_link_local]
 
 
+def asset_directory(port):
+    return ASSETS if port==8787 else RUNTIME / f'local-assets-{port}'
+
+
 def prepare_assets(port):
+    assets=asset_directory(port)
     release = validate_assets(mode='web')
-    ASSETS.mkdir(parents=True, exist_ok=True)
+    assets.mkdir(parents=True, exist_ok=True)
     for source in (ROOT / 'cloud').rglob('*'):
-        if source.is_file() and source.name not in ('worker.mjs', 'target-store.mjs', 'state-feed.mjs', 'request-policy.mjs') and 'handlers' not in source.parts:
-            copy_if_changed(source, ASSETS / 'cloud' / source.relative_to(ROOT / 'cloud'))
+        if source.is_file() and source.name not in ('worker.mjs', 'target-store.mjs', 'state-feed.mjs', 'request-policy.mjs', 'session-access.mjs', 'library-snapshot.mjs') and 'handlers' not in source.parts:
+            copy_if_changed(source, assets / 'cloud' / source.relative_to(ROOT / 'cloud'))
     model = ROOT / 'build/appearance-v1.onnx'
     ort = ROOT / 'build/appearance-web/node_modules/onnxruntime-web/dist'
     for filename in ('ort.wasm.min.js', 'ort-wasm-simd-threaded.mjs', 'ort-wasm-simd-threaded.wasm'):
@@ -53,12 +58,12 @@ def prepare_assets(port):
             source = ROOT / 'dist/cloud/ort' / filename
         if not source.exists():
             raise RuntimeError(f'Browser inference runtime missing: {filename}. Prepare build/appearance-web first.')
-        copy_if_changed(source, ASSETS / 'cloud/ort' / filename)
+        copy_if_changed(source, assets / 'cloud/ort' / filename)
     if not model.exists():
         model = ROOT / 'dist/cloud/appearance-v1.onnx'
     if not model.exists():
         raise RuntimeError('Missing build/appearance-v1.onnx. Export the browser model before starting locally.')
-    copy_if_changed(model, ASSETS / 'cloud/appearance-v1.onnx')
+    copy_if_changed(model, assets / 'cloud/appearance-v1.onnx')
     videos = json.loads((ROOT / 'server/videos.json').read_text(encoding='utf-8'))
     listing = {}
     for key, video in videos.items():
@@ -66,16 +71,16 @@ def prepare_assets(port):
         if Path(filename).name != filename:
             raise ValueError('Video filename must not contain directories')
         source = ROOT / 'server/videos' / filename
-        copy_if_changed(source, ASSETS / 'v' / filename)
+        copy_if_changed(source, assets / 'v' / filename)
         listing[key] = {'title': video['title'], 'file': filename, 'loop': bool(video.get('loop')),
                         'size': source.stat().st_size, 'ver': int(source.stat().st_mtime * 1000)}
-    write_if_changed(ASSETS / 'videos.json', json.dumps(listing, ensure_ascii=False))
-    write_if_changed(ASSETS / 'runtime-config.json', json.dumps(runtime_config(release, mode='local')))
+    write_if_changed(assets / 'videos.json', json.dumps(listing, ensure_ascii=False))
+    write_if_changed(assets / 'runtime-config.json', json.dumps(runtime_config(release, mode='local')))
     for filename in ('local-check.html', 'local-check.js', 'local-setup.html'):
-        copy_if_changed(ROOT / 'tools' / filename, ASSETS / filename)
+        copy_if_changed(ROOT / 'tools' / filename, assets / filename)
     info = {'local': True, 'service': 'rokid-glass-video-local', 'port': port, 'pcUrl': f'http://localhost:{port}', 'lanUrls': lan_urls(port)}
-    write_if_changed(ASSETS / 'local-info.json', json.dumps(info))
-    write_if_changed(ASSETS / '_headers', '/cloud/*\n  Cache-Control: no-cache\n/local-info.json\n  Cache-Control: no-store\n')
+    write_if_changed(assets / 'local-info.json', json.dumps(info))
+    write_if_changed(assets / '_headers', '/cloud/*\n  Cache-Control: no-cache\n/local-info.json\n  Cache-Control: no-store\n')
     return info
 
 
@@ -161,7 +166,14 @@ def main():
             webbrowser.open(f"{info['pcUrl']}/local-check.html")
         return
     state_path = RUNTIME / ('local-state' if args.port == 8787 else f'local-state-{args.port}')
-    command = wrangler_command() + ['dev', '--local', '--config', str(ROOT / 'wrangler.local.jsonc'),
+    config_path=ROOT / 'wrangler.local.jsonc'
+    if args.port!=8787:
+        config=json.loads(config_path.read_text(encoding='utf-8'))
+        config['main']=str(ROOT/'tools/local-worker.mjs')
+        config['assets']['directory']=str(asset_directory(args.port))
+        config_path=RUNTIME/f'local-{args.port}.wrangler.json'
+        write_if_changed(config_path,json.dumps(config))
+    command = wrangler_command() + ['dev', '--local', '--config', str(config_path),
         '--ip', '0.0.0.0', '--port', str(args.port), '--persist-to', str(state_path)]
     environment = {**os.environ, 'WRANGLER_SEND_METRICS': 'false', 'CI': 'true', 'NO_COLOR': '1'}
     log_path = RUNTIME / 'local-server.log'

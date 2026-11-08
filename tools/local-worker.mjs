@@ -1,9 +1,6 @@
 // Local development only. The live room uses the production protocol, while
 // file replay has a separate namespace so it cannot command connected glasses.
 import cloudWorker,{GlassRoom} from '../cloud/worker.mjs';
-import {MAX_IMAGES,MAX_TARGETS} from '../cloud/target-store.mjs';
-import {validateVectors} from '../cloud/appearance-format.mjs';
-import {guideConfig} from '../cloud/registration-guide.mjs';
 
 const json=(data,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store'}});
 
@@ -29,30 +26,8 @@ async function videoAsset(request,env){
   }});
 }
 
-export function localTargets(data,videos){
-  if(!Array.isArray(data.targets)||data.targets.length>MAX_TARGETS)throw Error('등록 대상 목록을 확인하세요.');
-  const ids=new Set(),imageIds=new Set();
-  const targets=data.targets.map(target=>{
-    if(typeof target.id!=='string'||!target.id||target.id.length>80||ids.has(target.id))throw Error('대상 ID가 잘못됐거나 중복됐습니다.');
-    ids.add(target.id);
-    if(typeof target.name!=='string'||!target.name.trim()||!Object.hasOwn(videos,target.key))throw Error('대상 이름과 연결 영상을 확인하세요.');
-    if(!Array.isArray(target.images)||target.images.length>MAX_IMAGES)throw Error('대상당 사진은 최대 60장입니다.');
-    // Validate without renormalizing a stored backup. Repeated restores must
-    // preserve the original vector components exactly.
-    if(target.appearance)validateVectors(target.appearance);
-    const appearance=target.appearance?{model:target.appearance.model,vectors:structuredClone(target.appearance.vectors)}:null;
-    if(!target.images.length&&!appearance)throw Error('사진이나 벡터가 없는 대상은 가져올 수 없습니다.');
-    const images=target.images.map(image=>{
-      if(typeof image.image!=='string'||image.image.length>700000||!/^data:image\/jpeg;base64,[A-Za-z0-9+/]+=*$/.test(image.image))throw Error('등록 사진 형식이나 용량을 확인하세요.');
-      const id=image.id??crypto.randomUUID(),created_at=image.created_at??0;
-      if(typeof id!=='string'||!id||id.length>160||imageIds.has(id)||!Number.isSafeInteger(created_at)||created_at<0)throw Error('사진 ID 또는 저장 시간이 잘못됐습니다.');
-      imageIds.add(id);
-      return {id,created_at,image:image.image,capture:image.capture??null};
-    });
-    return {id:target.id,name:target.name.trim().slice(0,60),key:target.key,images,appearance};
-  });
-  return {targets,guide:data.guide?guideConfig(data.guide):null};
-}
+export {validateSnapshot as localTargets} from '../cloud/library-snapshot.mjs';
+import {validateSnapshot as localTargets,restoreSnapshot} from '../cloud/library-snapshot.mjs';
 
 export class LocalGlassRoom extends GlassRoom {
   async fetch(request){
@@ -64,18 +39,7 @@ export class LocalGlassRoom extends GlassRoom {
       const text=await request.text();if(text.length>32*1024*1024)throw Error('가져올 등록 데이터가 너무 큽니다.');
       const data=localTargets(JSON.parse(text),await this.videos(request));
       if(!this.previewOnly&&this.store.list().length)return json({ok:true,skipped:true,reason:'기존 로컬 등록 데이터를 유지했습니다.'});
-      this.ctx.storage.transactionSync(()=>{
-        if(this.previewOnly)for(const table of ['target_batches','target_image_info','target_images','target_vectors','targets'])this.ctx.storage.sql.exec(`DELETE FROM ${table}`);
-        for(const target of data.targets){
-          this.ctx.storage.sql.exec('INSERT INTO targets VALUES (?,?,?,NULL)',target.id,target.name,target.key);
-          for(const image of target.images){const id=image.id;this.ctx.storage.sql.exec('INSERT INTO target_images VALUES (?,?,?,?)',id,target.id,image.image,image.created_at);if(image.capture)this.ctx.storage.sql.exec('INSERT INTO target_image_info VALUES (?,?)',id,JSON.stringify(image.capture))}
-          if(target.appearance)this.ctx.storage.sql.exec('INSERT INTO target_vectors VALUES (?,?)',target.id,JSON.stringify(target.appearance));
-        }
-        if(data.guide)this.ctx.storage.sql.exec('INSERT OR REPLACE INTO registration_settings VALUES (1,?)',JSON.stringify(data.guide));
-      });
-      if(data.guide)this.guide.config=data.guide;
-      this.playback.stop();this.active=false;this.changed();
-      return json({ok:true,count:data.targets.length,images:data.targets.reduce((n,t)=>n+t.images.length,0)});
+      return json(restoreSnapshot(this,data,{replace:!!this.previewOnly}));
     }catch(error){return json({error:error.message},400)}
   }
 }

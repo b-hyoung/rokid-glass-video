@@ -30,7 +30,7 @@ final class StateChannel {
             final String address=server.get();
             final long[] ping={0},offset={0},bestRtt={Long.MAX_VALUE};
             final long openedAt=android.os.SystemClock.elapsedRealtime();
-            WebSocketClient client=new WebSocketClient(URI.create(address.replaceFirst("^http","ws")+"/recognition/events?role=device&id="+id+"&app="+BuildInfo.VERSION),new org.java_websocket.drafts.Draft_6455(),java.util.Collections.emptyMap(),5000){
+            WebSocketClient client=new WebSocketClient(URI.create(address.replaceFirst("^http","ws")+"/recognition/events?role=device&id="+id+"&app="+BuildInfo.VERSION),new org.java_websocket.drafts.Draft_6455(),DeviceAccess.headers(address),5000){
                 @Override public void onOpen(ServerHandshake handshake){}
                 @Override public void onMessage(String text){
                     synchronized(StateChannel.this){

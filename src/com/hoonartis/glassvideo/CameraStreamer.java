@@ -357,6 +357,7 @@ final class CameraStreamer {
             new YuvImage(nv21, ImageFormat.NV21, w, h, null).compressToJpeg(new Rect(0, 0, w, h), quality, bos);
             byte[] jpg = bos.toByteArray();
             HttpURLConnection c = (HttpURLConnection) new URL(query("/frame") + "&n=" + n + "&t=" + t + "&w=" + w + "&h=" + h + "&q=" + quality).openConnection();
+        DeviceAccess.apply(c);
             c.setDoOutput(true);
             c.setRequestMethod("POST");
             c.setRequestProperty("Content-Type", "image/jpeg");
@@ -564,6 +565,7 @@ final class CameraStreamer {
         if (path >= 0) url = server.get() + url.substring(path);
         try {
             HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
+        DeviceAccess.apply(c);
             c.setDoOutput(true);
             c.setRequestMethod("POST");
             c.setRequestProperty("Content-Type", "video/h264");
@@ -646,6 +648,7 @@ final class CameraStreamer {
         new Thread(() -> { // 배터리·발열 기록(두 방식 공통)
             try {
                 HttpURLConnection c = (HttpURLConnection) new URL(tele).openConnection();
+        DeviceAccess.apply(c);
                 c.setConnectTimeout(3000);
                 c.getResponseCode();
                 c.disconnect();

@@ -16,6 +16,7 @@ export function applyRuntimeConfig(config,root=document){
     link.textContent=local?'사진·녹화 테스트':'안경 앱 '+config.appVersion+' 받기';
   }
   const setup=root.querySelector('#local-setup');if(setup)setup.hidden=!local;
+  const access=root.querySelector('#connection-access');if(access)access.hidden=config.accessMode!=='paired';
   const hint=root.querySelector('#capture-environment');
   if(hint)hint.textContent=(local?'이 PC':'연결 서버')+'로 촬영 영상을 전송합니다. 등록용 화면을 멈춰도 안경 촬영은 계속됩니다.';
 }

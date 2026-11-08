@@ -28,9 +28,13 @@ def main():
         raise SystemExit('JDK required for lifecycle/identity checks (javac not found).')
     java=str(Path(javac).with_name('java.exe' if os.name=='nt' else 'java'))
     work=tempfile.TemporaryDirectory(prefix='glass-native-check-')
-    sources=['SessionWorkers','PatchTracker','PlaybackGate','DwellDisplay','LumaFrame']
-    checks += [[javac,'-encoding','UTF-8','-d',work.name,*[str(ROOT/'src/com/hoonartis/glassvideo'/f'{name}.java') for name in sources],str(ROOT/'tests/native/SessionWorkersTest.java'),str(ROOT/'tests/native/NativeBehaviorTest.java')],
+    version=json.loads((ROOT/'release.json').read_text(encoding='utf-8'))['app']['version']
+    build_info=Path(work.name)/'BuildInfo.java'
+    build_info.write_text('package com.hoonartis.glassvideo; final class BuildInfo { static final String VERSION='+json.dumps(version)+'; }',encoding='utf-8')
+    sources=['SessionWorkers','DeviceAccess','PatchTracker','PlaybackGate','DwellDisplay','LumaFrame']
+    checks += [[javac,'-encoding','UTF-8','-d',work.name,str(build_info),*[str(ROOT/'src/com/hoonartis/glassvideo'/f'{name}.java') for name in sources],str(ROOT/'tests/native/SessionWorkersTest.java'),str(ROOT/'tests/native/DeviceAccessTest.java'),str(ROOT/'tests/native/NativeBehaviorTest.java')],
                [java,'-cp',work.name,'com.hoonartis.glassvideo.SessionWorkersTest'],
+               [java,'-cp',work.name,'com.hoonartis.glassvideo.DeviceAccessTest'],
                [java,'-cp',work.name,'com.hoonartis.glassvideo.NativeBehaviorTest']]
     results = []
     for command in checks:

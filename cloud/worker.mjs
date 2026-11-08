@@ -9,9 +9,13 @@ import {handleHud} from './handlers/hud.mjs';
 import {handleLibrary} from './handlers/library.mjs';
 import {handleRecognition} from './handlers/recognition.mjs';
 import {StateFeed} from './state-feed.mjs';
+import {secureFetch} from './session-access.mjs';
+export {PairingRegistry} from './session-access.mjs';
 const DYNAMIC = new Set(['/status','/next','/play','/stop','/log','/frame','/stream','/tele']);
 export default {
-  async fetch(request, env) {
+  async fetch(request, env) {return secureFetch(request,env,routeRequest);}
+};
+async function routeRequest(request,env){
     const url = new URL(request.url), p = url.pathname;
     if (p === '/server.txt') return new Response(url.origin+'\n',{headers:{'Content-Type':'text/plain; charset=utf-8','Cache-Control':'no-store'}});
     if (['/','/control','/control/','/cam','/recognition','/recognition/'].includes(p)) {
@@ -21,8 +25,7 @@ export default {
       return env.ROOM.get(env.ROOM.idFromName('glasses-main')).fetch(request);
     }
     return env.ASSETS.fetch(request);
-  }
-};
+}
 const encode = bytes => {let s='';for(let i=0;i<bytes.length;i+=16384)s+=String.fromCharCode(...bytes.subarray(i,i+16384));return btoa(s)};
 export class GlassRoom {
   constructor(ctx,env) {
