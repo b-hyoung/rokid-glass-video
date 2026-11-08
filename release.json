@@ -1,0 +1,97 @@
+{
+  "schema": 1,
+  "protocol": 1,
+  "engine": "region-v14-fast-photo",
+  "app": {
+    "version": "0.2.19",
+    "versionCode": 21,
+    "apk": "build/glass-video-0.2.19.apk",
+    "certificateSha256": null
+  },
+  "tools": {
+    "node": "26.13.0",
+    "python": "3.12",
+    "jdk": "25.0.5",
+    "androidPlatform": "36",
+    "androidBuildTools": "36.0.0",
+    "wrangler": "4.158.0",
+    "onnxruntime-web": "1.22.0"
+  },
+  "assets": [
+    {
+      "source": "build/appearance-v1.onnx",
+      "destination": "cloud/appearance-v1.onnx",
+      "sha256": "1f9014af5d8c567f09758fe7167ebf0895f86f11c19a5c124e2f977dd2236e20"
+    },
+    {
+      "source": "cloud/opencv.js",
+      "destination": "cloud/opencv.js",
+      "sha256": "688ccf2a737aa677414f5f90b5f321138e5df7520b24611cb3d88e0617dd70ce"
+    },
+    {
+      "source": "build/appearance-web/node_modules/onnxruntime-web/dist/ort.wasm.min.js",
+      "destination": "cloud/ort/ort.wasm.min.js",
+      "sha256": "65e09376df69107e881b5c34d2d37aed333a366b6d941073ec518168e269b87d"
+    },
+    {
+      "source": "build/appearance-web/node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.mjs",
+      "destination": "cloud/ort/ort-wasm-simd-threaded.mjs",
+      "sha256": "30dd851d9c00622940500f71ddd2ff8820c5cb65270816080175b958705385a8"
+    },
+    {
+      "source": "build/appearance-web/node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.wasm",
+      "destination": "cloud/ort/ort-wasm-simd-threaded.wasm",
+      "sha256": "71aef04959c5c1b6de461b6538e2058e306610034a85aad2742d0c7fd4533fe4"
+    },
+    {
+      "source": "server/videos/whale.mp4",
+      "destination": "v/whale.mp4",
+      "sha256": "9a829941a17f9e6bfc33efc55b66cfc712c27dadc30efcf1f07b662da8e32a9b"
+    },
+    {
+      "source": "server/videos/sea.mp4",
+      "destination": "v/sea.mp4",
+      "sha256": "63f9c6190becccb0c83f9c1638d7d11290ae3ba770341dbd19068c12496047ac"
+    },
+    {
+      "source": "server/videos/fest.mp4",
+      "destination": "v/fest.mp4",
+      "sha256": "1f3b7e0caabe5afaf363c6f670277d6f328a732c342c2d8187fa556460d5451d"
+    },
+    {
+      "source": "server/videos/pattern.mp4",
+      "destination": "v/pattern.mp4",
+      "sha256": "38831b6bd096b8dfc2b0fb7ff9c09899b80749b771a2d2812d68bb031b0202cb"
+    },
+    {
+      "source": "server/videos/gyeon_envelope.mp4",
+      "destination": "v/gyeon_envelope.mp4",
+      "sha256": "50eaff297f8318a2b2b681a8a841b431321fe783430dd3c2b6b7da68343d1fe0"
+    },
+    {
+      "source": "server/videos/majubom_box.mp4",
+      "destination": "v/majubom_box.mp4",
+      "sha256": "4e5504299a60560b33a53f9052297076ac30c3d62557f51f8822dce745c8872c"
+    },
+    {
+      "source": "server/videos/visionpro_scan.mp4",
+      "destination": "v/visionpro_scan.mp4",
+      "sha256": "2ee75297e42d1832ba8fad88d2b199e61ca835d3d3ad898b7dceb7f6443bcbc5"
+    },
+    {
+      "source": "server/videos/chanyoung.mp4",
+      "destination": "v/chanyoung.mp4",
+      "sha256": "a8264eb2dc1a14a8328c0923942db86706d6a0d30d3e4d1a071fdd85b579dfee"
+    },
+    {
+      "source": "server/videos/seungmin.mp4",
+      "destination": "v/seungmin.mp4",
+      "sha256": "285d080995482e3bef2524b52b49e3e94c4a4c96e743f70d27a6f691b04e3639"
+    },
+    {
+      "source": "build/appearance-web/LICENSE",
+      "destination": "cloud/ort/LICENSE",
+      "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c"
+    }
+  ]
+}

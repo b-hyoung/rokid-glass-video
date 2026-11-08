@@ -1,20 +1,15 @@
-"""Cloudflare 배포용 정적 폴더(dist/)를 만든다.
+"""Build validated web or release assets into a new output directory.
 
-    python tools/build_pages.py
-    npx wrangler deploy   (wrangler.jsonc, Workers 정적 자산)
-
-담는 것: 2412호 3D 데모(/demo/2412/), 안경 영상 목록(/videos.json)과 영상(/v/…), 시연 녹화(/video/),
-안경이 읽는 지금 서버 주소(/server.txt, tools/tunnel.py 가 갱신).
-서버 기능(/play로 실제 안경에 보내기, /rec 녹화 저장)은 정적 호스팅이라 빠진다(데모는 그대로 동작).
+python tools/build_pages.py --mode web --output build/web-assets
+python tools/build_pages.py --mode release --output build/release-assets
+Existing output directories are never removed or overwritten.
 """
+import argparse
 import json
-import os
+from pathlib import Path
 import shutil
-import xml.etree.ElementTree as ET
-
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DIST = os.path.join(ROOT, 'dist')
-REC = os.path.join(ROOT, 'recordings', '2412_시연영상.mp4')
+import tempfile
+from release_assets import ROOT, validate_assets, runtime_config
 
 PLAYER = '''<!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -34,52 +29,56 @@ PLAYER = '''<!doctype html>
 '''
 
 
+def build(root, output, mode='release'):
+    root, output = Path(root), Path(output).resolve()
+    release = validate_assets(root, mode)
+    if output.exists():
+        raise ValueError('Output already exists; choose a new --output directory: ' + str(output))
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix='glass-assets-', dir=output.parent) as temporary:
+        stage = Path(temporary) / 'assets'
+        shutil.copytree(root / 'demo', stage / 'demo')
+        shutil.copytree(root / 'cloud', stage / 'cloud', ignore=shutil.ignore_patterns('worker.mjs', 'target-store.mjs', 'handlers', 'session-*.mjs'))
+        for asset in release['assets']:
+            destination = stage / asset['destination']
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(root / asset['source'], destination)
+        videos = json.loads((root / 'server/videos.json').read_text(encoding='utf-8'))
+        listing = {}
+        for key, video in videos.items():
+            source = root / 'server/videos' / video['file']
+            listing[key] = {**video, 'loop': bool(video.get('loop')), 'size': source.stat().st_size, 'ver': int(source.stat().st_mtime * 1000)}
+        (stage / 'videos.json').write_text(json.dumps(listing, ensure_ascii=False), encoding='utf-8')
+        if mode == 'release':
+            apk = root / release['app']['apk']
+            (stage / 'downloads').mkdir()
+            shutil.copy2(apk, stage / 'downloads/glass-video.apk')
+            shutil.copy2(apk, stage / 'downloads' / apk.name)
+        config = runtime_config(release, downloads=mode == 'release')
+        (stage / 'runtime-config.json').write_text(json.dumps(config), encoding='utf-8')
+        (stage / 'release.json').write_text(json.dumps({**config, 'assets': [{'path': a['destination'], 'sha256': a['sha256']} for a in release['assets']]}), encoding='utf-8')
+        recording = root / 'recordings/2412_시연영상.mp4'
+        if recording.exists():
+            (stage / 'video').mkdir()
+            shutil.copy2(recording, stage / 'video/2412-demo.mp4')
+            (stage / 'video/index.html').write_text(PLAYER, encoding='utf-8')
+        (stage / '_headers').write_text('/server.txt\n  Cache-Control: no-store\n/downloads/glass-video.apk\n  Cache-Control: no-store\n/runtime-config.json\n  Cache-Control: no-store\n/cloud/*\n  Cache-Control: no-cache\n', encoding='utf-8')
+        (stage / '_redirects').write_text('/demo/2412 /demo/2412/index.html 302\n/demo/2412/ /demo/2412/index.html 302\n', encoding='utf-8')
+        stage.rename(output)
+    return output
+
+
 def main():
-    keep = os.path.join(DIST, 'server.txt')  # tools/tunnel.py 가 쓴 지금 터널 주소는 남긴다
-    server = open(keep, encoding='utf-8').read() if os.path.exists(keep) else ''
-    shutil.rmtree(DIST, ignore_errors=True)
-    shutil.copytree(os.path.join(ROOT, 'demo'), os.path.join(DIST, 'demo'))
-    shutil.copytree(os.path.join(ROOT, 'cloud'), os.path.join(DIST, 'cloud'), ignore=shutil.ignore_patterns('worker.mjs', 'target-store.mjs'))
-    appearance_model = os.path.join(ROOT, 'build', 'appearance-v1.onnx')
-    if os.path.isfile(appearance_model):
-        ort_dist = os.path.join(ROOT, 'build', 'appearance-web', 'node_modules', 'onnxruntime-web', 'dist')
-        ort_out = os.path.join(DIST, 'cloud', 'ort')
-        os.makedirs(ort_out, exist_ok=True)
-        for name in ('ort.wasm.min.js', 'ort-wasm-simd-threaded.mjs', 'ort-wasm-simd-threaded.wasm'):
-            shutil.copy2(os.path.join(ort_dist, name), ort_out)
-        shutil.copy2(os.path.join(ROOT, 'build', 'appearance-web', 'LICENSE'), ort_out)
-        shutil.copy2(appearance_model, os.path.join(DIST, 'cloud'))
-    with open(os.path.join(ROOT, 'server', 'videos.json'), encoding='utf-8') as f:
-        videos = json.load(f)
-    os.makedirs(os.path.join(DIST, 'v'))
-    out = {}
-    for key, v in videos.items():
-        src = os.path.join(ROOT, 'server', 'videos', v['file'])
-        shutil.copy2(src, os.path.join(DIST, 'v', v['file']))
-        out[key] = {'title': v['title'], 'file': v['file'], 'loop': bool(v.get('loop')), 'size': os.path.getsize(src), 'ver': int(os.path.getmtime(src) * 1000)}
-    with open(os.path.join(DIST, 'videos.json'), 'w', encoding='utf-8') as f:
-        json.dump(out, f, ensure_ascii=False)
-    if os.path.exists(REC):
-        os.makedirs(os.path.join(DIST, 'video'))
-        shutil.copy2(REC, os.path.join(DIST, 'video', '2412-demo.mp4'))
-        with open(os.path.join(DIST, 'video', 'index.html'), 'w', encoding='utf-8') as f:
-            f.write(PLAYER)
-    version = ET.parse(os.path.join(ROOT, 'AndroidManifest.xml')).getroot().get('{http://schemas.android.com/apk/res/android}versionName')
-    apk_name = f'glass-video-{version}.apk'
-    apk = os.path.join(ROOT, 'build', apk_name)
-    if os.path.exists(apk):
-        os.makedirs(os.path.join(DIST, 'downloads'), exist_ok=True)
-        shutil.copy2(apk, os.path.join(DIST, 'downloads', 'glass-video.apk'))
-        shutil.copy2(apk, os.path.join(DIST, 'downloads', apk_name))
-    if server:
-        with open(keep, 'w', encoding='utf-8') as f:
-            f.write(server)
-    with open(os.path.join(DIST, '_headers'), 'w', encoding='utf-8') as f:  # 안경이 늘 최신 주소를 읽게
-        f.write('/server.txt\n  Cache-Control: no-store\n  Content-Type: text/plain; charset=utf-8\n/downloads/glass-video.apk\n  Cache-Control: no-store\n/cloud/*\n  Cache-Control: no-cache\n')
-    with open(os.path.join(DIST, '_redirects'), 'w', encoding='utf-8') as f:
-        f.write('/demo/2412 /demo/2412/index.html 302\n/demo/2412/ /demo/2412/index.html 302\n')
-    total = sum(os.path.getsize(os.path.join(d, n)) for d, _, fs in os.walk(DIST) for n in fs)
-    print(DIST, f'{total / 1e6:.1f} MB')
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--mode', choices=['web', 'release'], default='release')
+    parser.add_argument('--output', type=Path, default=ROOT / 'dist')
+    args = parser.parse_args()
+    try:
+        output = build(ROOT, args.output, args.mode)
+    except (ValueError, OSError) as error:
+        parser.exit(1, str(error) + '\n')
+    total = sum(p.stat().st_size for p in output.rglob('*') if p.is_file())
+    print(str(output), f'{total / 1e6:.1f} MB ({args.mode})')
 
 
 if __name__ == '__main__':
