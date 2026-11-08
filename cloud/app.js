@@ -78,7 +78,7 @@ registration=new Registration({api,library,vision:matcher,live:()=>frameAt&&perf
 async function refresh(){const sent=performance.now();state=await api('/recognition/status');timing.observe(state.serverNow,sent);registration.observe(state.guide);const status=await api('/status');$('#connection').textContent='Cloudflare 연결 · 안경 '+status.glasses+'대 · '+(frameAt&&performance.now()-frameDrawnAt<1200&&timing.fresh(frameAt)?'영상 수신 중':'촬영 영상 대기');$('#capture-start').disabled=!status.glasses;
 if(lastSeq===null)lastSeq=status.now?.seq||0;if(status.now?.seq!==lastSeq){lastSeq=status.now?.seq;if(status.now?.cmd==='play'){$('#result').src=status.now.url;$('#result').loop=!!status.now.loop;$('#result').muted=true;$('#result').play().catch(()=>{})}else if(status.now?.cmd==='stop')$('#result').pause()}
 $('#state').textContent=!cvReady?'인식 엔진 준비 중':!state.enabled?'인식 대기 중':state.focused&&state.progress>0?'중앙 대상 확인 '+Math.round(state.progress*100)+'%':state.locked?'영상 재생 신호 전송됨':'시야의 대상 찾는 중';
-$('#found').textContent=state.detections.length?'인식 대상: '+state.detections.map(t=>t.name).join(' · '):'인식된 대상 없음';
+$('#found').textContent=[state.vectorTarget,...state.detections.map(t=>t.name)].filter(Boolean).join(' · ')||'인식된 대상 없음';
 await library.sync(state.version);
 if(cvReady&&!loading&&version!==library.version){loading=true;try{const nextVersion=library.version;await matcher.references(library.targets);version=nextVersion}finally{loading=false}}}
 
@@ -89,10 +89,11 @@ async function recognize(){
    const options=registration.options();
    if(options||(!registration.enabled&&state.enabled)){
     matchedFrame=frameCount;const at=frameAt,epoch=state.epoch,revision=registration.revision;
-    const result=await matcher.process(frame,{...(options||{mode:'recognize'}),at});
+    const result=await matcher.process(frame,{...(options||{mode:'recognize',aim:state.guide?.calibrated?state.guide.camera:{cx:.5,cy:.5}}),at});
     if(revision===registration.revision&&timing.fresh(at)){
+     if(result.appearanceError)showError(Error(result.appearanceError));
      if(options)registration.accept(result);
-     else if(!registration.enabled)await api('/recognition/detections',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({found:result.found,at,epoch})});
+     else if(!registration.enabled)await api('/recognition/detections',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({found:result.found,vectorTarget:result.vectorTarget,at,epoch})});
     }
    }
   }

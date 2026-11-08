@@ -40,6 +40,15 @@ def main():
     shutil.rmtree(DIST, ignore_errors=True)
     shutil.copytree(os.path.join(ROOT, 'demo'), os.path.join(DIST, 'demo'))
     shutil.copytree(os.path.join(ROOT, 'cloud'), os.path.join(DIST, 'cloud'), ignore=shutil.ignore_patterns('worker.mjs', 'target-store.mjs'))
+    appearance_model = os.path.join(ROOT, 'build', 'appearance-v1.onnx')
+    if os.path.isfile(appearance_model):
+        ort_dist = os.path.join(ROOT, 'build', 'appearance-web', 'node_modules', 'onnxruntime-web', 'dist')
+        ort_out = os.path.join(DIST, 'cloud', 'ort')
+        os.makedirs(ort_out, exist_ok=True)
+        for name in ('ort.wasm.min.js', 'ort-wasm-simd-threaded.mjs', 'ort-wasm-simd-threaded.wasm'):
+            shutil.copy2(os.path.join(ort_dist, name), ort_out)
+        shutil.copy2(os.path.join(ROOT, 'build', 'appearance-web', 'LICENSE'), ort_out)
+        shutil.copy2(appearance_model, os.path.join(DIST, 'cloud'))
     with open(os.path.join(ROOT, 'server', 'videos.json'), encoding='utf-8') as f:
         videos = json.load(f)
     os.makedirs(os.path.join(DIST, 'v'))

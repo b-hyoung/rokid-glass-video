@@ -1,3 +1,4 @@
+import {validateVectors} from './appearance-format.mjs';
 import {deviceHud} from './hud-status.mjs';
 import {PlaybackLock} from './playback-lock.mjs';
 import {validSeed} from './tracking-seed.mjs';
@@ -226,6 +227,25 @@ export class GlassRoom {
         const result=this.store.addBatch({targetId:d.targetId,name:d.name?.trim().slice(0,60),key:d.key,images,batchId:d.batchId});this.changed();return json(result);
       }catch(e){return json({error:e.message},400)}
     }
+    if (p === '/recognition/vectors' && req.method === 'POST') {
+      try {
+        const text = await req.text();
+        if (text.length > 240000) return json({error:'벡터 파일이 너무 큽니다.'}, 413);
+        const {targetId, name, key, pack} = JSON.parse(text);
+        if (!targetId && (typeof name !== 'string' || !name.trim() ||
+            !Object.hasOwn(await this.videos(req), key))) {
+          throw Error('대상 이름과 연결 영상을 선택하세요.');
+        }
+        const id = this.store.saveVectors({targetId, name:name?.trim().slice(0,60), key, pack:validateVectors(pack)});
+        this.changed();
+        return json({ok:true, targetId:id});
+      } catch (error) { return json({error:error.message}, 400); }
+    }
+    if (p === '/recognition/vectors' && req.method === 'DELETE') {
+      this.store.deleteVectors(q.get('targetId'));
+      this.changed();
+      return json({ok:true});
+    }
     if(p==='/recognition/targets'&&req.method==='GET')return json({version:this.version,maxImages:MAX_IMAGES,targets:this.targets(true)});
     if((p==='/recognition/targets'||p==='/recognition/images')&&req.method==='POST'){
       const text=await req.text();if(text.length>700000)return json({error:'등록 이미지를 더 작게 선택하세요'},413);
@@ -252,8 +272,10 @@ export class GlassRoom {
       const unique=new Map();for(const f of found){if(!unique.has(f.id)||unique.get(f.id).inliers<f.inliers)unique.set(f.id,f)}found.splice(0,found.length,...unique.values());
       const guide=this.guide.read(),aim=guide.calibrated?guide.camera:{cx:.5,cy:.5};
       const inside=f=>{let sign=0;for(let i=0;i<4;i++){const a=f.corners[i],b=f.corners[(i+1)%4],s=Math.sign((b[0]-a[0])*(aim.cy-a[1])-(b[1]-a[1])*(aim.cx-a[0]));if(s&&sign&&s!==sign)return false;if(s)sign=s}return !!sign};
-      const choice=found.filter(inside).sort((a,b)=>b.inliers-a.inliers)[0];
-      if(this.locked&&found.some(f=>f.id===this.locked))this.lastVisible=now;
+      const vectorTarget = targets.find(t => t.hasVectors && t.id === d.vectorTarget);
+      const choice = vectorTarget ? {...vectorTarget, matchedAt:d.at} :
+        found.filter(inside).sort((a,b)=>b.inliers-a.inliers)[0];
+      if(this.locked&&(vectorTarget?.id===this.locked||found.some(f=>f.id===this.locked)))this.lastVisible=now;
       if(this.locked&&now-this.lastVisible>2000)this.locked=null;
       const busy=!!this.playback.current();
       if(this.rearm&&!choice)this.rearm=false;
@@ -266,7 +288,7 @@ export class GlassRoom {
         if(v&&revision===this.playback.revision&&epoch===this.epoch&&focus===this.focus&&!this.playback.current()&&!this.rearm){this.startPlayback(v,choice.key,'recognition',choice.id);this.locked=choice.id;this.lastVisible=now}
       }
       if(!this.active||this.epoch!==d.epoch)return json({ok:false,stale:true});
-      this.lastResult=now;this.state={enabled:true,detections:found,progress,focused:this.focus,locked:this.locked,frameAt:d.at,at:now};return json({ok:true});
+      this.lastResult=now;this.state={enabled:true,detections:found,vectorTarget:vectorTarget?.name??null,progress,focused:this.focus,locked:this.locked,frameAt:d.at,at:now};return json({ok:true});
     }
     return json({error:'없는 요청'},404);
   }

@@ -8,7 +8,7 @@ export class VisionClient {
     this.worker.onerror=e=>{const error=Error('인식 엔진: '+e.message);this.reject(error);for(const p of this.pending.values())p.reject(error);this.pending.clear()};
   }
   async call(type,data={},transfer=[]){await this.ready;const id=++this.next;return new Promise((resolve,reject)=>{this.pending.set(id,{resolve,reject});this.worker.postMessage({id,type,...data},transfer)})}
-  async references(targets){const result=await this.call('references',{targets});this.refs=targets.flatMap(t=>t.images||[]);return result}
+  async references(targets){const result=await this.call('references',{targets});this.refs=targets.filter(t=>t.images?.length||t.appearance?.vectors.length);return result}
   reset(){return this.call('reset')}
   async process(canvas,options){const bitmap=await createImageBitmap(canvas);return this.call('frame',{bitmap,options},[bitmap])}
 }

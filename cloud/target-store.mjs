@@ -11,6 +11,7 @@ export class TargetStore {
       this.sql.exec('CREATE INDEX IF NOT EXISTS target_images_target ON target_images(target_id)');
       this.sql.exec('CREATE TABLE IF NOT EXISTS target_image_info (image_id TEXT PRIMARY KEY,info TEXT NOT NULL)');
       this.sql.exec('CREATE TABLE IF NOT EXISTS target_batches (id TEXT PRIMARY KEY,target_id TEXT NOT NULL,result TEXT NOT NULL)');
+      this.sql.exec('CREATE TABLE IF NOT EXISTS target_vectors (target_id TEXT PRIMARY KEY, pack TEXT NOT NULL)');
       // Preserve existing IDs and images, then clear the old column so deleted views never reappear.
       this.sql.exec("INSERT OR IGNORE INTO target_images SELECT id || ':initial', id, image, 0 FROM targets WHERE image IS NOT NULL AND image != ''");
       this.sql.exec('UPDATE targets SET image = NULL WHERE image IS NOT NULL');
@@ -21,10 +22,13 @@ export class TargetStore {
     return this.sql.exec('SELECT id,name,key FROM targets ORDER BY rowid').toArray().map(target => {
       if (!withImages) {
         const count=this.sql.exec('SELECT COUNT(*) AS n FROM target_images WHERE target_id=?',target.id).toArray()[0].n;
-        return {...target,imageCount:count};
+        const hasVectors = !!this.sql.exec('SELECT 1 FROM target_vectors WHERE target_id=?',target.id).toArray().length;
+        return {...target,imageCount:count,hasVectors};
       }
+      const entry = this.sql.exec('SELECT pack FROM target_vectors WHERE target_id=?', target.id).toArray()[0];
+      const appearance = entry ? JSON.parse(entry.pack) : null;
       const images = this.sql.exec('SELECT id,image,created_at FROM target_images WHERE target_id=? ORDER BY created_at,id', target.id).toArray().map(image=>{const meta=this.sql.exec('SELECT info FROM target_image_info WHERE image_id=?',image.id).toArray()[0];return {...image,...(meta?{capture:JSON.parse(meta.info)}:{})}});
-      return {...target, imageCount: images.length, ...(withImages ? {images, image: images[0]?.image ?? null} : {})};
+      return {...target, appearance, imageCount: images.length, ...(withImages ? {images, image: images[0]?.image ?? null} : {})};
     });
   }
   get(id) { return this.sql.exec('SELECT id,name,key FROM targets WHERE id=?', id).toArray()[0]; }
@@ -36,6 +40,25 @@ export class TargetStore {
       this.addImage(id, image);
     });
     return id;
+  }
+  saveVectors({targetId, name, key, pack}) {
+    return this.storage.transactionSync(() => {
+      if (!targetId) {
+        if (this.list().length >= MAX_TARGETS) throw Error(`대상은 최대 ${MAX_TARGETS}개까지 등록할 수 있습니다.`);
+        targetId = crypto.randomUUID();
+        this.sql.exec('INSERT INTO targets VALUES (?,?,?,NULL)', targetId, name, key);
+      }
+      if (!this.get(targetId)) throw Error('대상을 찾을 수 없습니다.');
+      this.sql.exec('INSERT OR REPLACE INTO target_vectors VALUES (?,?)', targetId, JSON.stringify(pack));
+      return targetId;
+    });
+  }
+  deleteVectors(id) {
+    this.storage.transactionSync(() => {
+      this.sql.exec('DELETE FROM target_vectors WHERE target_id=?', id);
+      const count = this.sql.exec('SELECT COUNT(*) AS n FROM target_images WHERE target_id=?', id).toArray()[0].n;
+      if (!count) this.sql.exec('DELETE FROM targets WHERE id=?', id);
+    });
   }
   addImage(targetId, image) {
     if (!this.get(targetId)) throw new Error('대상을 찾을 수 없습니다. 목록을 새로고침해 주세요.');
@@ -62,6 +85,7 @@ export class TargetStore {
       this.sql.exec('DELETE FROM target_image_info WHERE image_id IN (SELECT id FROM target_images WHERE target_id=?)',id);
       this.sql.exec('DELETE FROM target_batches WHERE target_id=?',id);
       this.sql.exec('DELETE FROM target_images WHERE target_id=?', id);
+      this.sql.exec('DELETE FROM target_vectors WHERE target_id=?', id);
       this.sql.exec('DELETE FROM targets WHERE id=?', id);
     });
   }

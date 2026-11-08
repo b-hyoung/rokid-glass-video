@@ -280,3 +280,29 @@ test('server trace retains metadata without video and exposes cursor loss and ep
  const empty=await request('/cam/diagnostics?epoch='+initial.epoch+'&after='+initial.latest);assert.equal(empty.events.length,0);assert.equal(empty.reset,false);
  for(let i=0;i<4100;i++)r.trace('test');const overwritten=await request('/cam/diagnostics?epoch='+initial.epoch+'&after='+initial.latest);assert.equal(overwritten.lost,true);assert.equal(overwritten.events.length,4096);assert.equal(overwritten.events.at(-1).seq,overwritten.latest);
 });
+
+test('vector registration uses existing dwell and removal preserves image targets', async () => {
+ const {r, request} = room();
+ const vector = Array(576).fill(0); vector[0] = 1;
+ const pack = {model:'mobilenet-v3-small-imagenet1k-v1', vectors:[vector]};
+ const invalid = await request('/recognition/vectors',{name:'invalid',key:'e',pack:{...pack,vectors:[[1]]}});
+ assert.ok(invalid.error);
+ const image = 'data:image/jpeg;base64,/9j/';
+ const legacy = await request('/recognition/targets',{name:'legacy',key:'v',image});
+ await request('/recognition/vectors',{targetId:legacy.targetId,pack});
+ await request('/recognition/vectors?targetId='+legacy.targetId,null,'DELETE');
+ const preserved = (await request('/recognition/targets')).targets.find(t=>t.id===legacy.targetId);
+ assert.equal(preserved.images.length,1);
+ assert.equal(preserved.appearance,null);
+
+ const target = await request('/recognition/vectors',{name:'VR vector',key:'e',pack});
+ await request('/recognition/control?enabled=1',{},'POST');
+ const detect = () => request('/recognition/detections',{epoch:r.epoch,at:Date.now(),found:[],vectorTarget:target.targetId});
+ await detect();
+ assert.equal(r.commands.length,0);
+ r.focusAt -= 1600;
+ await detect();
+ assert.equal(r.commands.at(-1).key,'e');
+ await request('/recognition/vectors?targetId='+target.targetId,null,'DELETE');
+ assert.equal(r.store.get(target.targetId),undefined);
+});

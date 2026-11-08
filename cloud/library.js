@@ -7,6 +7,8 @@ export class TargetLibrary {
     $('#target-picker').onchange=()=>this.select($('#target-picker').value||null);
     $('#add').onclick=()=>this.add();
     $('#delete-image').onclick=()=>this.removeImage();
+    $('#vector-import').onclick=()=>this.importVectors();
+    $('#vector-remove').onclick=()=>this.removeVectors();
     $('#delete-target').onclick=()=>this.removeTarget();
   }
   current(){return this.targets.find(t=>t.id===this.activeId)}
@@ -34,6 +36,9 @@ export class TargetLibrary {
     $('#image-count').textContent=images.length+'장';
     $('#gallery-empty').hidden=!!images.length;
     $('#delete-target').hidden=!current;
+    $('#vector-remove').hidden=!current?.appearance;
+    $('#vector-import').disabled=this.saving;
+    $('#vector-remove').disabled=this.saving;
     $('#images-note').textContent=`등록 ${images.length} / ${this.maxImages}장 · 모든 각도는 같은 이름과 영상으로 인식합니다.`;
     const image=images.find(i=>i.id===this.previewId)||images[0];this.previewId=image?.id||null;
     $('#image-gallery').replaceChildren(...images.map((ref,index)=>{
@@ -41,6 +46,34 @@ export class TargetLibrary {
       const img=document.createElement('img');img.src=ref.image;img.alt='';button.append(img,document.createTextNode(`${index+1}번`));button.onclick=()=>{this.previewId=ref.id;this.render()};return button;
     }));
     $('#image-preview').hidden=!image;if(image){$('#preview-image').src=image.image;$('#preview-image').alt=current.name+' 등록 이미지';$('#preview-caption').textContent=`${images.indexOf(image)+1}번 이미지 · 눌러서 선택한 등록 장면`}
+  }
+  async importVectors(){
+    if(this.saving)return;
+    const file=$('#vector-file').files[0], target=this.current();
+    if(!file||file.size>230000){$('#vector-status').textContent='230KB 이하 벡터 JSON을 선택하세요.';return;}
+    this.saving=true;this.render();
+    try{
+      const pack=JSON.parse(await file.text());
+      const result=await this.api('/recognition/vectors',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({targetId:target?.id,name:$('#name').value,key:$('#video-key').value,pack})});
+      this.select(result.targetId);
+      await this.reload();
+      $('#vector-file').value='';
+      $('#vector-status').textContent='벡터를 저장했습니다.';
+    }catch(error){$('#vector-status').textContent=error.message}
+    finally{this.saving=false;this.render()}
+  }
+  async removeVectors(){
+    const target=this.current();
+    if(!target?.appearance||this.saving)return;
+    if(!confirm('벡터를 제거할까요? 이미지가 없는 대상은 목록에서도 삭제됩니다.'))return;
+    this.saving=true;this.render();
+    try{
+      await this.api('/recognition/vectors?targetId='+encodeURIComponent(target.id),{method:'DELETE'});
+      await this.reload();
+      $('#vector-status').textContent='벡터를 제거했습니다.';
+    }catch(error){$('#vector-status').textContent=error.message}
+    finally{this.saving=false;this.render()}
   }
   async add(){
     if(this.saving)return;this.saving=true;this.render();
