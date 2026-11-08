@@ -32,7 +32,7 @@ export class Matcher {
     for(const ref of this.refs){ref.kp.delete();ref.des.delete()}
     this.refs=next;this.hasPhotos=next.some(ref=>ref.photoOnly);this.preferredRefs.clear();
   }
-  detect(canvas,{targetIds,photoSearch=true}={}){
+  detect(canvas,{targetIds,photoSearch=true,maxReferences,referenceOffset=0}={}){
     const cv=this.cv,pixels=canvas.getContext?canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height):canvas;
     const rgba=cv.matFromImageData(pixels),gray=new cv.Mat(),kp=new cv.KeyPointVector(),des=new cv.Mat(),photoKp=new cv.KeyPointVector(),photoDes=new cv.Mat(),empty=new cv.Mat(),best=new Map();
     try{
@@ -135,4 +135,23 @@ export function supportsBounds(corners,points,inlierMask,width,height){
     x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y);
   }
   return x1-x0>=.32&&y1-y0>=.32&&x0<.65&&x1>.35&&y0<.65&&y1>.35;
+}
+
+// Bound fallback work while giving every identity a turn, independently of how
+// many registration views another identity owns.
+export function searchReferences(references,limit,offset=0){
+  if(!Number.isInteger(limit)||limit<=0)return references;
+  const groups=new Map();for(const ref of references){if(!groups.has(ref.id))groups.set(ref.id,[]);groups.get(ref.id).push(ref)}
+  const buckets=[...groups.values()],chosen=[];
+  if(!buckets.length)return chosen;
+  for(let round=0;round<references.length&&chosen.length<limit;round++){
+    let added=false;
+    for(let n=0;n<buckets.length&&chosen.length<limit;n++){
+      const bucket=buckets[(offset*limit+n)%buckets.length];if(round>=bucket.length)continue;
+      const turn=Math.floor(offset/Math.max(1,Math.ceil(buckets.length/limit)));
+      chosen.push(bucket[(turn+round)%bucket.length]);added=true;
+    }
+    if(!added)break;
+  }
+  return chosen;
 }

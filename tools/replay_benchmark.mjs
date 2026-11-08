@@ -29,6 +29,7 @@ const server=http.createServer(async(req,res)=>{
   try{
     const url=new URL(req.url,'http://localhost');
     if(url.pathname==='/'){res.setHeader('Content-Type','text/html');res.end('<title>Offline recognition benchmark</title>');return}
+    if(url.pathname==='/runtime-config.json'){res.setHeader('Content-Type','application/json');res.end(JSON.stringify({mode:'local',protocol:release.protocol,engine:release.engine}));return}
     if(url.pathname==='/dataset'){res.setHeader('Content-Type','application/json');res.end(JSON.stringify({targets:targets.targets,cases}));return}
     if(url.pathname==='/runtime-probe.js'){
       res.setHeader('Content-Type','text/javascript');
@@ -37,7 +38,11 @@ const server=http.createServer(async(req,res)=>{
     if(files.has(url.pathname)){res.setHeader('Content-Type','image/jpeg');res.end(files.get(url.pathname));return}
     const filename=assets.get(url.pathname)||(url.pathname.startsWith('/cloud/')&&path.resolve(source,'.'+url.pathname));
     if(!filename||!assets.has(url.pathname)&&!filename.startsWith(path.join(source,'cloud')+path.sep)){res.writeHead(404);res.end();return}
-    res.setHeader('Content-Type',filename.endsWith('.wasm')?'application/wasm':filename.endsWith('.onnx')?'application/octet-stream':'text/javascript');res.end(await fs.readFile(filename));
+    res.setHeader('Content-Type',filename.endsWith('.wasm')?'application/wasm':filename.endsWith('.onnx')?'application/octet-stream':'text/javascript');
+    let content=await fs.readFile(filename);
+    if(process.argv.includes('--trace-geometry')&&filename.endsWith('vision-engine.js'))content=Buffer.from(content.toString().replace('const corners=clipFrameQuad(projected,pixels.width,pixels.height);','(self.__projections??=[]).push({id:match.id,corners:projected});const corners=clipFrameQuad(projected,pixels.width,pixels.height);'));
+    if(process.argv.includes('--trace-geometry')&&filename.endsWith('vision-worker.js'))content=Buffer.from(content.toString().replace('if(confirm&&aim&&pairedTargets.size', 'result._projections=self.__projections;self.__projections=[];if(confirm&&aim&&pairedTargets.size'));
+    res.end(content);
   }catch{res.writeHead(404);res.end()}
 });
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
@@ -67,34 +72,37 @@ try{
   const expression=`(async()=>{
     const {VisionClient}=await import('/cloud/vision-client.js');
     const vision=new VisionClient();await vision.ready;
-    const data=await(await fetch('/dataset')).json();await vision.references(data.targets);const results=[];
+    const data=await(await fetch('/dataset')).json();const preparing=performance.now();await vision.references(data.targets);const referencePreparationMs=performance.now()-preparing;const results=[];
     for(const scene of data.cases){const trials=[];
       for(let trial=0;trial<(scene.repeats||1);trial++){
         await vision.reset();let at=10000,first=new Map();const frames=[];let total=0;
+        const overlap=(corners,box)=>{const xs=corners.map(p=>p[0]),ys=corners.map(p=>p[1]),a=[Math.min(...xs),Math.min(...ys),Math.max(...xs),Math.max(...ys)];const intersection=Math.max(0,Math.min(a[2],box[2])-Math.max(a[0],box[0]))*Math.max(0,Math.min(a[3],box[3])-Math.max(a[1],box[1]));return intersection/Math.max(1e-9,(a[2]-a[0])*(a[3]-a[1])+(box[2]-box[0])*(box[3]-box[1])-intersection)};
         for(const frame of scene.frames){
           const bitmap=await createImageBitmap(await(await fetch(frame.url)).blob()),canvas=new OffscreenCanvas(bitmap.width,bitmap.height);
           canvas.getContext('2d').drawImage(bitmap,0,0);bitmap.close();
           const start=performance.now(),result=await vision.process(canvas,{mode:'recognize',at,aim:scene.aim||{cx:.5,cy:.5}}),wallMs=performance.now()-start;
           total+=wallMs;const ids=result.found.filter(f=>!f.held&&!f.approximate).map(f=>f.id);
-          for(const id of ids)if(!first.has(id))first.set(id,total);
-          frames.push({ms:result.ms,wallMs,ids,expected:frame.expected||scene.expected||[],corners:result.found.map(f=>({id:f.id,corners:f.corners}))});at+=scene.intervalMs||650;
+          const regions=frame.regions||scene.regions||{},localization=result.found.filter(f=>regions[f.id]).map(f=>({id:f.id,iou:overlap(f.corners,regions[f.id])}));
+          const wrongLocations=localization.filter(f=>f.iou<(scene.minIoU||.5));
+          for(const id of ids)if(!first.has(id)&&!wrongLocations.some(f=>f.id===id))first.set(id,total);
+          frames.push({ms:result.ms,wallMs,ids,localization,wrongLocations,geometry:result._projections,expected:frame.expected||scene.expected||[],corners:result.found.map(f=>({id:f.id,corners:f.corners}))});at+=scene.intervalMs||650;
         }
         const expected=scene.expected||[],missed=expected.filter(id=>!first.has(id));
         const unexpected=(scene.checkUnexpected===true||!expected.length)?[...new Set(frames.flatMap(f=>f.ids).filter(id=>!expected.includes(id)))]:[];
-        trials.push({frames,first:Object.fromEntries(first),missed,unexpected,success:!missed.length&&!unexpected.length});
+        trials.push({frames,first:Object.fromEntries(first),missed,unexpected,success:!missed.length&&!unexpected.length&&!frames.some(f=>f.wrongLocations.length)});
       }
       results.push({name:scene.name,expected:scene.expected||[],trials});
     }
     vision.worker.terminate();
     const model=${process.argv.includes('--verify-model')}?await new Promise((resolve,reject)=>{const worker=new Worker('/runtime-probe.js');worker.onmessage=({data})=>{worker.terminate();data.error?reject(Error(data.error)):resolve(data)};worker.onerror=e=>reject(Error(e.message))}):null;
-    return {engine:vision.version,cases:results,model};
+    return {engine:vision.version,cases:results,model,referencePreparationMs};
   })()`;
   const timeout=setTimeout(()=>{for(const p of pending.values())p.reject(Error('Benchmark timed out'))},180000);
   let evaluated;try{evaluated=await send('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true})}finally{clearTimeout(timeout)}
   if(evaluated.exceptionDetails)throw Error(JSON.stringify(evaluated.exceptionDetails));
   const result=evaluated.result.value;
   const percentile=(values,p)=>values.length?[...values].sort((a,b)=>a-b)[Math.ceil(values.length*p)-1]:null;
-  result.summary=result.cases.map(c=>{const times=c.trials.flatMap(t=>c.expected.map(id=>t.first[id]??null));const misses=times.filter(t=>t===null).length;const known=times.filter(t=>t!==null),unexpected=c.trials.reduce((n,t)=>n+t.unexpected.length,0);return {name:c.name,attempts:times.length,misses,unexpected,successfulMedianMs:percentile(known,.5),successfulP95Ms:percentile(known,.95),allPassed:!misses&&!unexpected}});
+  result.summary=result.cases.map(c=>{const times=c.trials.flatMap(t=>c.expected.map(id=>t.first[id]??null));const misses=times.filter(t=>t===null).length;const known=times.filter(t=>t!==null),unexpected=c.trials.reduce((n,t)=>n+t.unexpected.length,0),mislocalized=c.trials.reduce((n,t)=>n+t.frames.reduce((sum,f)=>sum+f.wrongLocations.length,0),0);return {name:c.name,attempts:times.length,misses,unexpected,mislocalized,successfulMedianMs:percentile(known,.5),successfulP95Ms:percentile(known,.95),allPassed:!misses&&!unexpected&&!mislocalized}});
   result.datasetSha256=digest(await fs.readFile(datasetPath));result.hardwareValidated=false;result.source=source;
   const report=path.resolve(arg('--report','runtime/benchmark/latest.json'));await fs.mkdir(path.dirname(report),{recursive:true});await fs.writeFile(report,JSON.stringify(result,null,2));
   console.log(JSON.stringify({report,engine:result.engine,summary:result.summary,model:result.model}));

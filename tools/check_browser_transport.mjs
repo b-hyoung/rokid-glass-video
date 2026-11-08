@@ -32,7 +32,7 @@ try{
    await send('Page.navigate',{url:origin+'/recognition?transport-check='+name});
    for(let n=0;n<150;n++){
      const r=await send('Runtime.evaluate',{expression:'document.querySelector("#vision-build")?.textContent',returnByValue:true});
-     if(r.result?.value?.includes('region-v14-fast-photo'))break;
+     if(r.result?.value?.startsWith('인식 엔진 · region-'))break;
      if(n===149)throw Error('Recognition UI did not initialize');await delay(100);
    }
    await delay(3000);collect=true;await delay(20000);collect=false;

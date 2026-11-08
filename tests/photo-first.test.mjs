@@ -40,3 +40,10 @@ test('registration verification searches all identities in the same scan',()=>{
   assert.deepEqual(scan(1000,false).map(d=>d.id),['photo','object']);
   assert.equal(state.deferAppearance,false);
 });
+
+test('a reference with the frame aspect ratio is searched whole before a crop discards its evidence',()=>{
+ const {state}=scene();state.matcher.refs[0].w=1000;state.matcher.refs[0].h=800;
+ let size;state.matcher.detect=(pixels,options)=>{if(options.targetIds.has('photo'))size=[pixels.width,pixels.height];return [{id:'photo',corners,inliers:20}]};
+ VisionEngine.prototype.detectScene.call(state,{width:1000,height:800},true,1000);
+ assert.deepEqual(size,[1000,800]);
+});

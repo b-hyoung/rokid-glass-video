@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import assert from 'node:assert/strict';
 const [debugUrl,origin='http://localhost:8791']=process.argv.slice(2),port=new URL(origin).port;
 const credentials=JSON.parse(await fs.readFile('runtime/paired-'+port+'/check-credentials.json','utf8')).a;
+const expectedEngine=JSON.parse(await fs.readFile('release.json','utf8')).engine;
 const socket=new WebSocket(debugUrl);await new Promise(resolve=>socket.onopen=resolve);
 let seq=0;const pending=new Map();socket.onmessage=({data})=>{const m=JSON.parse(data),p=pending.get(m.id);if(p){pending.delete(m.id);m.error?p.reject(Error('Browser command failed')):p.resolve(m.result)}};
 const send=(method,params={})=>new Promise((resolve,reject)=>{const id=++seq;pending.set(id,{resolve,reject});socket.send(JSON.stringify({id,method,params}))});
@@ -18,7 +19,7 @@ try{
  await evaluate('document.querySelector("#pair-code").style.visibility="hidden";document.querySelector("#room-id").style.visibility="hidden"');
  const image=await send('Page.captureScreenshot',{format:'png'});await fs.writeFile('runtime/paired-'+port+'/connect-mobile.png',Buffer.from(image.data,'base64'));
  await send('Page.navigate',{url:origin+'/recognition'});
- await until('document.querySelector("#target-count")?.textContent==="7개" && document.querySelector("#vision-build")?.textContent.includes("region-v14-fast-photo")');
+ await until('document.querySelector("#target-count")?.textContent==="7개" && document.querySelector("#vision-build")?.textContent.includes('+JSON.stringify(expectedEngine)+')');
  assert.equal(await evaluate('document.querySelector("#connection-access").hidden'),false);
  const status={login:true,pairingCodeShown:true,mobileOverflow:false,ownTargets:7,connectionManagementVisible:true};
  await fs.writeFile('runtime/paired-'+port+'/ui-validation.json',JSON.stringify(status,null,2));console.log(JSON.stringify(status));

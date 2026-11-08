@@ -2,6 +2,7 @@ import {trackingSeed} from './tracking-seed.mjs';
 import {Matcher} from './matcher.js';
 import {RegionEvidence,regionOverlap} from './region-evidence.mjs';
 import {TrackRecovery} from './track-recovery.mjs';
+import {clipFrameQuad} from './quad-geometry.mjs';
 
 const dispose=(...items)=>items.forEach(x=>x?.delete());
 const area=p=>Math.abs(p.reduce((n,a,i)=>{const b=p[(i+1)%p.length];return n+a[0]*b[1]-b[0]*a[1]},0))/2;
@@ -87,22 +88,24 @@ class FlowTrack {
 
 export class VisionEngine {
   constructor(cv){this.cv=cv;this.matcher=new Matcher(cv);this.canvas=new OffscreenCanvas(1,1);this.ctx=this.canvas.getContext('2d',{willReadFrequently:true});this.tracks=new Map();this.regionEvidence=new RegionEvidence();this.pendingFlows=new Map();this.reset()}
-  reset(){this.previous?.delete();this.previous=null;for(const t of this.tracks.values())t.flow.close();this.tracks.clear();this.regionEvidence.clear();for(const flow of this.pendingFlows.values())flow.close();this.pendingFlows.clear();this.capture?.close();this.capture=null;this.signatures=[];this.lastSample=-Infinity;this.lastDetect=-Infinity;this.tile=0;this.photoScan=0;this.lastPhotoFirst=-Infinity;this.deferAppearance=false;this.captureId=null;this.lost=false;this.previousAt=0}
+  reset(){this.previous?.delete();this.previous=null;for(const t of this.tracks.values())t.flow.close();this.tracks.clear();this.regionEvidence.clear();for(const flow of this.pendingFlows.values())flow.close();this.pendingFlows.clear();this.capture?.close();this.capture=null;this.signatures=[];this.lastSample=-Infinity;this.lastDetect=-Infinity;this.tile=0;this.photoScan=0;this.lastPhotoFirst=-Infinity;this.lastObjectFirst=-Infinity;this.standardSearch=0;this.deferAppearance=false;this.captureId=null;this.lost=false;this.previousAt=0}
 
-  detectScene(pixels,scanTile,at){
+  detectScene(pixels,scanTile,at,options={}){
     this.deferAppearance=false;
     const best=new Map(),photoIds=new Set(this.matcher.refs.filter(ref=>ref.photoOnly).map(ref=>ref.id));
-    const standardIds=new Set(this.matcher.refs.filter(ref=>!ref.photoOnly).map(ref=>ref.id));
+    const standardIds=new Set(this.matcher.refs.filter(ref=>!ref.photoOnly&&!options.skipIds?.has(ref.id)).map(ref=>ref.id));
     const width=Math.ceil(pixels.width*.64),height=Math.ceil(pixels.height*.64);
-    const tile=this.tile,x=tile%2?pixels.width-width:0,y=tile>=2?pixels.height-height:0;
+    const tile=options.reuseTile?this.lastTile:this.tile;this.lastTile=tile;const x=tile%2?pixels.width-width:0,y=tile>=2?pixels.height-height:0;
     const tilePixels=scanTile?this.ctx.getImageData(x,y,width,height):null;
-    if(scanTile)this.tile=(this.tile+1)%4;
+    if(scanTile&&!options.reuseTile)this.tile=(this.tile+1)%4;
     const accept=(found,fromTile=false)=>{for(const match of found){
-      const corners=fromTile?match.corners.map(([u,v])=>[(x+u*width)/pixels.width,(y+v*height)/pixels.height]):match.corners;
-      if(validQuad(corners)&&(!best.has(match.id)||match.inliers>best.get(match.id).inliers))best.set(match.id,{...match,corners});
+      const projected=fromTile?match.corners.map(([u,v])=>[(x+u*width)/pixels.width,(y+v*height)/pixels.height]):match.corners;
+      const corners=clipFrameQuad(projected,pixels.width,pixels.height);
+      if(corners&&validQuad(corners)&&(!best.has(match.id)||match.inliers>best.get(match.id).inliers))best.set(match.id,{...match,corners});
     }};
-    if(photoIds.size){
-      const full=!scanTile||this.photoScan++%5===4;
+    if(photoIds.size&&!options.skipPhoto){
+      const sameShape=this.matcher.refs.some(ref=>ref.photoOnly&&ref.w>0&&ref.h>0&&Math.abs(Math.log((pixels.width/pixels.height)/(ref.w/ref.h)))<.05);
+      const full=!scanTile||sameShape||this.photoScan++%5===4;
       accept(this.matcher.detect(full?pixels:tilePixels,{targetIds:photoIds}),!full);
       // Publish a newly identified photo before unrelated object searches.
       // Existing tracks are still updated, and the next scan includes all
@@ -111,10 +114,11 @@ export class VisionEngine {
         this.lastPhotoFirst=at;this.deferAppearance=true;return [...best.values()];
       }
     }
-    if(standardIds.size){
-      accept(this.matcher.detect(pixels,{targetIds:standardIds,photoSearch:false}));
-      if(scanTile)accept(this.matcher.detect(tilePixels,{targetIds:standardIds,photoSearch:false}),true);
+    if(standardIds.size&&!options.skipStandard){
+      accept(this.matcher.detect(pixels,{targetIds:standardIds,photoSearch:false,maxReferences:options.maxReferences,referenceOffset:this.standardSearch}));
+      if(scanTile)accept(this.matcher.detect(tilePixels,{targetIds:standardIds,photoSearch:false,maxReferences:options.maxReferences,referenceOffset:this.standardSearch}),true);
     }
+    if(!options.skipStandard)this.standardSearch++;
     return [...best.values()];
   }
 
@@ -162,11 +166,20 @@ export class VisionEngine {
           }
         }
         const recovering=dropped||[...this.tracks.values()].some(t=>t.held||o.at-t.identified>1800);
-        const interval=this.pendingFlows.size?300:recovering?350:this.tracks.size?650:450;
+        const interval=o.candidateSearchPending?200:this.pendingFlows.size?300:recovering?350:this.tracks.size?650:450;
         if(o.at-this.lastDetect>=interval||o.mode==='verify'){
-          const found=this.detectScene(pixels,o.mode==='recognize',o.at);
+          let found,early;
+          if(o.mode==='recognize'&&confirmAppearance?.before){
+            found=this.detectScene(pixels,true,o.at,{skipStandard:true});
+            if(!this.deferAppearance){
+              early=await confirmAppearance.before(this.canvas);
+              const newObject=early?.located?.some(d=>!this.tracks.has(d.id)||this.tracks.get(d.id).held);
+              if(newObject&&o.at-this.lastObjectFirst>=1000)this.lastObjectFirst=o.at;
+              else found.push(...this.detectScene(pixels,true,o.at,{skipPhoto:true,reuseTile:true,skipIds:early?.passed,maxReferences:3}));
+            }
+          }else found=this.detectScene(pixels,o.mode==='recognize',o.at);
           this.lastDetect=o.at;
-          const confirmed=await confirmAppearance?.(this.canvas,found);
+          const confirmed=await confirmAppearance?.(this.canvas,found,early);
           for(const d of [...found,...(confirmed?.located??[])]){
             if(confirmed?.required.has(d.id)&&!confirmed.passed.has(d.id))continue;
             const previous=this.tracks.get(d.id);

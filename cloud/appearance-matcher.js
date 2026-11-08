@@ -1,5 +1,5 @@
 import { APPEARANCE_MODEL } from './appearance-format.mjs';
-import { regionProposals } from './region-proposals.mjs';
+import { regionProposals,selectProposals } from './region-proposals.mjs';
 import { isStrongRegion,regionOverlap } from './region-evidence.mjs';
 
 const RUNTIME = '/cloud/ort/';
@@ -16,6 +16,7 @@ export class AppearanceMatcher {
   setReferences(targets) {
     this.refs = targets.filter(target => target.appearance?.model === APPEARANCE_MODEL);
     this.photoFeatures = new Map();
+    this.proposalCursor=0;
   }
 
   async session() {
@@ -137,14 +138,14 @@ export class AppearanceMatcher {
       if(located.has(id)||!hints.has(id))continue;
       const corners=hints.get(id),xs=corners.map(p=>p[0]),ys=corners.map(p=>p[1]);
       candidates.push({left:Math.min(...xs),top:Math.min(...ys),right:Math.max(...xs),bottom:Math.max(...ys),expected:id});
-      if(candidates.length===3)break;
+      if(candidates.length===12)break;
     }
     if(scanScene){
       ctx.drawImage(canvas,0,0,small.width,small.height);
-      for(const box of regionProposals(ctx.getImageData(0,0,small.width,small.height))){
+      for(const box of selectProposals(regionProposals(ctx.getImageData(0,0,small.width,small.height)),18,this.proposalCursor++)){
         if(candidates.some(other=>!other.expected&&overlaps(box,other)))continue;
         candidates.push(box);
-        if(candidates.length===9)break;
+        if(candidates.length===18)break;
       }
     }
     const crops=candidates.map(({left,top,right,bottom})=>({
@@ -174,9 +175,16 @@ export class AppearanceMatcher {
         if(!expected&&first.score>(retry.get(first.ref.id)?.score??0))retry.set(first.ref.id,{i,score:first.score});
         return;
       }
-      if((best.get(first.ref.id)?.score??0)>=score)return;
+      const prior=best.get(first.ref.id),refined=candidates[i].refined===true;
+      const contains=(outer,inner)=>outer[0][0]<=inner[0][0]&&outer[0][1]<=inner[0][1]&&outer[2][0]>=inner[2][0]&&outer[2][1]>=inner[2][1];
+      const improvedExtent=prior&&refined&&!prior.refined&&contains(corners,prior.corners)&&score>=prior.score-.10;
+      if(prior?.refined&&!refined&&contains(prior.corners,corners)&&score<=prior.score+.10)return;
+      const colorBody=candidates[i].colorBody===true;
+      const compactColor=prior&&colorBody&&!prior.colorBody&&contains(prior.corners,corners)&&regionOverlap(prior.corners,corners)>=.45&&score>=prior.score-.05;
+      if(prior?.colorBody&&!colorBody&&contains(corners,prior.corners)&&regionOverlap(prior.corners,corners)>=.45&&score<=prior.score+.05)return;
+      if(prior&&prior.score>=score&&!improvedExtent&&!compactColor)return;
       const strong=!expected&&isStrongRegion(first.score,photoScore,first.score-(second?.score??-1),corners);
-      best.set(first.ref.id,{id:first.ref.id,corners,score,inliers:0,region:true,strong});
+      best.set(first.ref.id,{id:first.ref.id,corners,score,inliers:0,region:true,strong,refined,colorBody});
     };
     for(const [i,embedding] of (await this.embed(crops)).entries())await accept(i,embedding,candidates[i].expected);
     const uncertain=[...retry].filter(([id])=>!best.has(id)).map(([id,entry])=>({id,...entry}))
