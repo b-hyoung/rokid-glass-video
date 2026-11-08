@@ -1,0 +1,51 @@
+{
+  "mode": "local-only Worker runtime and separate file-replay room",
+  "engine": "region-v14-fast-photo",
+  "url": "http://localhost:8787/local-check.html",
+  "glassesControl": "http://localhost:8787/recognition",
+  "lanUrl": "http://192.168.0.14:8787",
+  "importedTargets": 7,
+  "importedPhotos": 45,
+  "restartPersistenceVerified": true,
+  "nodeTests": {
+    "pass": 77,
+    "fail": 0
+  },
+  "browser": {
+    "photo": {
+      "status": "로컬에서 인식 중",
+      "results": "마주봄 · 인식됨 · 첫 인식 94ms",
+      "metrics": "분석 17ms · 결과 수신 29ms · 1개 표시",
+      "player": "http://localhost:8787/v/majubom_box.mp4"
+    },
+    "video": {
+      "status": "로컬에서 인식 중",
+      "results": "마주봄 · 인식됨 · 첫 인식 127ms",
+      "crop": "선택한 영역만 분석",
+      "metrics": "분석 11ms · 결과 수신 25ms · 1개 표시"
+    },
+    "liveRoomUnchanged": true,
+    "mobile": {
+      "width": 390,
+      "scroll": 390
+    },
+    "control": {
+      "connection": "로컬 PC 연결 · 안경 0대 · 촬영 영상 대기",
+      "targets": "7개",
+      "version": "인식 엔진 · region-v14-fast-photo"
+    }
+  },
+  "checks": {
+    "videoByteRange": {
+      "status": 206,
+      "bytes": 16
+    },
+    "localWebRtcSignaling": true,
+    "liveGlassesRoomUnaffectedByReplay": true
+  },
+  "limitations": [
+    "No glasses device or ADB executable was attached for a real hardware connection test.",
+    "The current engine and its object-localization limits are unchanged.",
+    "Imported targets are from the last verified production snapshot; new local edits are independent of production."
+  ]
+}

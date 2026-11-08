@@ -2,6 +2,20 @@
 
 다음 작업과 인계: [0.2.10 이후 작업 목록](docs/NEXT_STEPS.md)
 
+## 로컬 PC에서 실행
+
+Windows에서는 프로젝트의 **start-local.cmd**를 실행하거나 `python tools/start_local.py`를 사용한다. 현재 웹 인식 엔진과 안경 통신 규격을 PC의 로컬 Worker에서 실행하므로 Cloudflare의 운영 요청 한도를 사용하지 않는다.
+
+- 사진·녹화 테스트: `http://localhost:8787/local-check.html`. JPG·PNG·WebP 또는 영상을 선택하고 **테스트 시작**을 누른다. 모니터링 녹화는 **영역 선택**으로 카메라 부분만 지정할 수 있다. 물체 이름·영역·처리 시간·첫 인식 시간과 2.5초 조준 진행률을 표시하고 연결 영상을 PC에서 미리 재생한다.
+- 안경 실시간 제어·이미지 등록: `http://localhost:8787/recognition`. PC의 Chrome은 localhost 주소로 접속한다. 안경 서버 주소는 같은 Wi-Fi에 있는 PC의 LAN 주소로 지정한다. 실제 주소와 ADB 명령은 `http://localhost:8787/local-setup.html`에 표시된다. 기존 앱의 서버 지정 기능을 사용하며 APK 재설치는 필요 없다.
+- 파일 테스트는 별도 로컬 저장소·명령 채널을 사용하므로 안경 실시간 세션에 재생 명령을 보내지 않는다. 등록 목록 새로고침으로 현재 PC 등록 내용을 테스트 화면에 복사한다. 영상 파일은 브라우저에서 해석한다.
+- 등록 사진·벡터와 보정값은 `runtime/local-state`에 저장돼 재시작해도 유지된다. 운영 Cloudflare 등록 데이터와는 별개다. 백업 JSON이 있으면 `python tools/start_local.py --targets <파일>`로 빈 로컬 저장소에 가져올 수 있다. 이미 로컬에 등록된 대상이 있으면 덮어쓰지 않는다. 현재 PC의 준비된 백업은 `runtime/local-targets-import.json`이다.
+- 창을 닫거나 Ctrl+C로 서버를 중지한다. `--no-open`은 브라우저 자동 열기를 끄고, `--port 8790`처럼 다른 포트를 선택하면 포트별 별도 저장소를 쓴다. 실행 로그는 `runtime/local-server.log`에 남는다.
+
+준비물: Node.js·Python·Chrome 및 기존 `build/appearance-v1.onnx`, `build/appearance-web`의 브라우저 추론 파일. 이 PC에는 준비돼 있다. Wrangler가 없으면 실행기가 `build/local-worker`에 개발 런타임을 설치한다. 최초 도구 설치에는 인터넷이 필요할 수 있으며, 이후 인식과 데이터 저장은 PC에서 수행한다. 물체 탐지 정확도는 운영과 같은 엔진의 현재 한계를 그대로 반영한다.
+
+관련 파일: `tools/start_local.py`, `wrangler.local.jsonc`, `tools/local-worker.mjs`.
+
 ## 0.2.14 · WebRTC 시험
 
 안경 앱 0.2.14와 이 버전의 Worker가 필요하다. 같은 Wi-Fi에서 안경 한 대와 Chrome 탭 한 개를 사용한다. 촬영 방식에서 **WebRTC · 같은 Wi-Fi 시험**을 선택하고 30fps로 촬영을 시작한다. **동영상 · H.264**를 선택해 다시 시작하면 기존 중계로 비교할 수 있다.

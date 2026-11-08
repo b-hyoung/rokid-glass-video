@@ -1,0 +1,9 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>로컬 안경 연결</title>
+<style>body{margin:24px auto;padding:0 18px;max-width:900px;background:#0f1211;color:#dfe9e2;font:16px/1.65 system-ui}h1,a{color:#80ef97}pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:16px;background:#151d18;border:1px solid #41684c}p{color:#b1c5b7}</style>
+<h1>로컬 PC에 안경 연결</h1><p><a href="/recognition">안경 실시간 제어</a> · <a href="/local-check.html">사진·녹화 인식 테스트</a></p>
+<ol><li>안경과 PC를 같은 Wi-Fi에 연결합니다.</li><li>PC의 Chrome에서는 <a id="control" href="/recognition">로컬 제어 화면</a>을 엽니다. PC에서는 localhost 주소를 사용하세요.</li><li>ADB로 안경 앱의 서버 주소를 아래 PC 주소로 지정합니다. 앱을 다시 설치할 필요는 없습니다.</li><li>로컬 제어 화면에서 안경 촬영 시작을 누르고, WebRTC를 선택해 영상을 확인합니다.</li></ol>
+<p id="address">PC 주소 확인 중…</p><pre id="command"></pre><p>ADB가 인식한 안경이 연결돼 있어야 합니다. PC의 Windows 방화벽에서 Node.js의 개인 네트워크 연결이 허용돼 있어야 합니다. 안경 실물 연결은 이 조건을 갖춘 뒤 확인할 수 있습니다.</p>
+<p>자동 서버 선택으로 돌아가려면:</p><pre>adb shell am force-stop com.hoonartis.glassvideo
+adb shell am start -n com.hoonartis.glassvideo/.MainActivity -d auto</pre>
+<p>서버를 다시 켜려면 프로젝트 폴더의 <strong>start-local.cmd</strong>를 실행하세요. 등록 사진과 벡터는 PC의 runtime/local-state에 보관됩니다.</p>
+<script>fetch('/local-info.json').then(r=>r.json()).then(info=>{const url=info.lanUrls[0];document.getElementById('control').href=info.pcUrl+'/recognition';document.getElementById('address').textContent=url?'안경에 지정할 PC 주소: '+url:'Wi-Fi에 연결한 뒤 로컬 서버를 다시 시작하세요.';document.getElementById('command').textContent=url?'adb shell am force-stop com.hoonartis.glassvideo\nadb shell am start -n com.hoonartis.glassvideo/.MainActivity -d '+url:'LAN 주소 없음';})</script></html>

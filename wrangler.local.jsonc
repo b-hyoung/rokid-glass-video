@@ -1,0 +1,18 @@
+{
+  "name": "glass-video-local",
+  "main": "tools/local-worker.mjs",
+  "compatibility_date": "2026-11-01",
+  "workers_dev": false,
+  "assets": {
+    "directory": "./runtime/local-assets",
+    "binding": "ASSETS",
+    "run_worker_first": true,
+    "html_handling": "none",
+    "not_found_handling": "none"
+  },
+  "durable_objects": {"bindings": [
+    {"name":"ROOM", "class_name":"LocalGlassRoom"},
+    {"name":"PREVIEW", "class_name":"LocalPreviewRoom"}
+  ]},
+  "migrations": [{"tag":"local-v1", "new_sqlite_classes":["LocalGlassRoom","LocalPreviewRoom"]}]
+}
