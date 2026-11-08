@@ -37,7 +37,10 @@ export function localTargets(data,videos){
     ids.add(target.id);
     if(typeof target.name!=='string'||!target.name.trim()||!Object.hasOwn(videos,target.key))throw Error('대상 이름과 연결 영상을 확인하세요.');
     if(!Array.isArray(target.images)||target.images.length>MAX_IMAGES)throw Error('대상당 사진은 최대 60장입니다.');
-    const appearance=target.appearance?validateVectors(target.appearance):null;
+    // Validate without renormalizing a stored backup. Repeated restores must
+    // preserve the original vector components exactly.
+    if(target.appearance)validateVectors(target.appearance);
+    const appearance=target.appearance?{model:target.appearance.model,vectors:structuredClone(target.appearance.vectors)}:null;
     if(!target.images.length&&!appearance)throw Error('사진이나 벡터가 없는 대상은 가져올 수 없습니다.');
     const images=target.images.map(image=>{
       if(typeof image.image!=='string'||image.image.length>700000||!/^data:image\/jpeg;base64,[A-Za-z0-9+/]+=*$/.test(image.image))throw Error('등록 사진 형식이나 용량을 확인하세요.');

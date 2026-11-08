@@ -13,6 +13,7 @@ assert.equal(response.status,200);
 const normalize=targets=>targets.map(t=>({id:t.id,name:t.name,key:t.key,appearance:t.appearance??null,
   images:t.images.map(i=>({id:i.id,image:i.image,created_at:i.created_at,capture:i.capture??null})).sort((a,b)=>a.id.localeCompare(b.id))})).sort((a,b)=>a.id.localeCompare(b.id));
 assert.deepEqual(normalize(room.targets(true)),normalize(validated.targets));
+for(const original of snapshot.targets)assert.deepEqual(room.targets(true).find(t=>t.id===original.id).appearance,original.appearance??null);
 assert.deepEqual(room.guide.config,validated.guide);
 const restarted=new LocalGlassRoom({storage,getWebSockets:()=>[]},env);
 assert.deepEqual(normalize(restarted.targets(true)),normalize(validated.targets));

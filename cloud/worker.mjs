@@ -8,6 +8,7 @@ import {handleConnection} from './handlers/connection.mjs';
 import {handleHud} from './handlers/hud.mjs';
 import {handleLibrary} from './handlers/library.mjs';
 import {handleRecognition} from './handlers/recognition.mjs';
+import {StateFeed} from './state-feed.mjs';
 const DYNAMIC = new Set(['/status','/next','/play','/stop','/log','/frame','/stream','/tele']);
 export default {
   async fetch(request, env) {
@@ -26,6 +27,7 @@ const encode = bytes => {let s='';for(let i=0;i<bytes.length;i+=16384)s+=String.
 export class GlassRoom {
   constructor(ctx,env) {
     this.ctx=ctx;this.env=env;this.seq=Date.now();this.commands=[];this.waiters=new Set();this.seen=new Map();
+    this.events=new StateFeed(this);
     this.test=null;this.tele=null;this.latest=null;this.first=null;this.recent=[];this.bytes=0;this.frameNo=0;this.focus=null;this.focusAt=0;this.locked=null;this.lastVisible=0;this.lastResult=0;this.active=false;this.epoch=0;
     this.state={enabled:false,detections:[],progress:0,focused:null,at:0};this.version=Date.now();
     this.displayHistory=new Map();this.focusCorners=null;
@@ -72,7 +74,7 @@ export class GlassRoom {
     }
     return state;
   }
-  viewers(){return this.ctx.getWebSockets().filter(ws=>!['camera','hud-device','hud-viewer','rtc-device','rtc-viewer'].includes(ws.deserializeAttachment?.()?.role))}
+  viewers(){return this.ctx.getWebSockets().filter(ws=>!['camera','hud-device','hud-viewer','rtc-device','rtc-viewer','state-client'].includes(ws.deserializeAttachment?.()?.role))}
   rtcSocket(role,test){
     return this.ctx.getWebSockets().find(ws=>{
       const attachment=ws.deserializeAttachment?.();
@@ -150,14 +152,25 @@ export class GlassRoom {
   }
   async fetch(req) {
     const u=new URL(req.url),p=u.pathname,q=u.searchParams;
+    if(p==='/recognition/events'&&req.headers.get('Upgrade')?.toLowerCase()==='websocket'){
+      const side=q.get('role');if(!['device','viewer'].includes(side))return json({error:'Invalid state role'},400);
+      const pair=new WebSocketPair();this.ctx.acceptWebSocket(pair[1]);
+      await this.events.connect(pair[1],side,String(q.get('id')||'glasses').slice(0,80),String(q.get('app')||'').slice(0,20));
+      return new Response(null,{status:101,webSocket:pair[0]});
+    }
+    if(p==='/recognition/snapshot')return json(await this.events.snapshot());
     for(const handler of [handleConnection,handleHud,handleLibrary,handleRecognition]){
       const response=await handler.call(this,req,u);
-      if(response)return response;
+      if(response){
+        if(req.method!=='GET'||['/play','/stop','/cam/set'].includes(p))await this.events.publish();
+        return response;
+      }
     }
     return json({error:'없는 요청'},404);
   }
   webSocketMessage(ws,message){
     const camera=ws.deserializeAttachment?.();
+    if(camera?.role==='state-client')return this.events.message(ws,message);
     if(camera?.role==='rtc-device'||camera?.role==='rtc-viewer'){
       if(this.test?.done||this.test?.transport!=='webrtc'||camera.test!==this.test.test)return;
       if(typeof message!=='string'||message.length>32768||this.rtcSocket(camera.role,camera.test)!==ws)return;
@@ -214,6 +227,7 @@ export class GlassRoom {
     }catch{ws.close(1008,'Invalid stream packet')}
   }
   webSocketClose(ws,code,reason){
+    this.events.close(ws);
     const attachment=ws.deserializeAttachment?.();if(attachment?.role==='camera')this.trace('camera_socket_close',{test:attachment.test,code,reason:String(reason||'').slice(0,120)});
     if(attachment?.role==='rtc-viewer'&&!this.rtcSocket('rtc-viewer',attachment.test)){
       try{this.rtcSocket('rtc-device',attachment.test)?.send('{"type":"viewer-left"}')}catch{}

@@ -43,7 +43,7 @@ def prepare_assets(port):
     release = validate_assets(mode='web')
     ASSETS.mkdir(parents=True, exist_ok=True)
     for source in (ROOT / 'cloud').rglob('*'):
-        if source.is_file() and source.name not in ('worker.mjs', 'target-store.mjs') and 'handlers' not in source.parts:
+        if source.is_file() and source.name not in ('worker.mjs', 'target-store.mjs', 'state-feed.mjs', 'request-policy.mjs') and 'handlers' not in source.parts:
             copy_if_changed(source, ASSETS / 'cloud' / source.relative_to(ROOT / 'cloud'))
     model = ROOT / 'build/appearance-v1.onnx'
     ort = ROOT / 'build/appearance-web/node_modules/onnxruntime-web/dist'

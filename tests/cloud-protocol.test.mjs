@@ -578,3 +578,32 @@ test('confirmed aim fallback never invents a location or overrides known off-cen
  await report([localized]);
  assert.equal(r.commands.at(-1).key,'e');
 });
+
+function stateSocket(){
+ let attachment;return {readyState:1,messages:[],serializeAttachment(a){attachment=structuredClone(a)},deserializeAttachment(){return structuredClone(attachment)},send(text){this.messages.push(JSON.parse(text))},close(code){this.readyState=3;this.code=code}};
+}
+test('state subscribers get one outstanding snapshot and resume at current state',async()=>{
+ const {r,request}=room(),ws=stateSocket();r.ctx.getWebSockets=()=>[ws];
+ await r.events.connect(ws,'viewer','pc');assert.equal(ws.messages.length,1);
+ assert.equal(r.viewers().length,0);
+ for(let i=0;i<50;i++){r.state.progress=i/100;await r.events.publish()}
+ assert.equal(ws.messages.length,1);
+ await r.events.message(ws,JSON.stringify({type:'ack',seq:ws.messages[0].seq}));
+ assert.equal(ws.messages.length,2);assert.equal(ws.messages[1].recognition.progress,.49);
+ const before=ws.messages.length;await r.events.message(ws,'{"type":"ack","seq":-1}');assert.equal(ws.messages.length,before);
+ await r.events.message(ws,'null');await r.events.message(ws,'not JSON');
+ r.events.pending.get(ws).at-=6000;await r.events.publish();assert.equal(ws.code,1013);
+});
+test('state-channel detections use HTTP freshness, identity and playback protections',async()=>{
+ const {r,request}=room(),ws=stateSocket();r.ctx.getWebSockets=()=>[ws];
+ const t=await request('/recognition/targets',{name:'Photo',key:'e',image:'data:image/jpeg;base64,/9j/'});
+ await request('/recognition/control?enabled=1',{});await r.events.connect(ws,'viewer','pc');
+ const submit=async(seq,override={})=>{await r.events.message(ws,JSON.stringify({type:'detections',seq,data:{epoch:r.epoch,at:Date.now(),found:[{id:t.targetId,corners:[[.3,.3],[.7,.3],[.7,.7],[.3,.7]]}],...override}}));return ws.messages.findLast(m=>m.type==='result')?.result};
+ assert.equal((await submit(1)).ok,true);assert.equal(r.focus,t.targetId);
+ r.focusAt-=2600;assert.equal((await submit(2)).ok,true);assert.equal(r.commands.filter(m=>m.cmd==='play').length,1);
+ const stale=await submit(3,{epoch:r.epoch-1});assert.equal(stale.stale,true);
+ await submit(3);assert.equal(r.commands.filter(m=>m.cmd==='play').length,1);
+ const device=stateSocket();await r.events.connect(device,'device','glasses');
+ await r.events.message(device,JSON.stringify({type:'detections',seq:1,data:{}}));assert.equal(device.messages.filter(m=>m.type==='result').length,0);
+ await r.events.message(device,JSON.stringify({type:'ping',ping:9}));assert.ok(r.seen.has('glasses'));assert.equal(device.messages.find(m=>m.type==='pong').pong,9);
+});

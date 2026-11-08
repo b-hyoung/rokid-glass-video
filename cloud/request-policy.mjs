@@ -6,6 +6,6 @@ export const DISPLAY_HOLD_MS=850;
 // Shared by HTTP and state-channel result submission. Transport never grants
 // stale evidence extra time or changes the identity/dwell rules.
 export function acceptDetectionEnvelope(data,{now,guideEnabled,active,epoch,frameAt}){
-  return Number.isFinite(data.at)&&!guideEnabled&&active&&data.epoch===epoch&&
+  return Number.isFinite(data?.at)&&!guideEnabled&&active&&data.epoch===epoch&&
     data.at>=frameAt&&now-data.at<=1500&&data.at<=now+500;
 }

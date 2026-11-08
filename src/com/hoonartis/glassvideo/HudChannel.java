@@ -16,12 +16,13 @@ final class HudChannel {
     private volatile boolean running;
     private WebSocketClient socket;
     private Thread worker;
+    private long generation;
     private String origin;
     private long sequence,waiting,waitAt,attemptAt;
     HudChannel(Supplier<String> server){this.server=server;}
     void drawn(JSONObject state){latest=state.toString();drawnAt=android.os.SystemClock.elapsedRealtime();}
-    synchronized void start(){if(running)return;running=true;if(worker==null||!worker.isAlive()){worker=new Thread(this::loop,"hud-status");worker.start();}}
-    synchronized void stop(){running=false;close();}
+    synchronized void start(){if(running)return;running=true;long ticket=++generation;worker=new Thread(()->loop(ticket),"hud-status");worker.start();}
+    synchronized void stop(){running=false;generation++;if(worker!=null)worker.interrupt();close();}
     private synchronized void close(){WebSocketClient old=socket;socket=null;waiting=0;if(old!=null)old.closeConnection(1000,"HUD reconnect");}
     private synchronized void tick(){
         long now=android.os.SystemClock.elapsedRealtime();String address=server.get();
@@ -42,9 +43,9 @@ final class HudChannel {
             JSONObject packet=new JSONObject(latest);
             if(now-drawnAt>1500){packet=new JSONObject("{\"mode\":\"idle\",\"objects\":[],\"visible\":false}");}
             else packet.put("visible",true);
-            waiting=++sequence;waitAt=now;packet.put("seq",waiting);packet.put("app","0.2.19");
+            waiting=++sequence;waitAt=now;packet.put("seq",waiting);packet.put("app",BuildInfo.VERSION);
             socket.send(packet.toString());
         }catch(Exception ignored){close();}
     }
-    private void loop(){while(running){tick();try{Thread.sleep(250);}catch(InterruptedException ignored){}}}
+    private void loop(long ticket){while(true){synchronized(this){if(!running||generation!=ticket)return;tick();}try{Thread.sleep(250);}catch(InterruptedException ignored){Thread.currentThread().interrupt();return;}}}
 }

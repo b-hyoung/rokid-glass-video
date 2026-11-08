@@ -44,6 +44,8 @@ def validate_assets(root=ROOT, mode='web'):
         if not apk.is_file() or not metadata_path.is_file():
             raise ValueError('Release APK and verified signing metadata required: ' + str(apk))
         metadata = json.loads(metadata_path.read_text(encoding='utf-8'))
+        if metadata.get('candidate') is not False:
+            raise ValueError('Candidate APK cannot be published as a release')
         for key in ('version', 'versionCode', 'protocol'):
             expected = release['protocol'] if key == 'protocol' else release['app'][key]
             if metadata.get(key) != expected:

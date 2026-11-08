@@ -53,9 +53,12 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
     private String pending; // 화면 준비 전에 온 영상 주소
     private boolean pendingLoop;
     private volatile boolean running;
+    private final SessionWorkers workers=new SessionWorkers();
+    private StateChannel stateChannel;
     private volatile HttpURLConnection conn;
     private CameraStreamer cam;
     private volatile RtcCamera rtcCamera;
+    private final Object cameraOwnership=new Object();
     private String cameraStatus="",connectionStatus="연결 확인 중";
     private final Runnable deviceStatus=new Runnable(){
         @Override public void run(){
@@ -96,7 +99,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         status = new TextView(this);
         status.setTextColor(Color.GREEN);
         status.setTextSize(16);
-        status.setText("연결 중… (v0.2.19)");
+        status.setText("연결 중… (v"+BuildInfo.VERSION+")");
         status.setGravity(Gravity.CENTER);
         root.addView(status, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
@@ -119,7 +122,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         cam = new CameraStreamer(this, () -> server, id, new CameraStreamer.Out() {
             @Override public void report(String m) { MainActivity.this.report(m); }
             @Override public void status(String m) {
-                ui.post(() -> {
+                postSession(() -> {
                     cameraStatus="신호 대기".equals(m)?"":m;
                     restoreDeviceStatus();
                 });
@@ -146,45 +149,59 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
     @Override
     protected void onStart() {
         super.onStart();
+        workers.begin();
         running = true;
         ui.post(deviceStatus);
-        new Thread(this::listen, "next").start();
-        new Thread(this::syncLoop, "sync").start();
-        new Thread(this::recognitionLoop, "recognition").start();
-        new Thread(this::discoveryLoop, "discovery").start();
+        workers.start("next",this::listen);
+        workers.start("sync",this::syncLoop);
+        workers.start("recognition",this::recognitionLoop);
+        workers.start("discovery",this::discoveryLoop);
+        stateChannel=new StateChannel(()->server,id,this::applyRecognition);
+        stateChannel.start();
         hudChannel.start();
         if(playbackReporter==null||!playbackReporter.isAlive()){playbackReporter=new Thread(this::playbackLoop,"playback-state");playbackReporter.start();}
         report("앱 시작");
     }
 
     private void discoveryLoop() {
-        while (running) {
-            for (int i=0; i<30 && running; i++) try { Thread.sleep(1000); } catch (InterruptedException ignored) { }
-            if (running) resolve();
+        while (workers.active()) {
+            for (int i=0; i<30 && workers.active(); i++) try { Thread.sleep(1000); } catch (InterruptedException ignored) { Thread.currentThread().interrupt();return; }
+            if (workers.active()) resolve();
         }
     }
 
+    private void postSession(Runnable action){
+        long ticket=workers.ticket();
+        ui.post(()->{if(workers.current(ticket))action.run();});
+    }
+
+    private void applyRecognition(JSONObject result,long transitMs){
+        String origin=server;
+        postSession(()->{
+            if(!origin.equals(server))return;
+            localTracking.update(result,transitMs);
+            recognitionOverlay.update(result,transitMs);
+            if(playbackGate.busy())publishVideoHud();
+            JSONObject guide=result.optJSONObject("guide"),camera=guide==null?null:guide.optJSONObject("camera");
+            boolean calibrated=guide!=null&&guide.optBoolean("calibrated");
+            aimX=calibrated&&camera!=null?camera.optDouble("cx",.5):.5;
+            aimY=calibrated&&camera!=null?camera.optDouble("cy",.5):.5;
+        });
+    }
+
     private void recognitionLoop() {
-        while (running) {
-            try {
+        int failures=0;
+        while(workers.active()){
+            long delay=2000;
+            if(stateChannel==null||!stateChannel.healthy())try{
                 long sent=android.os.SystemClock.elapsedRealtime();
-                JSONObject result = new JSONObject(get(server + "/recognition/status?hud=2&estimate=label&app=0.2.19"));
-                if(!running)break;
-                localTracking.update(result,android.os.SystemClock.elapsedRealtime()-sent);
-                ui.post(() -> {
-                    if(!running)return;
-                    recognitionOverlay.update(result);
-                    if(playbackGate.busy())publishVideoHud();
-                    JSONObject guide=result.optJSONObject("guide"),camera=guide==null?null:guide.optJSONObject("camera");
-                    boolean calibrated=guide!=null&&guide.optBoolean("calibrated");
-                    aimX=calibrated&&camera!=null?camera.optDouble("cx",.5):.5;
-                    aimY=calibrated&&camera!=null?camera.optDouble("cy",.5):.5;
-                });
-            } catch (Exception e) {
-                // Keep the last overlay until its own expiry on a missed poll.
-                localTracking.update(null,0);
-            }
-            try { Thread.sleep(180); } catch (InterruptedException ignored) { }
+                String origin=server;
+                JSONObject result=new JSONObject(get(origin+"/recognition/status?hud=2&estimate=label&app="+BuildInfo.VERSION));
+                if(!workers.active())return;
+                if(!origin.equals(server))continue;
+                applyRecognition(result,android.os.SystemClock.elapsedRealtime()-sent);failures=0;
+            }catch(Exception e){delay=Math.min(30000,1000L<<Math.min(5,failures++));}
+            if(!workers.pause((long)(delay*(.9+Math.random()*.2))))return;
         }
     }
 
@@ -193,9 +210,9 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
 
     /** 켤 때, 그 뒤 2분마다 서버 목록을 보고 없거나 바뀐 영상만 미리 받는다. */
     private void syncLoop() {
-        while (running) {
+        while (workers.active()) {
             try { sync(); } catch (Exception e) { report("미리 받기 실패 " + e); }
-            for (int i = 0; i < 120 && running; i++) try { Thread.sleep(1000); } catch (InterruptedException ignored) { }
+            for (int i = 0; i < 120 && workers.active(); i++) try { Thread.sleep(1000); } catch (InterruptedException ignored) { Thread.currentThread().interrupt();return; }
         }
     }
 
@@ -206,7 +223,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         int fresh = 0;
         java.util.Iterator<String> keys = list.keys();
         java.util.Set<String> keep = new java.util.HashSet<>();
-        while (keys.hasNext() && running) {
+        while (keys.hasNext() && workers.active()) {
             JSONObject v = list.getJSONObject(keys.next());
             String file = v.getString("file");
             long size = v.optLong("size", -1);
@@ -215,33 +232,36 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
             if (!local.exists() || local.length() != size) {
                 java.io.File part = new java.io.File(dir, local.getName() + ".part");
                 HttpURLConnection c = (HttpURLConnection) new URL(server + "/v/" + file).openConnection();
+                if(!workers.track(c))return;
                 c.setConnectTimeout(10000);
                 c.setReadTimeout(30000);
                 try (java.io.InputStream in = c.getInputStream(); java.io.FileOutputStream out = new java.io.FileOutputStream(part)) {
                     byte[] buf = new byte[65536];
                     int n;
-                    while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
-                }
+                    while (workers.active()&&(n = in.read(buf)) > 0) out.write(buf, 0, n);
+                }finally{workers.release(c);}
+                if(!workers.active())return;
                 if (part.length() != size || !part.renameTo(local)) { part.delete(); continue; }
                 fresh++;
             }
             cached.put(file, local);
         }
+        if(!workers.active())return;
         java.io.File[] old = dir.listFiles();
         if (old != null) for (java.io.File f : old) if (!keep.contains(f.getName())) f.delete(); // 서버에서 바뀌거나 빠진 영상
         if (fresh > 0) report("미리 받기 " + fresh + "개 새로, 총 " + cached.size() + "개 준비");
     }
 
-    private static String get(String url) throws Exception {
+    private String get(String url) throws Exception {
         HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
-        c.setConnectTimeout(10000);
-        c.setReadTimeout(15000);
+        if(!workers.track(c))throw new InterruptedException("Expired session");
+        c.setConnectTimeout(10000);c.setReadTimeout(15000);
         StringBuilder body = new StringBuilder();
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(c.getInputStream(), StandardCharsets.UTF_8))) {
-            String line;
-            while ((line = in.readLine()) != null) body.append(line).append('\n');
-        }
-        return body.toString();
+        try(BufferedReader in = new BufferedReader(new InputStreamReader(c.getInputStream(), StandardCharsets.UTF_8))){
+            String line;while(workers.active()&&(line=in.readLine())!=null)body.append(line).append('\n');
+            if(!workers.active())throw new InterruptedException("Expired response");
+            return body.toString();
+        }finally{workers.release(c);}
     }
 
     @Override
@@ -249,8 +269,10 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         super.onStop();
         endPlayback("stopped");
         running = false;
+        workers.end();
+        if(stateChannel!=null)stateChannel.stop();
         ui.removeCallbacks(deviceStatus);
-        cam.stop(true);
+        synchronized(cameraOwnership){cam.stop(true);}
         stopRtc(false);
         HttpURLConnection c = conn;
         if (c != null) c.disconnect();
@@ -267,7 +289,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
      */
     private void resolve() {
         if (pinned) return;
-        if (pick(getString(R.string.control_server))) return;
+        if (pick(getString(R.string.local_servers))||pick(getString(R.string.default_server))) return;
         String text;
         try { text = get(getString(R.string.server_txt) + "?t=" + System.currentTimeMillis()); }
         catch (Exception e) { say("Cloudflare 연결 실패 · Wi-Fi·인터넷 확인\n" + why(e)); report("server.txt 실패 " + e); return; }
@@ -279,7 +301,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         for (String raw : text.trim().split("[ \t\r\n]+")) {
             if (!raw.startsWith("http")) continue;
             String url = trim(raw);
-            if (!reachable(url)) continue;
+            if (!reachable(url)||!workers.active()) continue;
             if (!url.equals(server)) {
                 server = url;
                 HttpURLConnection previous = conn;
@@ -292,15 +314,16 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         return false;
     }
 
-    private static boolean reachable(String url) {
+    private boolean reachable(String url) {
+        HttpURLConnection c=null;
         try {
-            HttpURLConnection c = (HttpURLConnection) new URL(url + "/status").openConnection();
+            c = (HttpURLConnection) new URL(url + "/status").openConnection();
+            if(!workers.track(c))return false;
             c.setConnectTimeout(1500);
             c.setReadTimeout(2500);
             int code = c.getResponseCode();
-            c.disconnect();
-            return code == 200;
-        } catch (Exception e) { return false; }
+            return workers.active()&&code == 200;
+        } catch (Exception e) { return false; }finally{if(c!=null)workers.release(c);}
     }
 
     private void listen() {
@@ -309,21 +332,25 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         long t0 = System.currentTimeMillis(); int tries = 0;
         boolean online = false;
         String listeningServer = null;
-        while (running) {
+        while (workers.active()) {
             try {
                 String currentServer = server;
                 if (!currentServer.equals(listeningServer)) { listeningServer = currentServer; after = -1; }
                 String q = currentServer + "/next?id=" + id + (after < 0 ? "" : "&after=" + after);
                 HttpURLConnection c = (HttpURLConnection) new URL(q).openConnection();
+                if(!workers.track(c))return;
                 conn = c;
+                StringBuilder body = new StringBuilder();
+                try{
                 c.setConnectTimeout(10000);
                 c.setReadTimeout(40000);
-                StringBuilder body = new StringBuilder();
                 try (BufferedReader in = new BufferedReader(new InputStreamReader(c.getInputStream(), StandardCharsets.UTF_8))) {
                     String line;
                     while ((line = in.readLine()) != null) body.append(line);
                 }
+                }finally{workers.release(c);if(conn==c)conn=null;}
                 JSONObject m = new JSONObject(body.toString());
+                if(!workers.active())return;
                 if (!online) { online = true; say("서버 연결됨"); report("연결됨 " + (System.currentTimeMillis() - t0) + "ms, 시도 " + (tries + 1) + "번"); }
                 if (!currentServer.equals(server)) continue;
                 if (after >= 0 && m.has("cmd")) handle(m);
@@ -335,28 +362,31 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
                 if (running) say("연결 끊김 · 다시 연결 중 (" + tries + ")\n" + host(server) + "\n" + why(e)); // 어디로 붙으려는지·왜 안 되는지 화면에
             }
             tries++;
+            if (!workers.active())return;
             if (tries % 3 == 0) { resolve(); after = -1; } // 터널을 다시 켜 주소가 바뀌었을 수 있음(새 서버는 번호가 처음부터)
-            if (running) try { Thread.sleep(1000); } catch (InterruptedException ignored) { }
+            if(!workers.pause((long)(Math.min(30000,1000L<<Math.min(5,tries-1))*(.9+Math.random()*.2))))return;
         }
     }
 
     private void handle(JSONObject m) {
+        if(!workers.active())return;
         String cmd = m.optString("cmd");
         if (cmd.equals("cam")) { // 카메라 전송 시험: fps 0 이면 끔
             int fps = m.optInt("fps");
-            ui.post(() -> {cameraStatus="";restoreDeviceStatus();});
+            postSession(() -> {cameraStatus="";restoreDeviceStatus();});
             stopRtc(true);
-            if (!running) return;
+            synchronized(cameraOwnership){
+            if (!workers.active()) return;
             if (fps > 0 && "webrtc".equals(m.optString("transport"))) {
                 cam.stop(false);
                 rtcCamera = new RtcCamera(this, server, m.optLong("test"), fps,
                         m.optInt("kbps", 2000), m.optInt("sec"), this::report);
-                if (!running) stopRtc(false);
                 return;
             }
             if (fps <= 0) cam.stop(true);
             else cam.start(m.optString("mode", "photo"), fps, m.optInt("sec", 5), (float) m.optDouble("crop", 0.5),
                     m.optInt("q", 80), m.optInt("kbps", 2000), m.optLong("test"), "websocket".equals(m.optString("transport")));
+            }
             return;
         }
         String title = m.optString("title");
@@ -366,7 +396,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         else if (u.startsWith("/")) u = server + u;                               // 아직이면 서버에서 받아 가며
         String url = u;
         boolean loop = m.optBoolean("loop");
-        ui.post(() -> {
+        postSession(() -> {
             if(!running)return;
             if (cmd.equals("play")) {
                 boolean automatic="recognition".equals(m.optString("source"));
@@ -390,8 +420,8 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
     }
 
     private void stopRtc(boolean wait) {
-        RtcCamera previous = rtcCamera;
-        rtcCamera = null;
+        RtcCamera previous;
+        synchronized(cameraOwnership){previous=rtcCamera;rtcCamera=null;}
         if (previous != null) {
             previous.stop();
             if (wait) previous.awaitStop();
@@ -457,7 +487,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
     }
 
     private void say(String text) {
-        ui.post(() -> {connectionStatus=text;restoreDeviceStatus();});
+        postSession(() -> {connectionStatus=text;restoreDeviceStatus();});
     }
 
     private void restoreDeviceStatus() {
@@ -536,7 +566,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
             boolean busy="loading".equals(event)||"playing".equals(event);
             if(!token.isEmpty()&&(current!=sentReport||(busy&&now-lastSent>5000)))try{
                 JSONObject response=playbackPost(token,event);sentReport=current;lastSent=now;
-                if(!busy){long seq=response.optLong("seq");ui.post(()->playbackGate.acknowledged(token,seq));}
+                if(!busy){long seq=response.optLong("seq");postSession(()->playbackGate.acknowledged(token,seq));}
             }catch(Exception ignored){}
             if(!running&&current==sentReport)break;
             try{Thread.sleep(500);}catch(InterruptedException ignored){}

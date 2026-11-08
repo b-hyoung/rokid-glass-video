@@ -13,7 +13,7 @@ export async function handleRecognition(req,u){
       const detections=forGlasses
         ?this.state.detections.filter(target=>!target.approximate&&!target.provisional)
         :this.state.detections;
-      return json({...this.state,detections,focusMissing:this.state.focusMissing||!!this.focus&&gap>750,dwellMs:DWELL_MS,epoch:this.epoch,version:this.version,targets:this.targets(),source:'glasses',playback:this.playback.current(),deviceHud:this.deviceHud&&Date.now()-this.deviceHud.at<2000?this.deviceHud:null,serverNow:Date.now(),guide:this.guide.read()});
+      return json({...this.state,detections,focusMissing:this.state.focusMissing||!!this.focus&&gap>750,dwellMs:DWELL_MS,epoch:this.epoch,instance:this.traceEpoch,version:this.version,targets:this.targets(),source:'glasses',playback:this.playback.current(),deviceHud:this.deviceHud&&Date.now()-this.deviceHud.at<2000?this.deviceHud:null,serverNow:Date.now(),guide:this.guide.read()});
     }
     if(p==='/recognition/control'&&req.method==='POST'){if(q.get('enabled')==='1'&&this.guide.read().enabled)return json({error:'등록 가이드를 끈 뒤 인식을 시작하세요.'},409);this.active=q.get('enabled')==='1';this.reset();return json({ok:true})}
     if(p==='/recognition/detections'&&req.method==='POST'){

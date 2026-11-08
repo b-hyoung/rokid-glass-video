@@ -41,12 +41,13 @@ final class RecognitionOverlay extends View {
         Path triangle=new Path();triangle.moveTo(left+6,cy-3);triangle.lineTo(left+6,cy+3);triangle.lineTo(left+10,cy);triangle.close();c.drawPath(triangle,paint);
         c.drawText(label,left+17,baseline,paint);
     }
-    void update(JSONObject value) {
+    void update(JSONObject value) {update(value,0);}
+    void update(JSONObject value,long transitMs) {
         state=value;guideUntil=0;stateReceivedAt=SystemClock.elapsedRealtime();
-        stateAge=value==null?0:Math.max(0,value.optLong("serverNow")-value.optLong("at"));
+        stateAge=value==null?0:Math.max(0,value.optLong("serverNow")-value.optLong("at")+transitMs);
         stateUntil=value==null?0:stateReceivedAt+Math.max(0,2200-stateAge);
         JSONObject guide=value==null?null:value.optJSONObject("guide");
-        if(guide!=null&&guide.optBoolean("enabled"))guideUntil=SystemClock.elapsedRealtime()+Math.max(0,Math.min(5000,guide.optLong("expiresAt")-value.optLong("serverNow")));
+        if(guide!=null&&guide.optBoolean("enabled"))guideUntil=SystemClock.elapsedRealtime()+Math.max(0,Math.min(5000,guide.optLong("expiresAt")-value.optLong("serverNow")-transitMs));
         invalidate();
     }
     private float number(JSONObject value,String key,float fallback) {
