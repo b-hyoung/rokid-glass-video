@@ -1,0 +1,174 @@
+{
+  "engine": "region-v14-fast-photo",
+  "method": "Same recorded camera-0.jpg, seven registered targets, headless Chrome / actual VisionClient Worker. Five reset-and-recognize trials; timing excludes camera capture and WAN display latency.",
+  "firstRecognitionMs": {
+    "before": [
+      590.8,
+      406.3,
+      427.4,
+      410.7,
+      415
+    ],
+    "after": [
+      74,
+      57.7,
+      68.4,
+      57.8,
+      63.8
+    ],
+    "meanBefore": 450.0,
+    "meanAfter": 64.3
+  },
+  "quality": {
+    "samples": 12,
+    "visible": 12,
+    "trackIds": 1,
+    "firstMs": 75.3,
+    "mixedFinal": 2,
+    "negativeGroups": [
+      {
+        "name": "blank",
+        "frames": 5,
+        "wrongIds": 0
+      },
+      {
+        "name": "unrelated",
+        "frames": 5,
+        "wrongIds": 0
+      },
+      {
+        "name": "other-title",
+        "frames": 5,
+        "wrongIds": 0
+      }
+    ]
+  },
+  "dwell": {
+    "playCommands": 1,
+    "key": "e",
+    "stableTrackIds": 1,
+    "progress": [
+      {
+        "index": 0,
+        "frameAge": 175,
+        "progress": 0,
+        "reason": "observed"
+      },
+      {
+        "index": 1,
+        "frameAge": 671,
+        "progress": 0.06,
+        "reason": "observed"
+      },
+      {
+        "index": 2,
+        "frameAge": 497,
+        "progress": 0.2,
+        "reason": "observed"
+      },
+      {
+        "index": 3,
+        "frameAge": 595,
+        "progress": 0.34,
+        "reason": "observed"
+      },
+      {
+        "index": 4,
+        "frameAge": 497,
+        "progress": 0.48,
+        "reason": "observed"
+      },
+      {
+        "index": 5,
+        "frameAge": 494,
+        "progress": 0.62,
+        "reason": "observed"
+      },
+      {
+        "index": 6,
+        "frameAge": 492,
+        "progress": 0.76,
+        "reason": "observed"
+      },
+      {
+        "index": 7,
+        "frameAge": 560,
+        "progress": 0.9,
+        "reason": "observed"
+      },
+      {
+        "index": 8,
+        "frameAge": 415,
+        "progress": 1,
+        "reason": "observed"
+      },
+      {
+        "index": 9,
+        "frameAge": 573,
+        "progress": 0,
+        "reason": "playback"
+      },
+      {
+        "index": 10,
+        "frameAge": 486,
+        "progress": 0,
+        "reason": "playback"
+      },
+      {
+        "index": 11,
+        "frameAge": 552,
+        "progress": 0,
+        "reason": "playback"
+      }
+    ],
+    "negativeGroups": [
+      {
+        "name": "blank",
+        "frames": 5,
+        "wrongIds": 0
+      },
+      {
+        "name": "unrelated",
+        "frames": 5,
+        "wrongIds": 0
+      },
+      {
+        "name": "other-title",
+        "frames": 5,
+        "wrongIds": 0
+      }
+    ],
+    "mixedTargets": 2
+  },
+  "legacy": {
+    "samples": 36,
+    "visible": 36,
+    "newPhotoFalsePositives": 0
+  },
+  "tests": {
+    "passed": 72,
+    "failed": 0
+  },
+  "unchangedAcceptance": {
+    "uniqueMatches": 12,
+    "ransacInliers": 10,
+    "inlierRatio": 0.45,
+    "distanceRatio": 0.72,
+    "dwellMs": 2500
+  },
+  "notes": [
+    "Photo identity is verified against current pixels each time; cached references affect order only.",
+    "The first new photo result defers unrelated searches once; subsequent scans resume other targets.",
+    "A failed photo search still searches other targets in the same scan.",
+    "Raw camera and real glasses latency are not measured by this replay."
+  ],
+  "deployment": {
+    "url": "https://glass-2412.youqlrqod.workers.dev",
+    "version": "8097de1b-a1c3-401a-bc00-ef144c9f21a3",
+    "engine": "region-v14-fast-photo",
+    "assetHashesMatch": true,
+    "targetsPreserved": 7,
+    "imagesPreserved": 45,
+    "videosPreserved": true
+  }
+}

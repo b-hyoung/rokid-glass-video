@@ -27,9 +27,9 @@ def main():
     output.mkdir(exist_ok=True)
     version = ET.parse(ROOT/'AndroidManifest.xml').getroot().get('{http://schemas.android.com/apk/res/android}versionName')
     apk = output / f'glass-video-{version}.apk'
-    jars = dependencies(output)
     with tempfile.TemporaryDirectory(prefix='android-', dir=output) as work:
         w = Path(work)
+        jars = dependencies(output, w)
         for d in ['gen', 'classes', 'dex']:
             (w / d).mkdir()
         shutil.copytree(ROOT / 'res', w / 'res')
@@ -40,14 +40,17 @@ def main():
             if var in os.environ:
                 tree.find(f'.//string[@name="{name}"]').text = os.environ[var]
         tree.write(strings, encoding='utf-8', xml_declaration=True)
-        run([tool('aapt2'), 'compile', '--dir', w/'res', '-o', w/'res.zip'])
-        run([tool('aapt2'), 'link', '-o', w/'unsigned.apk', '-I', jar, '--manifest', ROOT/'AndroidManifest.xml', '--java', w/'gen', '--min-sdk-version', '29', '--target-sdk-version', '32', '-0', 'mp4', w/'res.zip'])
+        shutil.copy2(ROOT/'AndroidManifest.xml', w)
+        # Windows SDK native tools can fail on non-ASCII absolute workspace paths.
+        run([tool('aapt2'), 'compile', '--dir', 'res', '-o', 'res.zip'], cwd=w)
+        run([tool('aapt2'), 'link', '-o', 'unsigned.apk', '-I', jar, '--manifest', 'AndroidManifest.xml', '--java', 'gen', '--min-sdk-version', '29', '--target-sdk-version', '32', '-0', 'mp4', 'res.zip'], cwd=w)
         sources = list((ROOT/'src').rglob('*.java')) + list((w/'gen').rglob('*.java'))
         run(['javac','-encoding','UTF-8','--release','11','-classpath',os.pathsep.join(str(x) for x in [jar,*jars]),'-d',w/'classes',*sources])
         run([tool('d8'),'--release','--min-api','29','--lib',jar,'--output',w/'dex',*list((w/'classes').rglob('*.class')),*jars])
-        run(['jar','uf',w/'unsigned.apk','classes.dex'], cwd=w/'dex')
+        run(['jar','uf',w/'unsigned.apk',*[p.name for p in (w/'dex').glob('classes*.dex')]], cwd=w/'dex')
+        run(['jar','uf',w/'unsigned.apk','lib'], cwd=w)
         run(['jar','uf',w/'unsigned.apk','THIRD_PARTY_NOTICES.txt'], cwd=ROOT)
-        run([tool('zipalign'),'-f','-p','4',w/'unsigned.apk',w/'aligned.apk'])
+        run([tool('zipalign'),'-f','-p','4','unsigned.apk','aligned.apk'], cwd=w)
         key = Path(os.environ.get('ANDROID_KEYSTORE', str(Path.home()/'.android/debug.keystore')))
         if not key.exists():
             raise SystemExit('Existing signing keystore required; set ANDROID_KEYSTORE')

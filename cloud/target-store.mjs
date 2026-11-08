@@ -41,7 +41,7 @@ export class TargetStore {
     });
     return id;
   }
-  saveVectors({targetId, name, key, pack}) {
+  saveVectors({targetId, name, key, pack, images=[]}) {
     return this.storage.transactionSync(() => {
       if (!targetId) {
         if (this.list().length >= MAX_TARGETS) throw Error(`대상은 최대 ${MAX_TARGETS}개까지 등록할 수 있습니다.`);
@@ -50,6 +50,7 @@ export class TargetStore {
       }
       if (!this.get(targetId)) throw Error('대상을 찾을 수 없습니다.');
       this.sql.exec('INSERT OR REPLACE INTO target_vectors VALUES (?,?)', targetId, JSON.stringify(pack));
+      for (const image of images) this.addImage(targetId, image);
       return targetId;
     });
   }

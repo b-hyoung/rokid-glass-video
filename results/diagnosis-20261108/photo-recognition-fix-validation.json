@@ -1,0 +1,153 @@
+{
+  "engine": "region-v13-photo",
+  "recording": "녹음 2026-11-08 195527.mp4",
+  "method": "Recorded screen camera region reconstructed at 540x960; browser VisionClient with all seven saved targets, sampled at 650ms. Not a live glasses test.",
+  "recordedSamples": {
+    "count": 12,
+    "beforeVisible": 0,
+    "afterVisible": 12,
+    "heldSamples": 0,
+    "trackIds": 1,
+    "processingMs": [
+      610.1,
+      355.8,
+      582.2,
+      437,
+      531.1,
+      336.7,
+      517.1,
+      438.1,
+      405.9,
+      446.3,
+      518,
+      437.6
+    ]
+  },
+  "dwell": {
+    "playCommands": 1,
+    "key": "e",
+    "stableTrackIds": 1,
+    "progress": [
+      {
+        "index": 0,
+        "frameAge": 710,
+        "progress": 0,
+        "reason": "observed"
+      },
+      {
+        "index": 1,
+        "frameAge": 456,
+        "progress": 0.14,
+        "reason": "observed"
+      },
+      {
+        "index": 2,
+        "frameAge": 682,
+        "progress": 0.2,
+        "reason": "observed"
+      },
+      {
+        "index": 3,
+        "frameAge": 537,
+        "progress": 0.34,
+        "reason": "observed"
+      },
+      {
+        "index": 4,
+        "frameAge": 631,
+        "progress": 0.48,
+        "reason": "observed"
+      },
+      {
+        "index": 5,
+        "frameAge": 437,
+        "progress": 0.62,
+        "reason": "observed"
+      },
+      {
+        "index": 6,
+        "frameAge": 617,
+        "progress": 0.68,
+        "reason": "observed"
+      },
+      {
+        "index": 7,
+        "frameAge": 538,
+        "progress": 0.82,
+        "reason": "observed"
+      },
+      {
+        "index": 8,
+        "frameAge": 506,
+        "progress": 0.96,
+        "reason": "observed"
+      },
+      {
+        "index": 9,
+        "frameAge": 546,
+        "progress": 1,
+        "reason": "observed"
+      },
+      {
+        "index": 10,
+        "frameAge": 618,
+        "progress": 0,
+        "reason": "playback"
+      },
+      {
+        "index": 11,
+        "frameAge": 538,
+        "progress": 0,
+        "reason": "playback"
+      }
+    ],
+    "negativeGroups": [
+      {
+        "name": "blank",
+        "frames": 5,
+        "wrongIds": 0
+      },
+      {
+        "name": "unrelated",
+        "frames": 5,
+        "wrongIds": 0
+      },
+      {
+        "name": "other-title",
+        "frames": 5,
+        "wrongIds": 0
+      }
+    ],
+    "mixedTargets": 2
+  },
+  "legacyReplay": {
+    "samples": 36,
+    "beforeVisible": 36,
+    "afterVisible": 36,
+    "newPhotoFalsePositives": 0,
+    "meanMsBefore": 354.2,
+    "meanMsAfter": 474.1
+  },
+  "nodeTests": {
+    "passed": 68,
+    "failed": 0
+  },
+  "limitations": [
+    "Recording frames are recompressed screenshots rather than source camera frames.",
+    "Blank/unrelated/alternative title controls and two-photo composition are synthetic scene edits.",
+    "Automatic MobileNet vector generation is not enabled; the photo ORB matching route is improved.",
+    "Glasses live performance and longer network delay remain to be checked on the device."
+  ],
+  "deployment": {
+    "url": "https://glass-2412.youqlrqod.workers.dev",
+    "version": "f6523339-80db-4dcc-a5ab-11672c70c694",
+    "engine": "region-v13-photo",
+    "assetsSha256Match": true,
+    "targetsPreserved": 7,
+    "imagesPreserved": 45,
+    "videoEntriesPreserved": [
+      "찬영",
+      "승민"
+    ]
+  }
+}

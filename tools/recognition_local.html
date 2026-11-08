@@ -1,0 +1,133 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><title>로컬 벡터 인식 시험</title>
+<style>
+body{font:16px system-ui;max-width:850px;margin:32px auto;padding:0 16px} section{margin:24px 0} video,canvas{max-width:100%;max-height:48vh;background:#eee} button,input,select{margin:5px;padding:7px}.aim{position:relative;width:fit-content}.aim::after{content:"+";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:#76ff84;font-size:26px;pointer-events:none}
+</style>
+<h1>등록 영상으로 물체 인식 시험</h1>
+<section>
+<h2>대상 등록</h2>
+<input id="name" placeholder="대상 이름"><select id="video-key"></select><input id="file" type="file" accept="video/*">
+<p>영상을 멈춘 뒤 물체 영역을 드래그하세요. 각도를 바꿔 최대 12장을 추가할 수 있습니다.</p>
+<video id="source" controls muted playsinline></video><br>
+<button id="snapshot">현재 장면 선택</button><canvas id="crop"></canvas><br>
+<button id="add">선택 영역 추가</button><button id="clear">선택 목록 비우기</button><button id="register">벡터 저장</button>
+<p id="registered" role="status"></p>
+</section>
+<section>
+<h2>안경 영상 인식과 PC 재생</h2>
+<p>제어 웹에서 안경 촬영을 시작한 후 연결하세요. 기기를 조준점에 두면 약 1.5초 유지 후 PC에서 영상을 재생합니다.</p>
+<button id="connect">안경 영상 연결</button><button id="disconnect">연결 종료</button>
+<div class="aim"><canvas id="live" width="360" height="640"></canvas></div>
+<p id="status" role="status">연결 대기</p>
+<video id="result" controls muted playsinline></video>
+</section>
+<script type="module">
+import { GlassDecoder } from '/cloud/decoder.js';
+import { unpack } from '/cloud/stream-protocol.mjs';
+const $ = id => document.getElementById(id);
+const source = $('source'), crop = $('crop'), live = $('live'), result = $('result');
+const snapshot = document.createElement('canvas');
+let images = [], selection, drag, fileUrl, ws, decoder, latest = 0, rendered = 0;
+let focus = null, focusAt = 0, played = null, pending = false;
+const videos = await (await fetch('/videos')).json();
+for (const [key, value] of Object.entries(videos)) $('video-key').add(new Option(value.title, key));
+async function post(path, data) {
+  const response = await fetch(path, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)});
+  if (!response.ok && !response.headers.get('Content-Type')?.includes('json')) throw Error('HTTP '+response.status);
+  const body = await response.json();
+  if (!response.ok) throw Error(body.error);
+  return body;
+}
+$('file').onchange = () => {
+  if (!($('file').files[0])) return;
+  if (fileUrl) URL.revokeObjectURL(fileUrl);
+  source.src = fileUrl = URL.createObjectURL($('file').files[0]);
+};
+$('snapshot').onclick = () => {
+  if (!source.videoWidth) return;
+  source.pause();
+  snapshot.width = crop.width = Math.min(source.videoWidth, 960);
+  snapshot.height = crop.height = Math.round(snapshot.width * source.videoHeight/source.videoWidth);
+  snapshot.getContext('2d').drawImage(source,0,0,crop.width,crop.height);
+  crop.getContext('2d').drawImage(snapshot,0,0);
+  selection = null;
+};
+const point = e => {
+  const r = crop.getBoundingClientRect();
+  return [Math.max(0,Math.min(crop.width,(e.clientX-r.left)*crop.width/r.width)),
+          Math.max(0,Math.min(crop.height,(e.clientY-r.top)*crop.height/r.height))];
+};
+crop.onpointerdown = e => { if(snapshot.width !== crop.width) return; drag=point(e); crop.setPointerCapture(e.pointerId); };
+crop.onpointermove = e => {
+  if (!drag) return;
+  const [x,y]=point(e), [u,v]=drag;
+  selection=[Math.min(x,u),Math.min(y,v),Math.abs(x-u),Math.abs(y-v)];
+  const g=crop.getContext('2d'); g.drawImage(snapshot,0,0); g.strokeStyle='#76ff84';g.lineWidth=3;g.strokeRect(...selection);
+};
+crop.onpointerup = crop.onpointercancel = () => { drag=null; };
+$('add').onclick = () => {
+  if (!selection || selection[2]<16 || selection[3]<16 || images.length>=12) return;
+  const c=document.createElement('canvas');
+  c.width=selection[2];c.height=selection[3];
+  c.getContext('2d').drawImage(snapshot,...selection,0,0,c.width,c.height);
+  images.push(c.toDataURL('image/jpeg',.9).split(',')[1]);
+  $('registered').textContent=images.length+'장 선택됨';
+};
+$('clear').onclick = () => { images=[]; $('registered').textContent='선택 목록을 비웠습니다.'; };
+$('register').onclick = async () => {
+  const button=$('register'); button.disabled=true;
+  try {
+    const data=await post('/register',{name:$('name').value,key:$('video-key').value,images});
+    images=[]; $('registered').textContent=data.name+' · '+data.references+'장 저장';
+  } catch(e) { $('registered').textContent=e.message; }
+  finally { button.disabled=false; }
+};
+function disconnect() {
+  const old=ws; ws=null; old?.close(); decoder?.reset();
+  focus=played=null; latest=rendered=0; result.pause();
+  live.getContext('2d').clearRect(0,0,live.width,live.height);
+  $('status').textContent='연결 종료';
+}
+$('disconnect').onclick=disconnect;
+$('connect').onclick=()=>{
+  disconnect();
+  if (!globalThis.VideoDecoder) { $('status').textContent='이 브라우저는 WebCodecs를 지원하지 않습니다.';return; }
+  const socket=ws=new WebSocket('wss://glass-2412.youqlrqod.workers.dev/cam/ws?binary=1');
+  socket.binaryType='arraybuffer';
+  const decode=decoder=new GlassDecoder(frame=>{
+    const scale=Math.min(1,640/Math.max(frame.displayWidth,frame.displayHeight));
+    live.width=Math.round(frame.displayHeight*scale);live.height=Math.round(frame.displayWidth*scale);
+    const g=live.getContext('2d');g.translate(0,live.height);g.rotate(-Math.PI/2);
+    g.drawImage(frame,0,0,live.height,live.width); latest=performance.now();
+  },e=>{$('status').textContent=e.message;});
+  socket.onopen=()=>{if(ws===socket)socket.send(JSON.stringify({keyframe:true}));};
+  socket.onmessage=({data})=>{
+    if(ws!==socket || !(data instanceof ArrayBuffer)) return;
+    const {meta,bytes}=unpack(data);
+    if(Number.isSafeInteger(meta.n))socket.send(JSON.stringify({ack:meta.n}));
+    if(meta.kind==='h264')decode.push({...meta,bytes});
+  };
+  socket.onclose=()=>{if(ws===socket)disconnect();};
+  $('status').textContent='새 영상 대기';
+};
+setInterval(async()=>{
+  const now=performance.now();
+  if(!ws || !latest || now-latest>650 || document.hidden) {focus=null;return;}
+  if(pending || rendered===latest) return;
+  rendered=latest;
+  const socket=ws, sampled=latest;
+  pending=true;
+  try{
+    const {winner,scores}=await post('/score',{image:live.toDataURL('image/jpeg',.85).split(',')[1]});
+    if(ws!==socket || performance.now()-sampled>1000)return;
+    const name=winner?.name??null;
+    if(focus!==name){focus=name;focusAt=sampled;}
+    $('status').textContent=(name??'미확인')+' · '+scores.map(s=>s.name+' '+s.score.toFixed(3)).join(' / ');
+    if(!name && result.paused)played=null;
+    if(name && played!==name && sampled-focusAt>=1500 && result.paused){
+      result.src='/video/'+encodeURIComponent(winner.key);
+      await result.play();played=name;
+    }
+  }catch(e){focus=null;$('status').textContent=e.message;}
+  finally{pending=false;}
+},250);
+</script></html>

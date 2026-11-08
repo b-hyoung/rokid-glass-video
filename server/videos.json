@@ -36,5 +36,13 @@
     "loop": true,
     "src": "visionpro_layout.mp4",
     "intro": "scan"
+  },
+  "j": {
+    "title": "찬영",
+    "file": "chanyoung.mp4"
+  },
+  "s": {
+    "title": "승민",
+    "file": "seungmin.mp4"
   }
 }

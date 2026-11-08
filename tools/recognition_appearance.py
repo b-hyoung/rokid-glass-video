@@ -41,7 +41,7 @@ def main():
     parser.add_argument('action', choices=['register-video', 'extract', 'compare'])
     parser.add_argument('bank', type=Path)
     parser.add_argument('image', nargs='?', type=Path)
-    parser.add_argument('--web-vectors', type=Path, help='Write one importable JSON per target')
+    parser.add_argument('--web-vectors', type=Path, help='Export one importable folder with vectors and photos per target')
     parser.add_argument('--export-model', type=Path, help='Export the browser ONNX model')
     parser.add_argument('--config', type=Path, help='Registration video and selected views JSON')
     args = parser.parse_args()
@@ -79,14 +79,21 @@ def main():
         torch.save(features, store)
         if args.web_vectors:
             args.web_vectors.mkdir(parents=True, exist_ok=True)
-            for index, (name, vectors) in enumerate(features.items(), 1):
+            for index, target in enumerate(targets, 1):
+                name = target['id']
+                vectors = features[name]
                 if len(vectors) > 16:
                     raise ValueError(f'{name}: 웹 등록에는 참조를 16장 이하로 선택하세요.')
                 pack = {'model': MODEL_ID, 'target': name,
                         'vectors': [[round(value, 7) for value in vector] for vector in vectors.tolist()]}
-                path = args.web_vectors / f'target-{index:02d}.json'
+                folder = args.web_vectors / f'target-{index:02d}'
+                folder.mkdir(exist_ok=True)
+                path = folder / 'vectors.json'
                 path.write_text(json.dumps(pack, ensure_ascii=False, separators=(',', ':')), encoding='utf8')
-                print(f'{name}: {path}')
+                for number, view in enumerate(target['views'], 1):
+                    with Image.open(args.bank / view['file']) as image:
+                        image.convert('RGB').save(folder / f'photo-{number:02d}.jpg', quality=95)
+                print(f'{name}: {folder}')
         print(json.dumps({key: list(value.shape) for key, value in features.items()}))
         return
 

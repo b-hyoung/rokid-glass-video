@@ -11,15 +11,154 @@ function room(){
  const r=new GlassRoom(ctx,env);const request=async(path,data,method)=>{const response=await r.fetch(new Request('https://example.test'+path,{method:method||(data?'POST':'GET'),body:data?JSON.stringify(data):undefined}));return response.json()};return {r,request,storage,db};
 }
 test('existing app long polling receives camera and playback commands in order',async()=>{const {request}=room();const first=await request('/next?id=test');const waiting=request('/next?id=test&after='+first.seq);await request('/cam/set?mode=video&fps=30&sec=0');const camera=await waiting;assert.equal(camera.cmd,'cam');assert.equal(camera.mode,'video');await request('/play?key=e');const play=await request('/next?id=test&after='+camera.seq);assert.equal(play.key,'e');assert.equal(play.url,'/v/majubom_box.mp4')});
+test('short recognition gaps keep a box and pause dwell without transferring it to a different object',async()=>{
+ const {r,request}=room(),image='data:image/jpeg;base64,/9j/';
+ const a=await request('/recognition/targets',{name:'Bag',key:'e',image});
+ const b=await request('/recognition/targets',{name:'Car',key:'v',image});
+ const corners=[[.35,.35],[.65,.35],[.65,.65],[.35,.65]];
+ const report=(found,sceneStable=true)=>request('/recognition/detections',{epoch:r.epoch,at:Date.now(),found,sceneStable});
+ const bag={id:a.targetId,corners},car={id:b.targetId,corners};
+ await request('/recognition/control?enabled=1',{},'POST');
+ await report([bag]);
+ r.focusAt-=1000;
+ await report([bag]);
+ const progress=r.state.progress;
+ r.lastResult-=800;
+ await report([]);
+ assert.equal(r.state.detections[0].held,true);
+ assert.equal(r.state.focusMissing,true);
+ assert.equal(r.state.progress,progress);
+ await report([bag]);
+ assert.ok(Math.abs(r.state.progress-progress)<.01);
+ await report([car]);
+ assert.deepEqual(r.state.detections.map(t=>t.id),[b.targetId]);
+ assert.equal(r.state.focused,b.targetId);
+ assert.equal(r.state.progress,0);
+ await report([],false);
+ assert.equal(r.state.detections.length,0);
+ assert.equal(r.commands.length,0);
+});
+test('paused dwell resumes only for the same track within its lease',async()=>{
+ const {r,request}=room(),image='data:image/jpeg;base64,/9j/';
+ const target=await request('/recognition/targets',{name:'Bag',key:'e',image});
+ const bag={id:target.targetId,trackId:'track-a',corners:[[.35,.35],[.65,.35],[.65,.65],[.35,.65]]};
+ const report=found=>request('/recognition/detections',{epoch:r.epoch,at:Date.now(),found});
+ await request('/recognition/control?enabled=1',{},'POST');
+ await report([bag]);
+ r.focusAt-=1200;
+ await report([bag]);
+ const progress=r.state.progress;
+ await report([]);
+ r.state.focusMissingAt-=1800;
+ r.lastResult-=1800;
+ const status=await request('/recognition/status');
+ assert.equal(status.focusMissing,true);
+ assert.equal(status.focused,target.targetId);
+ await report([bag]);
+ assert.ok(r.state.progress>=progress&&r.state.progress<=progress+.06);
+ assert.equal(r.state.focusMode,'advancing');
+ await report([]);
+ await report([{...bag,trackId:'track-b'}]);
+ assert.equal(r.state.progress,0);
+ assert.equal(r.state.focusTrackId,'track-b');
+ r.focusAt-=700;
+ await report([{...bag,trackId:'track-b'}]);
+ await report([]);
+ r.state.focusMissingAt-=2600;
+ await report([{...bag,trackId:'track-b'}]);
+ assert.equal(r.state.progress,0);
+ assert.equal(r.commands.length,0);
+});
+
+test('alternating live and held results must accumulate only short live observations',async()=>{
+ const original=Date.now;
+ let now=200000;
+ Date.now=()=>now;
+ try{
+  const {r,request}=room();
+  const target=await request('/recognition/targets',{name:'Bag',key:'e',image:'data:image/jpeg;base64,/9j/'});
+  await request('/recognition/control?enabled=1',{},'POST');
+  const bag={id:target.targetId,trackId:'stable',corners:[[.35,.35],[.65,.35],[.65,.65],[.35,.65]]};
+  const report=held=>request('/recognition/detections',{epoch:r.epoch,at:now,found:[{...bag,held}]});
+  await report(false);
+  for(let i=0;i<4;i++){
+   now+=200;await report(true);
+   now+=200;await report(false);
+  }
+  assert.ok(r.state.progress>0,'every resumed result previously pinned progress back to zero');
+  assert.ok(r.state.progress<=.25,'missing time must not all become dwell');
+  assert.equal(r.commands.length,0);
+  for(let i=0;i<20&&!r.commands.length;i++){
+   const previous=r.state.progress;
+   now+=200;await report(true);
+   assert.equal(r.state.progress,previous);
+   now+=200;await report(false);
+  }
+  assert.equal(r.commands.at(-1)?.key,'e','intermittent confirmed observations eventually complete dwell');
+ }finally{Date.now=original}
+});
+test('650ms recognition samples with one stable track complete dwell without resetting',async()=>{
+ const original=Date.now;
+ let now=300000;
+ Date.now=()=>now;
+ try{
+  const {r,request}=room();
+  const target=await request('/recognition/targets',{name:'Car',key:'e',image:'data:image/jpeg;base64,/9j/'});
+  await request('/recognition/control?enabled=1',{},'POST');
+  const detection={id:target.targetId,trackId:'continuous',corners:[[.35,.35],[.65,.35],[.65,.65],[.35,.65]]};
+  let progress=0;
+  for(let i=0;i<12&&!r.commands.length;i++){
+   await request('/recognition/detections',{epoch:r.epoch,at:now-470,found:[detection]});
+   assert.ok(r.state.progress>=progress);
+   progress=r.state.progress;
+   now+=650;
+  }
+  assert.equal(r.commands.at(-1)?.key,'e');
+ }finally{Date.now=original}
+});
+
+test('WebRTC capture routes signaling only within the active session and leaves video recovery to its peers',async()=>{
+ const {r,request}=room();
+ const first=await request('/next?id=test');
+ const {test:session}=await request('/cam/set?mode=video&fps=30&transport=webrtc');
+ const command=await request('/next?id=test&after='+first.seq);
+ assert.equal(command.transport,'webrtc');
+ const peer=(role,test=session)=>({
+   readyState:1,messages:[],
+   deserializeAttachment:()=>({role,test}),
+   send(message){this.messages.push(JSON.parse(message))},
+   close(){this.readyState=3}
+ });
+ const device=peer('rtc-device'),viewer=peer('rtc-viewer'),stale=peer('rtc-viewer',session-1);
+ r.ctx.getWebSockets=()=>[device,viewer,stale];
+ const offer={type:'offer',id:'offer-1',sdp:'v=0'};
+ const answer={type:'answer',id:'offer-1',sdp:'v=0'};
+ r.webSocketMessage(stale,JSON.stringify(offer));
+ r.webSocketMessage(viewer,JSON.stringify(answer));
+ r.webSocketMessage(viewer,new ArrayBuffer(8));
+ assert.deepEqual(device.messages,[]);
+ r.webSocketMessage(viewer,JSON.stringify(offer));
+ r.webSocketMessage(device,JSON.stringify(answer));
+ assert.deepEqual(device.messages,[offer]);
+ assert.deepEqual(viewer.messages,[answer]);
+ assert.equal(r.viewers().length,0);
+ assert.equal(r.stream(new Uint8Array([0,0,0,1]),{test:session,transport:'http'}),false);
+ r.test.cmdAt=0;
+ r.recoverCamera();
+ assert.equal(r.test.test,session);
+ await request('/cam/set?fps=0');
+ assert.equal(viewer.readyState,3);
+ assert.equal(device.readyState,3);
+});
 test('two visible targets, center dwell, switch, stale result and deletion',async()=>{const {r,request}=room();const image='data:image/jpeg;base64,/9j/';await request('/recognition/targets',{name:'판넬',key:'e',image});await request('/recognition/targets',{name:'VR',key:'v',image});let status=await request('/recognition/status');const [a,b]=status.targets;
 await request('/recognition/control?enabled=1',{},'POST');status=await request('/recognition/status');const center=[[.3,.3],[.7,.3],[.7,.7],[.3,.7]],side=[[.05,.1],[.2,.1],[.2,.3],[.05,.3]];
 let found=[{id:a.id,corners:center,inliers:25},{id:b.id,corners:side,inliers:20}];await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found});assert.equal(r.state.detections.length,2);assert.equal(r.state.focused,a.id);assert.equal(r.commands.length,0);
-r.focusAt-=1600;await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found});assert.equal(r.commands.at(-1).key,'e');const n=r.commands.length;await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found});assert.equal(r.commands.length,n);
-found=[{id:a.id,corners:side,inliers:25},{id:b.id,corners:center,inliers:20}];await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found});r.focusAt-=1600;await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found});assert.equal(r.commands.at(-1).key,'e');assert.equal(r.commands.length,n);
+r.focusAt-=2600;await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found});assert.equal(r.commands.at(-1).key,'e');const n=r.commands.length;await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found});assert.equal(r.commands.length,n);
+found=[{id:a.id,corners:side,inliers:25},{id:b.id,corners:center,inliers:20}];await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found});r.focusAt-=2600;await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found});assert.equal(r.commands.at(-1).key,'e');assert.equal(r.commands.length,n);
 const playing=r.playback.current();await request('/recognition/playback',{id:playing.id,event:'stopped'});
-await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found});r.focusAt-=1600;await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found});assert.equal(r.commands.length,0);
+await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found});r.focusAt-=2600;await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found});assert.equal(r.commands.length,0);
 await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found:[]});
-await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found});r.focusAt-=1600;await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found});assert.equal(r.commands.at(-1).key,'v');
+await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found});r.focusAt-=2600;await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found});assert.equal(r.commands.at(-1).key,'v');
 assert.equal((await request('/recognition/detections',{epoch:status.epoch,at:Date.now()-5000,found})).stale,true);
 await request('/recognition/targets?id='+a.id,null,'DELETE');assert.equal((await request('/recognition/status')).targets.length,1);assert.equal(r.state.detections.length,0);
 });
@@ -53,7 +192,7 @@ test('two matched views of one object keep one box and one playback identity',as
  await request('/recognition/control?enabled=1',{},'POST');const epoch=r.epoch,corners=[[.3,.3],[.7,.3],[.7,.7],[.3,.7]];
  const post=found=>request('/recognition/detections',{at:Date.now(),epoch,found});
  await post([{id:a.targetId,corners,inliers:12},{id:a.targetId,corners,inliers:24}]);assert.equal(r.state.detections.length,1);assert.equal(r.state.detections[0].inliers,24);
- r.focusAt-=1600;await post([{id:a.targetId,corners,inliers:18}]);assert.equal(r.commands.length,1);
+ r.focusAt-=2600;await post([{id:a.targetId,corners,inliers:18}]);assert.equal(r.commands.length,1);
  await post([{id:a.targetId,corners,inliers:35}]);assert.equal(r.commands.length,1);assert.equal(r.state.locked,a.targetId);
 });
 
@@ -178,7 +317,7 @@ test('guide suppresses playback and calibrated camera center drives dwell after 
  assert.match((await request('/recognition/control?enabled=1',{})).error,/가이드/);
  assert.equal((await request('/recognition/detections',{at:Date.now(),epoch:r.epoch,found:[]})).stale,true);
  await request('/recognition/guide',{owner:'a',enabled:false});await request('/recognition/control?enabled=1',{});
- const found=[{id:target.targetId,inliers:20,corners:[[.65,.2],[.85,.2],[.85,.4],[.65,.4]]}];await request('/recognition/detections',{at:Date.now(),epoch:r.epoch,found});assert.equal(r.state.focused,target.targetId);r.focusAt-=1600;await request('/recognition/detections',{at:Date.now(),epoch:r.epoch,found});assert.equal(r.commands.at(-1).key,'e');
+ const found=[{id:target.targetId,inliers:20,corners:[[.65,.2],[.85,.2],[.85,.4],[.65,.4]]}];await request('/recognition/detections',{at:Date.now(),epoch:r.epoch,found});assert.equal(r.state.focused,target.targetId);r.focusAt-=2600;await request('/recognition/detections',{at:Date.now(),epoch:r.epoch,found});assert.equal(r.commands.at(-1).key,'e');
 });
 
 test('video batches are atomic, retry-safe, capped and preserve original images',async()=>{
@@ -195,10 +334,31 @@ test('video batches are atomic, retry-safe, capped and preserve original images'
  assert.equal(storage.sql.exec('SELECT COUNT(*) AS n FROM target_batches').toArray()[0].n,0);
 });
 
+test('external photos register without glasses or vectors and retry without duplicates',async()=>{
+ const {r,request}=room(),image='data:image/jpeg;base64,/9j/';
+ const batch={name:'외부 사진 대상',key:'e',batchId:'photo-batch-001',images:[
+  {image,capture:{source:'photo',filename:'정면.png'}},
+  {image,capture:{source:'photo',filename:'측면.webp'}}
+ ]};
+ const created=await request('/recognition/images/batch',batch);
+ assert.equal(created.count,2);
+ assert.deepEqual(await request('/recognition/images/batch',batch),created);
+ let target=r.store.list(true)[0];
+ assert.equal(target.name,batch.name);assert.equal(target.key,'e');
+ assert.equal(target.appearance,null);assert.equal(target.images.length,2);
+ assert.deepEqual(target.images.map(i=>i.capture).sort((a,b)=>a.filename.localeCompare(b.filename)),batch.images.map(i=>i.capture).sort((a,b)=>a.filename.localeCompare(b.filename)));
+ await request('/recognition/images/batch',{targetId:created.targetId,batchId:'photo-batch-002',images:[batch.images[0]]});
+ target=r.store.list(true)[0];
+ assert.equal(target.images.length,3);assert.equal(r.store.list().length,1);
+ assert.equal(r.test,null);assert.equal(r.commands.length,0);
+ const invalid=await request('/recognition/images/batch',{...batch,batchId:'photo-batch-003',images:[batch.images[0],{image:'bad'}]});
+ assert.ok(invalid.error);assert.equal(r.store.list(true)[0].images.length,3);
+});
+
 test('optical flow without a recent identity match cannot trigger playback',async()=>{
  const {r,request}=room(),image='data:image/jpeg;base64,/9j/';const target=await request('/recognition/targets',{name:'상자',key:'e',image});await request('/recognition/control?enabled=1',{});
  const detection={id:target.targetId,inliers:20,corners:[[.3,.3],[.7,.3],[.7,.7],[.3,.7]],matchedAt:Date.now()-1400};
- await request('/recognition/detections',{at:Date.now(),epoch:r.epoch,found:[detection]});r.focusAt-=1600;
+ await request('/recognition/detections',{at:Date.now(),epoch:r.epoch,found:[detection]});r.focusAt-=2600;
  await request('/recognition/detections',{at:Date.now(),epoch:r.epoch,found:[detection]});assert.equal(r.commands.length,0);
  await request('/recognition/detections',{at:Date.now(),epoch:r.epoch,found:[{...detection,matchedAt:Date.now()}]});assert.equal(r.commands.at(-1).key,'e');
 });
@@ -242,10 +402,10 @@ test('loading and loop playback stay locked; stale completions cannot unlock a m
 test('concurrent dwell requests issue one video and a stop during video lookup cancels autoplay',async()=>{
  const {r,request}=room();const t=await request('/recognition/targets',{name:'상자',key:'e',image:'data:image/jpeg;base64,/9j/'});await request('/recognition/control?enabled=1',{});
  const payload=()=>({epoch:r.epoch,at:Date.now(),found:[{id:t.targetId,corners:[[.3,.3],[.7,.3],[.7,.7],[.3,.7]],inliers:25}]});
- await request('/recognition/detections',payload());r.focusAt-=1600;
+ await request('/recognition/detections',payload());r.focusAt-=2600;
  await Promise.all([request('/recognition/detections',payload()),request('/recognition/detections',payload())]);assert.equal(r.commands.filter(x=>x.cmd==='play').length,1);
  await request('/stop');await request('/recognition/detections',{epoch:r.epoch,at:Date.now(),found:[]});r.locked=null;
- await request('/recognition/detections',payload());r.focusAt-=1600;
+ await request('/recognition/detections',payload());r.focusAt-=2600;
  let release;r.env.ASSETS.fetch=()=>new Promise(resolve=>{release=()=>resolve(Response.json({e:{title:'영상',file:'e.mp4'}}))});
  const pending=request('/recognition/detections',payload());while(!release)await new Promise(resolve=>setImmediate(resolve));
  await request('/stop');release();await pending;assert.equal(r.commands.filter(x=>x.cmd==='play').length,0);
@@ -272,6 +432,22 @@ test('HUD metadata is independent of camera delivery, acknowledged and bounded f
  post(20);assert.equal(r.deviceHud.seq,21);
  r.webSocketMessage(cameraViewer,JSON.stringify({seq:100,mode:'recognition',visible:true,objects:[]}));assert.equal(r.deviceHud.seq,21);
  r.deviceHud.at-=2300;assert.equal((await request('/recognition/status')).deviceHud,null);
+ await request('/play?key=e');
+ const playbackId=r.commands.at(-1).playbackId;
+ const report=(seq,mode,id)=>r.webSocketMessage(device,JSON.stringify({seq,mode,visible:true,playbackId:id,media:{url:'/fake.mp4'}}));
+ r.webSocketMessage(hud,JSON.stringify({ack:21}));
+ report(22,'loading',playbackId);
+ assert.equal(JSON.parse(hud.messages.at(-1)).media,undefined);
+ r.webSocketMessage(hud,JSON.stringify({ack:22}));
+ report(23,'playback','old-id');
+ assert.equal(JSON.parse(hud.messages.at(-1)).media,undefined);
+ r.webSocketMessage(hud,JSON.stringify({ack:23}));
+ report(24,'playback',playbackId);
+ assert.equal(JSON.parse(hud.messages.at(-1)).media.url,r.commands.at(-1).url);
+ await request('/stop');
+ r.webSocketMessage(hud,JSON.stringify({ack:24}));
+ report(25,'playback',playbackId);
+ assert.equal(JSON.parse(hud.messages.at(-1)).media,undefined);
 });
 
 test('server trace retains metadata without video and exposes cursor loss and epoch reset',async()=>{
@@ -281,7 +457,7 @@ test('server trace retains metadata without video and exposes cursor loss and ep
  for(let i=0;i<4100;i++)r.trace('test');const overwritten=await request('/cam/diagnostics?epoch='+initial.epoch+'&after='+initial.latest);assert.equal(overwritten.lost,true);assert.equal(overwritten.events.length,4096);assert.equal(overwritten.events.at(-1).seq,overwritten.latest);
 });
 
-test('vector registration uses existing dwell and removal preserves image targets', async () => {
+test('photo and vector agreement marks off-center targets and requires centered dwell', async () => {
  const {r, request} = room();
  const vector = Array(576).fill(0); vector[0] = 1;
  const pack = {model:'mobilenet-v3-small-imagenet1k-v1', vectors:[vector]};
@@ -295,14 +471,110 @@ test('vector registration uses existing dwell and removal preserves image target
  assert.equal(preserved.images.length,1);
  assert.equal(preserved.appearance,null);
 
+ const combined = await request('/recognition/vectors',{name:'Combined',key:'e',pack,images:[image]});
+ const saved = (await request('/recognition/targets')).targets.find(t=>t.id===combined.targetId);
+ assert.equal(saved.images[0].image,image);
+ assert.ok(saved.appearance);
+ const corners = [[.3,.3],[.7,.3],[.7,.7],[.3,.7]];
+ await request('/recognition/control?enabled=1',{},'POST');
+ await request('/recognition/detections',{epoch:r.epoch,at:Date.now(),found:[{id:combined.targetId,corners,inliers:20}]});
+ assert.equal(r.state.focused,null);
+ assert.equal(r.state.detections.length,0);
+ const combinedDetection = (found, vectorTarget) => request('/recognition/detections',{
+   epoch:r.epoch,at:Date.now(),found,vectorTarget,
+ });
+ const track = {id:combined.targetId,corners,inliers:20,appearanceConfirmed:true};
+ const outside = {...track,corners:[[.05,.05],[.2,.05],[.2,.2],[.05,.2]]};
+ await combinedDetection([outside]);
+ assert.equal(r.state.detections[0].id,combined.targetId);
+ assert.equal(r.state.focused,null);
+ assert.equal(r.state.progress,0);
+ const tilted={...track,corners:[[.65,.45],[.85,.65],[.65,.85],[.45,.65]]};
+ const second={...outside,id:legacy.targetId};
+ await combinedDetection([tilted,second]);
+ assert.equal(r.state.detections.length,2);
+ assert.deepEqual(r.state.detections[0].bounds,{left:.45,right:.85,top:.45,bottom:.85});
+ assert.equal(r.state.focused,combined.targetId);
+ r.focusAt -= 1000;
+ await combinedDetection([track]);
+ assert.equal(r.state.focused,combined.targetId);
+ assert.ok(r.state.progress>=.4);
+ assert.equal(r.state.focusMissing,false);
+ const beforeMiss=r.state.progress;
+ r.lastResult-=150;
+ await combinedDetection([{...track,provisional:true}]);
+ assert.equal(r.state.detections[0].held,true);
+ assert.equal(r.state.detections[0].provisional,true);
+ assert.equal(r.state.progress,beforeMiss);
+ assert.equal(r.state.focusMissing,true);
+ assert.equal(r.commands.length,0);
+ r.state.focusMissingAt-=850;
+ r.lastResult-=150;
+ await combinedDetection([]);
+ const afterDecay=r.state.progress;
+ assert.equal(afterDecay,beforeMiss);
+ r.lastResult-=100;
+ await combinedDetection([track]);
+ assert.ok(Math.abs(r.state.progress-afterDecay)<.01);
+ r.focusAt -= 3000;
+ await combinedDetection([outside]);
+ assert.equal(r.state.focused,null);
+ assert.equal(r.state.progress,0);
+ assert.equal(r.commands.length,0);
+
  const target = await request('/recognition/vectors',{name:'VR vector',key:'e',pack});
  await request('/recognition/control?enabled=1',{},'POST');
- const detect = () => request('/recognition/detections',{epoch:r.epoch,at:Date.now(),found:[],vectorTarget:target.targetId});
- await detect();
+ await combinedDetection([{...track,id:target.targetId}],target.targetId);
+ assert.equal(r.state.detections.length,0);
+ assert.equal(r.state.focused,null);
  assert.equal(r.commands.length,0);
- r.focusAt -= 1600;
- await detect();
+ await combinedDetection([track]);
+ r.focusAt -= 2600;
+ await combinedDetection([track]);
  assert.equal(r.commands.at(-1).key,'e');
  await request('/recognition/vectors?targetId='+target.targetId,null,'DELETE');
  assert.equal(r.store.get(target.targetId),undefined);
+});
+
+test('confirmed aim fallback never invents a location or overrides known off-center geometry', async () => {
+ const {r,request}=room();
+ const vector=Array(576).fill(0);vector[0]=1;
+ const pack={model:'mobilenet-v3-small-imagenet1k-v1',vectors:[vector]};
+ const image='data:image/jpeg;base64,/9j/';
+ const target=await request('/recognition/vectors',{name:'Headset',key:'e',pack,images:[image]});
+ const vectorOnly=await request('/recognition/vectors',{name:'No photo',key:'e',pack});
+ await request('/recognition/control?enabled=1',{},'POST');
+ const report=(found=[],id=target.targetId,age=0)=>{
+   const at=Date.now();
+   return request('/recognition/detections',{epoch:r.epoch,at,found,aimMatch:{id,at:at-age}});
+ };
+ await report([],vectorOnly.targetId);
+ assert.equal(r.state.focused,null);
+ await report([],target.targetId,1500);
+ assert.equal(r.state.focused,null);
+ await report([{id:target.targetId,corners:[[.05,.05],[.2,.05],[.2,.2],[.05,.2]],appearanceConfirmed:true}]);
+ assert.equal(r.state.focused,null);
+ assert.equal(r.state.detections.length,1);
+ const approximate={id:target.targetId,corners:[[.3,.3],[.7,.3],[.7,.7],[.3,.7]],
+   appearanceConfirmed:true,approximate:true};
+ await report([approximate],null);
+ assert.equal(r.state.focused,null);
+ assert.equal(r.state.detections[0].approximate,true);
+ await report([approximate]);
+ assert.equal(r.state.focused,null);
+ await report();
+ assert.equal(r.state.focused,null);
+ assert.equal(r.state.aimTarget,'Headset');
+ assert.deepEqual(r.state.detections,[]);
+ assert.equal(r.commands.length,0);
+ const localized={...approximate,approximate:false};
+ await report([localized]);
+ assert.equal(r.state.focused,target.targetId);
+ r.focusAt-=2600;
+ await report();
+ assert.equal(r.commands.length,0);
+ await report([localized]);
+ r.focusAt-=2600;
+ await report([localized]);
+ assert.equal(r.commands.at(-1).key,'e');
 });

@@ -13,9 +13,9 @@ export class PlaybackLock {
     if(this.value&&now-this.value.at>30000){this.value=null;this.save()}
     return this.value;
   }
-  begin(source,targetId=null) {
+  begin(source,targetId=null,media=null) {
     const now=Date.now();
-    this.value={id:crypto.randomUUID(),source,targetId,state:'loading',at:now,issuedAt:now};this.save();return this.value;
+    this.value={id:crypto.randomUUID(),source,targetId,media,state:'loading',at:now,issuedAt:now};this.save();return this.value;
   }
   event(id,event) {
     if(!this.value||this.value.id!==id)return false;

@@ -55,6 +55,15 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
     private volatile boolean running;
     private volatile HttpURLConnection conn;
     private CameraStreamer cam;
+    private volatile RtcCamera rtcCamera;
+    private String cameraStatus="",connectionStatus="연결 확인 중";
+    private final Runnable deviceStatus=new Runnable(){
+        @Override public void run(){
+            if(!running)return;
+            restoreDeviceStatus();
+            ui.postDelayed(this,2000);
+        }
+    };
     private RecognitionOverlay recognitionOverlay;
     private LocalTracking localTracking;
     private HudChannel hudChannel;
@@ -87,7 +96,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         status = new TextView(this);
         status.setTextColor(Color.GREEN);
         status.setTextSize(16);
-        status.setText("연결 중… (v0.2.10)");
+        status.setText("연결 중… (v0.2.19)");
         status.setGravity(Gravity.CENTER);
         root.addView(status, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
@@ -109,7 +118,12 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         recognitionOverlay.attach(localTracking,hudChannel);
         cam = new CameraStreamer(this, () -> server, id, new CameraStreamer.Out() {
             @Override public void report(String m) { MainActivity.this.report(m); }
-            @Override public void status(String m) { ui.post(() -> {if(!playbackGate.busy())status.setText(m);}); }
+            @Override public void status(String m) {
+                ui.post(() -> {
+                    cameraStatus="신호 대기".equals(m)?"":m;
+                    restoreDeviceStatus();
+                });
+            }
         },localTracking);
         if (checkSelfPermission(android.Manifest.permission.CAMERA) != android.content.pm.PackageManager.PERMISSION_GRANTED)
             requestPermissions(new String[]{android.Manifest.permission.CAMERA}, 1);
@@ -133,6 +147,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
     protected void onStart() {
         super.onStart();
         running = true;
+        ui.post(deviceStatus);
         new Thread(this::listen, "next").start();
         new Thread(this::syncLoop, "sync").start();
         new Thread(this::recognitionLoop, "recognition").start();
@@ -153,7 +168,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         while (running) {
             try {
                 long sent=android.os.SystemClock.elapsedRealtime();
-                JSONObject result = new JSONObject(get(server + "/recognition/status?hud=2&app=0.2.10"));
+                JSONObject result = new JSONObject(get(server + "/recognition/status?hud=2&estimate=label&app=0.2.19"));
                 if(!running)break;
                 localTracking.update(result,android.os.SystemClock.elapsedRealtime()-sent);
                 ui.post(() -> {
@@ -165,8 +180,11 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
                     aimX=calibrated&&camera!=null?camera.optDouble("cx",.5):.5;
                     aimY=calibrated&&camera!=null?camera.optDouble("cy",.5):.5;
                 });
-            } catch (Exception e) { localTracking.update(null,0);ui.post(() -> recognitionOverlay.update(null)); }
-            try { Thread.sleep(500); } catch (InterruptedException ignored) { }
+            } catch (Exception e) {
+                // Keep the last overlay until its own expiry on a missed poll.
+                localTracking.update(null,0);
+            }
+            try { Thread.sleep(180); } catch (InterruptedException ignored) { }
         }
     }
 
@@ -231,7 +249,9 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         super.onStop();
         endPlayback("stopped");
         running = false;
+        ui.removeCallbacks(deviceStatus);
         cam.stop(true);
+        stopRtc(false);
         HttpURLConnection c = conn;
         if (c != null) c.disconnect();
         hudChannel.stop();
@@ -304,7 +324,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
                     while ((line = in.readLine()) != null) body.append(line);
                 }
                 JSONObject m = new JSONObject(body.toString());
-                if (!online) { online = true; say("연결됨 · 신호 대기"); report("연결됨 " + (System.currentTimeMillis() - t0) + "ms, 시도 " + (tries + 1) + "번"); }
+                if (!online) { online = true; say("서버 연결됨"); report("연결됨 " + (System.currentTimeMillis() - t0) + "ms, 시도 " + (tries + 1) + "번"); }
                 if (!currentServer.equals(server)) continue;
                 if (after >= 0 && m.has("cmd")) handle(m);
                 after = m.optLong("seq", after);
@@ -324,6 +344,16 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         String cmd = m.optString("cmd");
         if (cmd.equals("cam")) { // 카메라 전송 시험: fps 0 이면 끔
             int fps = m.optInt("fps");
+            ui.post(() -> {cameraStatus="";restoreDeviceStatus();});
+            stopRtc(true);
+            if (!running) return;
+            if (fps > 0 && "webrtc".equals(m.optString("transport"))) {
+                cam.stop(false);
+                rtcCamera = new RtcCamera(this, server, m.optLong("test"), fps,
+                        m.optInt("kbps", 2000), m.optInt("sec"), this::report);
+                if (!running) stopRtc(false);
+                return;
+            }
             if (fps <= 0) cam.stop(true);
             else cam.start(m.optString("mode", "photo"), fps, m.optInt("sec", 5), (float) m.optDouble("crop", 0.5),
                     m.optInt("q", 80), m.optInt("kbps", 2000), m.optLong("test"), "websocket".equals(m.optString("transport")));
@@ -355,9 +385,17 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
                 else play(url, loop);
             } else if (cmd.equals("stop")) {
                 endPlayback("stopped");
-                status.setText("신호 대기");
             }
         });
+    }
+
+    private void stopRtc(boolean wait) {
+        RtcCamera previous = rtcCamera;
+        rtcCamera = null;
+        if (previous != null) {
+            previous.stop();
+            if (wait) previous.awaitStop();
+        }
     }
 
     private void play(String url, boolean loop) {
@@ -380,7 +418,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
                 report("재생 시작 " + p.getVideoWidth() + "x" + p.getVideoHeight() + " 화면 " + view.getWidth() + "x" + view.getHeight());
             });
             mp.setOnInfoListener((p,what,extra)->{if(player==p&&what==MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START){renderedVideo=true;publishVideoHud();}return false;});
-            mp.setOnCompletionListener(p -> { if(player==p&&playbackGate.current(token)){endPlayback("completed");status.setText("신호 대기");report("재생 끝");} });
+            mp.setOnCompletionListener(p -> { if(player==p&&playbackGate.current(token)){endPlayback("completed");report("재생 끝");} });
             mp.setOnErrorListener((p, what, extra) -> {
                 if(player!=p||!playbackGate.current(token))return true;
                 status.setText("재생 실패 " + what + "/" + extra);
@@ -419,7 +457,23 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
     }
 
     private void say(String text) {
-        ui.post(() -> { if (player == null) status.setText(text); });
+        ui.post(() -> {connectionStatus=text;restoreDeviceStatus();});
+    }
+
+    private void restoreDeviceStatus() {
+        if(!running||playbackGate.busy()||status==null)return;
+        RtcCamera rtc=rtcCamera;
+        if(rtc==null&&!cameraStatus.isEmpty()){status.setText(cameraStatus);return;}
+        android.content.Intent battery=registerReceiver(null,new android.content.IntentFilter(android.content.Intent.ACTION_BATTERY_CHANGED));
+        String line=rtc==null?connectionStatus:rtc.statusLine();
+        if(battery!=null){
+            int level=battery.getIntExtra(android.os.BatteryManager.EXTRA_LEVEL,-1);
+            int scale=battery.getIntExtra(android.os.BatteryManager.EXTRA_SCALE,100);
+            int temperature=battery.getIntExtra(android.os.BatteryManager.EXTRA_TEMPERATURE,-1);
+            if(level>=0&&scale>0)line+=" · 배터리 "+Math.round(level*100f/scale)+"%";
+            if(temperature>0)line+=String.format(java.util.Locale.ROOT," · %.1f°C",temperature/10f);
+        }
+        status.setText(line);
     }
 
     /** 상태를 서버 기록에 남긴다(진단용). */
@@ -453,8 +507,9 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
             report("영상 종료 · "+event);
         }
         recognitionOverlay.invalidate();
+        restoreDeviceStatus();
     }
-    private void stopFromButton(){if(playbackGate.busy()){endPlayback("stopped");status.setText("영상 종료 · 중앙을 다른 곳으로 옮겨 다시 선택하세요");}}
+    private void stopFromButton(){if(playbackGate.busy())endPlayback("stopped");}
     private void publishVideoHud(){
         if(hudChannel==null||!playbackGate.busy())return;
         try{JSONObject state=new JSONObject();state.put("mode",renderedVideo?"playback":"loading");state.put("width",view.getWidth());state.put("height",view.getHeight());state.put("objects",new org.json.JSONArray());state.put("title",playbackTitle);state.put("playbackId",playbackToken);hudChannel.drawn(state);}catch(Exception ignored){}

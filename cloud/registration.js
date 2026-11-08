@@ -83,6 +83,13 @@ export class Registration {
   draw(g,w,h){
     if(!this.enabled)return;
     const r=this.config.camera;g.save();g.strokeStyle='#80ef97';g.lineWidth=2;g.setLineDash([10,6]);g.strokeRect((r.cx-r.width/2)*w,(r.cy-r.height/2)*h,r.width*w,r.height*h);g.setLineDash([]);g.fillStyle='#80ef97';g.font='14px sans-serif';g.fillText('저장 시작 영역',Math.max(4,(r.cx-r.width/2)*w),Math.max(18,(r.cy-r.height/2)*h-8));
+    if(this.phase==='align'){
+      const x=r.cx*w,y=r.cy*h,rw=r.width*w,rh=r.height*h;
+      g.fillText('1',x+5,y-rh/2+15);
+      g.fillText('2',x+rw/2-13,y-5);
+      g.fillText('3',x+5,y+rh/2-5);
+      g.fillText('4',x-rw/2+5,y-5);
+    }
     if(this.phase==='capture'&&this.corners&&!this.lost){g.lineWidth=3;g.beginPath();this.corners.forEach(([x,y],i)=>i?g.lineTo(x*w,y*h):g.moveTo(x*w,y*h));g.closePath();g.stroke()}g.restore();
   }
 }

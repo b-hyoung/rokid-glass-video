@@ -42,7 +42,7 @@ final class HudChannel {
             JSONObject packet=new JSONObject(latest);
             if(now-drawnAt>1500){packet=new JSONObject("{\"mode\":\"idle\",\"objects\":[],\"visible\":false}");}
             else packet.put("visible",true);
-            waiting=++sequence;waitAt=now;packet.put("seq",waiting);packet.put("app","0.2.10");
+            waiting=++sequence;waitAt=now;packet.put("seq",waiting);packet.put("app","0.2.19");
             socket.send(packet.toString());
         }catch(Exception ignored){close();}
     }

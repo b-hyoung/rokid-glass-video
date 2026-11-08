@@ -8,11 +8,13 @@ import {readVideo} from './http-video.js';
 import {VisionClient} from './vision-client.js';
 import {Registration} from './registration.js';
 import {TargetLibrary} from './library.js';
+import {RtcVideo} from './rtc-video.js';
 const $=s=>document.querySelector(s),screen=$('#screen'),g=screen.getContext('2d'),frame=document.createElement('canvas'),fg=frame.getContext('2d');
-let frozen=false,selected=null,drag=null,frameAt=0,frameCount=0,matchedFrame=0,cvReady=false,matcher=new VisionClient(),registration,version=0,loading=false,state={enabled:false,detections:[]},lastSeq=null,message='',socket;
+let frozen=false,selected=null,drag=null,frameAt=0,frameCount=0,matchedFrame=0,cvReady=false,matcher=new VisionClient(),registration,version=0,loading=false,state={enabled:false,detections:[]},message='',socket;
 const api=async(path,options)=>{const r=await fetch(path,options);const j=await r.json();if(!r.ok)throw Error(j.error||r.status);return j};
 const showError=e=>{message=e.message||String(e);$('#capture-note').textContent=message};
 const timing=new LiveTiming();
+let rtcVideo=null,rtcStatus='',rtcFrames=0,rtcMetricAt=0,captureCommandBusy=false;
 const diagnostics=new LiveDiagnostics();
 let diagnosticCleared=false;
 function diagState(){return {transport:useHttp?'http':'websocket',visible:document.visibilityState,frameAgeMs:frameAt?timing.age(frameAt):null,uncertaintyMs:timing.uncertainty,msSinceDisplay:frameDrawnAt?performance.now()-frameDrawnAt:null,queueFrames:player.queue.length,drops:{...player.drops},decoder:decoder?{...decoder.counters}:null}}
@@ -22,7 +24,15 @@ const player=new FramePlayer((f,at)=>drawFrame(f,f.displayWidth,f.displayHeight,
 let lastLiveAt=0,frameDrawnAt=0,lastPacketAt=0,recovering=false,recoveryAt=0,httpController=null,connectedAt=0;
 let streamTest=null,transport='',networkFrames=0,controlsSynced=false;
 const decoder=typeof VideoDecoder==='function'?new GlassDecoder((f,at,fps)=>player.push(f,at,fps),e=>showError(new Error('동영상 해석: '+e.message))):null;
-function drawFrame(image,w,h,at){if(diagnosticCleared){diagnostics.record('display_resumed',diagState());diagnosticCleared=false}const scale=Math.min(1,960/Math.max(w,h));const width=Math.round(h*scale),height=Math.round(w*scale);if(frame.width!==width||frame.height!==height){frame.width=width;frame.height=height}fg.save();fg.translate(0,frame.height);fg.rotate(-Math.PI/2);fg.drawImage(image,0,0,frame.height,frame.width);fg.restore();frameAt=at;frameDrawnAt=performance.now();frameCount++}
+function drawFrame(image,w,h,at,oriented=false){
+ if(diagnosticCleared){diagnostics.record('display_resumed',diagState());diagnosticCleared=false}
+ const scale=Math.min(1,960/Math.max(w,h));
+ const width=Math.round((oriented?w:h)*scale),height=Math.round((oriented?h:w)*scale);
+ if(frame.width!==width||frame.height!==height){frame.width=width;frame.height=height}
+ if(oriented)fg.drawImage(image,0,0,width,height);
+ else{fg.save();fg.translate(0,frame.height);fg.rotate(-Math.PI/2);fg.drawImage(image,0,0,height,width);fg.restore()}
+ frameAt=at;frameDrawnAt=performance.now();frameCount++;
+}
 const requestedMedia=new URLSearchParams(location.search).get('media'),viewerId=crypto.randomUUID();
 $('#diagnostic-toggle').onclick=()=>{if(diagnostics.enabled){diagnostics.stop();$('#diagnostic-toggle').textContent='진단 기록 시작';$('#diagnostic-status').textContent='기록 중지 · 로그를 내려받을 수 있습니다.'}else{diagnostics.start();diagnostics.record('state',diagState());$('#diagnostic-toggle').textContent='진단 기록 중지';$('#diagnostic-status').textContent='기록 중 · 끊김을 재현한 뒤 로그를 내려받으세요.'}$('#diagnostic-download').disabled=false};
 $('#diagnostic-download').onclick=()=>{const blob=new Blob([JSON.stringify(diagnostics.export())],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='glass-diagnostics-'+new Date().toISOString().replace(/[:.]/g,'-')+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
@@ -38,6 +48,7 @@ if(m.kind==='h264'||m.kind==='jpeg'){
 }
 if(m.kind==='h264'){if(!decoder)throw Error('이 브라우저는 동영상 해석을 지원하지 않습니다. Chrome 또는 연속 사진을 선택하세요.');decoder.push(m)}else if(m.kind==='jpeg'){const blob=m.bytes?new Blob([m.bytes],{type:'image/jpeg'}):await (await fetch('data:image/jpeg;base64,'+m.data)).blob();const b=await createImageBitmap(blob);if(streamTest===m.test&&m.at>=frameAt)drawFrame(b,b.width,b.height,m.at);b.close()}}
 function connect(){
+ if(rtcVideo)return;
  diagnostics.resetPacket();diagnostics.record('connect',{transport:useHttp?'http':'websocket'});
  clearTimeout(connectTimer);connectedAt=performance.now();lastPacketAt=lastLiveAt=frameDrawnAt=0;
  if(useHttp){const controller=new AbortController();httpController=controller;fetch('/cam/live?viewer='+viewerId,{signal:controller.signal,cache:'no-store'}).then(r=>{if(!r.ok)throw Error('영상 연결 '+r.status);return readVideo(r.body,(m,read)=>{if(httpController===controller&&!controller.signal.aborted)return receive(m,read)},controller.signal,bytes=>diagnostics.read('http',bytes))}).catch(e=>{if(httpController===controller&&!controller.signal.aborted)showError(e)}).finally(()=>{if(httpController!==controller)return;httpController=null;decoder?.reset();player.clear();connectTimer=setTimeout(connect,1000)});return}
@@ -53,12 +64,69 @@ function restartConnection(){
  const old=socket;socket=null;const controller=httpController;httpController=null;controller?.abort();
  // Do not wait for a close handshake behind queued media before opening a live socket.
  if(old){old.onopen=old.onmessage=old.onclose=old.onerror=null;try{old.close(1000,'Resume live')}catch{}}
- decoder?.reset();player.clear();connectTimer=setTimeout(connect,300);
+ decoder?.reset();player.clear();if(!rtcVideo)connectTimer=setTimeout(connect,300);
 }
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){recovering=false;if(!frozen)frameAt=0;restartConnection()}});
-$('#mode').onchange=()=>{$('#fps-options').hidden=$('#mode').value!=='video';$('#fps').disabled=$('#mode').value!=='video'};
-$('#capture-start').onclick=async()=>{try{const mode=$('#mode').value;const fps=mode==='video'?Number($('#fps').value):5;await api('/cam/set?mode='+mode+'&fps='+fps+'&sec=0&kbps='+$('#quality').value);$('#capture-note').textContent='안경에 '+fps+'fps 촬영 신호를 보냈습니다.';frameAt=0;player.clear();decoder?.reset();frozen=false;selected=null}catch(e){showError(e)}};
-$('#capture-stop').onclick=async()=>{try{await api('/cam/set?fps=0');$('#capture-note').textContent='촬영 중지 신호를 보냈습니다.'}catch(e){showError(e)}};
+function setRtcTest(test){
+ if((rtcVideo?.test??null)===test)return;
+ rtcVideo?.stop();
+ rtcVideo=null;
+ frameAt=0;
+ if(test!==null){
+   rtcVideo=new RtcVideo(test,(video,captureTime)=>{
+     const now=performance.now();
+     const at=timing.offset+Math.min(now,captureTime);
+     if(timing.offset===null||!timing.fresh(at,now))return;
+     rtcFrames++;
+     drawFrame(video,video.videoWidth,video.videoHeight,at,true);
+   },status=>{rtcStatus=status;diagnostics.record('rtc_status',{status})});
+   rtcFrames=0;rtcMetricAt=performance.now();
+ }
+ restartConnection();
+}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){recovering=false;if(!frozen)frameAt=0;if(!rtcVideo)restartConnection()}});
+$('#mode').onchange=()=>{$('#fps-options').hidden=$('#mode').value==='photo';$('#fps').disabled=$('#mode').value==='photo'};
+$('#capture-start').onclick=async()=>{
+ if(captureCommandBusy)return;
+ captureCommandBusy=true;
+ try{
+   const selectedMode=$('#mode').value;
+   const rtc=selectedMode==='webrtc',mode=selectedMode==='photo'?'photo':'video';
+   if(rtc&&(typeof RTCPeerConnection!=='function'||typeof HTMLVideoElement.prototype.requestVideoFrameCallback!=='function')){
+     throw Error('이 브라우저는 WebRTC 영상 표시를 지원하지 않습니다.');
+   }
+   const fps=mode==='video'?Number($('#fps').value):5;
+   const result=await api('/cam/set?mode='+mode+'&fps='+fps+'&sec=0&kbps='+$('#quality').value+(rtc?'&transport=webrtc':''));
+   if(rtc)sessionStorage.setItem('rtc-test',String(result.test));else sessionStorage.removeItem('rtc-test');
+   setRtcTest(rtc?result.test:null);
+   $('#capture-note').textContent='안경에 '+fps+'fps 촬영 신호를 보냈습니다.';
+   frameAt=0;player.clear();decoder?.reset();$('#glasses').click();
+ }catch(e){showError(e)}
+ finally{captureCommandBusy=false}
+};
+$('#capture-stop').onclick=async()=>{
+ if(captureCommandBusy)return;
+ captureCommandBusy=true;
+ try{
+   await api('/cam/set?fps=0');
+   sessionStorage.removeItem('rtc-test');
+   setRtcTest(null);
+   $('#capture-note').textContent='촬영 중지 신호를 보냈습니다.';
+ }catch(e){showError(e)}
+ finally{captureCommandBusy=false}
+};
+
+function syncRtcCapture(test){
+ if(captureCommandBusy)return;
+ const saved=sessionStorage.getItem('rtc-test');
+ if(!rtcVideo&&test&&!test.done&&test.transport==='webrtc'&&String(test.test)===saved&&
+    typeof RTCPeerConnection==='function'&&typeof HTMLVideoElement.prototype.requestVideoFrameCallback==='function'){
+   $('#mode').value='webrtc';
+   setRtcTest(test.test);
+ }else if(rtcVideo&&test&&(test.test>rtcVideo.test||test.test===rtcVideo.test&&test.done)){
+   sessionStorage.removeItem('rtc-test');
+   setRtcTest(null);
+ }
+}
 const frozenFrame=document.createElement('canvas');
 $('#freeze').onclick=()=>{if(!frameAt)return showError(Error('안경 영상이 도착한 뒤 멈춰 주세요.'));frozen=!frozen;if(frozen){frozenFrame.width=frame.width;frozenFrame.height=frame.height;frozenFrame.getContext('2d').drawImage(frame,0,0)}selected=null;$('#freeze').textContent=frozen?'실시간으로 돌아가기':'등록할 화면 멈추기'};
 $('#glasses').onclick=()=>{frozen=false;selected=null;$('#freeze').textContent='등록할 화면 멈추기'};
@@ -75,10 +143,8 @@ const library=new TargetLibrary({api,crop:()=>{
   c.getContext('2d').drawImage(frozenFrame,selected.x,selected.y,selected.w,selected.h,0,0,c.width,c.height);return c.toDataURL('image/jpeg',.85);
 },onSaved:()=>{selected=null}});
 registration=new Registration({api,library,vision:matcher,live:()=>frameAt&&performance.now()-frameDrawnAt<1200&&timing.fresh(frameAt),unfreeze:()=>$('#glasses').click()});
-async function refresh(){const sent=performance.now();state=await api('/recognition/status');timing.observe(state.serverNow,sent);registration.observe(state.guide);const status=await api('/status');$('#connection').textContent='Cloudflare 연결 · 안경 '+status.glasses+'대 · '+(frameAt&&performance.now()-frameDrawnAt<1200&&timing.fresh(frameAt)?'영상 수신 중':'촬영 영상 대기');$('#capture-start').disabled=!status.glasses;
-if(lastSeq===null)lastSeq=status.now?.seq||0;if(status.now?.seq!==lastSeq){lastSeq=status.now?.seq;if(status.now?.cmd==='play'){$('#result').src=status.now.url;$('#result').loop=!!status.now.loop;$('#result').muted=true;$('#result').play().catch(()=>{})}else if(status.now?.cmd==='stop')$('#result').pause()}
-$('#state').textContent=!cvReady?'인식 엔진 준비 중':!state.enabled?'인식 대기 중':state.focused&&state.progress>0?'중앙 대상 확인 '+Math.round(state.progress*100)+'%':state.locked?'영상 재생 신호 전송됨':'시야의 대상 찾는 중';
-$('#found').textContent=[state.vectorTarget,...state.detections.map(t=>t.name)].filter(Boolean).join(' · ')||'인식된 대상 없음';
+async function refresh(){const sent=performance.now();const latest=await api('/recognition/status');if(latest.epoch!==state.epoch||latest.at>=state.at)state=latest;timing.observe(latest.serverNow,sent);registration.observe(state.guide);const status=await api('/status');$('#connection').textContent='Cloudflare 연결 · 안경 '+status.glasses+'대 · '+(frameAt&&performance.now()-frameDrawnAt<1200&&timing.fresh(frameAt)?'영상 수신 중':'촬영 영상 대기');$('#capture-start').disabled=!status.glasses;
+$('#state').textContent=!cvReady?'인식 엔진 준비 중':!state.enabled?'인식 대기 중':state.focused&&state.progress>0?'재생 진행 '+Math.round(state.progress*100)+'%':state.locked?'영상 재생 신호 전송됨':'시야의 대상 찾는 중';
 await library.sync(state.version);
 if(cvReady&&!loading&&version!==library.version){loading=true;try{const nextVersion=library.version;await matcher.references(library.targets);version=nextVersion}finally{loading=false}}}
 
@@ -89,22 +155,80 @@ async function recognize(){
    const options=registration.options();
    if(options||(!registration.enabled&&state.enabled)){
     matchedFrame=frameCount;const at=frameAt,epoch=state.epoch,revision=registration.revision;
-    const result=await matcher.process(frame,{...(options||{mode:'recognize',aim:state.guide?.calibrated?state.guide.camera:{cx:.5,cy:.5}}),at});
-    if(revision===registration.revision&&timing.fresh(at)){
+    const aim=state.guide?.calibrated?state.guide.camera:{cx:.5,cy:.5};
+    const result=await matcher.process(frame,{...(options||{mode:'recognize',aim}),at});
+    const age=timing.age(at)??0;
+    if(revision===registration.revision&&(options?timing.fresh(at):age<1450)){
      if(result.appearanceError)showError(Error(result.appearanceError));
      if(options)registration.accept(result);
-     else if(!registration.enabled)await api('/recognition/detections',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({found:result.found,vectorTarget:result.vectorTarget,at,epoch})});
+     else if(!registration.enabled){
+       const response=await api('/recognition/detections',{method:'POST',headers:{'Content-Type':'application/json'},
+         body:JSON.stringify({found:result.found,aimMatch:result.aimMatch,sceneStable:result.sceneStable,at,epoch,preview:true})});
+       const preview=response.preview;
+       if(preview&&preview.epoch===state.epoch&&preview.at>=state.at)state={...state,...preview};
+     }
     }
    }
   }
  }catch(e){showError(e);if(registration.phase==='capture'){registration.lost=true;registration.error(Error('영역 추적을 멈췄습니다. '+(e.message||e)))}}
  setTimeout(recognize,100);
 }
-function draw(now){player.tick(now);if(!frozen&&frameAt&&!timing.fresh(frameAt,now)){diagnostics.record('screen_clear',{reason:'frame_stale',...diagState()});diagnosticCleared=true;frameAt=0;g.clearRect(0,0,screen.width,screen.height)}const f=frozen?frozenFrame:frame;if(frameAt){if(screen.width!==f.width||screen.height!==f.height){screen.width=f.width;screen.height=f.height}g.drawImage(f,0,0);if(!frozen&&(timing.age(state.at)??Infinity)<2200){for(const d of state.detections){g.strokeStyle='#68ff8a';g.lineWidth=3;g.beginPath();d.corners.forEach(([x,y],i)=>i?g.lineTo(x*screen.width,y*screen.height):g.moveTo(x*screen.width,y*screen.height));g.closePath();g.stroke();g.font='bold 18px sans-serif';g.fillStyle='#68ff8a';g.fillText(d.name,Math.max(4,d.corners[0][0]*screen.width),Math.max(20,d.corners[0][1]*screen.height-8))}}
-registration.draw(g,screen.width,screen.height);if(selected){g.strokeStyle='#68ff8a';g.lineWidth=2;g.strokeRect(selected.x,selected.y,selected.w,selected.h)}if(!registration.enabled){const aim=state.guide?.calibrated?state.guide.camera:{cx:.5,cy:.5};const x=screen.width*aim.cx,y=screen.height*aim.cy;g.strokeStyle='#68ff8a';g.lineWidth=2;g.beginPath();g.arc(x,y,20,0,Math.PI*2);g.moveTo(x-6,y);g.lineTo(x+6,y);g.moveTo(x,y-6);g.lineTo(x,y+6);g.stroke();g.lineWidth=5;g.beginPath();g.arc(x,y,26,-Math.PI/2,-Math.PI/2+Math.PI*2*(frozen?0:state.progress||0));g.stroke()}}requestAnimationFrame(draw)}
-matcher.ready.then(()=>{cvReady=true}).catch(showError);
+const foundStatus=$('#found');
+function draw(now){
+  player.tick(now);
+  if(!frozen&&frameAt&&!timing.fresh(frameAt,now)){
+    diagnostics.record('screen_clear',{reason:'frame_stale',...diagState()});
+    diagnosticCleared=true;frameAt=0;g.clearRect(0,0,screen.width,screen.height);
+  }
+  const showRecognition=frameAt&&!frozen&&!registration.enabled&&(timing.age(state.at,now)??Infinity)<2200;
+  const showFocus=frameAt&&!frozen&&!registration.enabled&&state.focused&&state.focused!==state.locked&&
+    (state.focusExpiresAt?now+(timing.offset??0)<state.focusExpiresAt:showRecognition);
+  const detections=showRecognition?state.detections.filter(target=>!target.approximate&&!target.provisional):[];
+  const caption=!frameAt?'안경 카메라 영상 대기':frozen?'등록용 화면 정지':
+    detections.length?'인식된 물체 · '+detections.map(target=>target.name).join(' · '):'인식된 대상 없음';
+  if(foundStatus.textContent!==caption)foundStatus.textContent=caption;
+  if(frameAt){
+    const source=frozen?frozenFrame:frame;
+    if(screen.width!==source.width||screen.height!==source.height){
+      screen.width=source.width;screen.height=source.height;
+    }
+    g.drawImage(source,0,0);
+    for(const target of detections){
+      if(target.bounds){
+        const {left,right,top,bottom}=target.bounds;
+        g.strokeStyle='#68ff8a';g.lineWidth=3;g.setLineDash([9,6]);
+        g.strokeRect(left*screen.width,top*screen.height,(right-left)*screen.width,(bottom-top)*screen.height);
+        g.setLineDash([]);
+      }
+      g.font='bold 18px sans-serif';g.fillStyle='#68ff8a';
+      const label='▶ '+target.name;
+      const [x,y]=[target.bounds?.left??target.corners[0][0],target.bounds?.top??target.corners[0][1]];
+      const left=x*screen.width;
+      g.fillText(label,Math.max(4,Math.min(left,screen.width-g.measureText(label).width-4)),Math.max(20,y*screen.height-8));
+    }
+    registration.draw(g,screen.width,screen.height);
+    if(selected){
+      g.strokeStyle='#68ff8a';g.lineWidth=2;g.strokeRect(selected.x,selected.y,selected.w,selected.h);
+    }
+    if(!registration.enabled){
+      const aim=state.guide?.calibrated?state.guide.camera:{cx:.5,cy:.5};
+      const x=screen.width*aim.cx,y=screen.height*aim.cy;
+      g.strokeStyle='#68ff8a';g.lineWidth=2;g.beginPath();
+      g.arc(x,y,20,0,Math.PI*2);g.moveTo(x-6,y);g.lineTo(x+6,y);g.moveTo(x,y-6);g.lineTo(x,y+6);g.stroke();
+      g.lineWidth=5;g.beginPath();
+      g.arc(x,y,26,-Math.PI/2,-Math.PI/2+Math.PI*2*(showFocus?state.progress||0:0));g.stroke();
+    }
+  }
+  requestAnimationFrame(draw);
+}
+matcher.ready.then(()=>{
+  cvReady=true;
+  const label=$('#vision-build');
+  if(label)label.textContent='인식 엔진 · '+(matcher.version||'이전 버전');
+}).catch(showError);
 api('/videos.json').then(data=>{library.videos=data;$('#video-key').replaceChildren(...Object.entries(data).map(([key,v])=>{const o=document.createElement('option');o.value=key;o.textContent=v.title;return o}));library.render()}).catch(showError);
 setInterval(()=>{
+ if(rtcVideo){$('#live-status').textContent=rtcStatus;return}
  const now=performance.now();if(socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify(timing.ping(now)));
  const active=cameraStats?.test&&!cameraStats.test.done,visible=document.visibilityState==='visible';
  const stalled=visible&&active&&cameraStats.receiveFps>0&&connectedAt&&now-Math.max(lastLiveAt,connectedAt)>2500;
@@ -124,6 +248,11 @@ diagnostics.record('metrics',{...metrics,transport:useHttp?'http':'websocket'});
 if(useHttp)api('/cam/viewer-metrics?viewer='+viewerId,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(metrics)}).catch(()=>{});else if(socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify({metrics}));
 const active=cameraStats?.test&&!cameraStats.test.done;
 $('#stream-stats').textContent=active?'설정 '+cameraStats.test.fps+'fps · 서버 '+cameraStats.receiveFps+'fps · 웹 도착 '+network.toFixed(1)+'fps · 해석 '+decoded.toFixed(1)+'fps · 표시 '+(frozen?'정지':shown.toFixed(1)+'fps'):'촬영 대기';
-if(!statsBusy){statsBusy=true;api('/cam/stats').then(stats=>{cameraStats=stats;const active=stats.test&&!stats.test.done;if(active&&!controlsSynced){$('#fps').value=String(stats.test.fps);$('#quality').value=String(stats.test.kbps);controlsSynced=true}$('#transport-note').textContent=active?(stats.test.transport==='http'&&stats.test.mode==='video'?'이전 APK의 HTTP 전송 중입니다. 앱 0.2.8로 업데이트하면 연속 전송을 사용합니다.':transport==='websocket'?'연속 영상 전송 연결됨':'영상 연결 대기'):''}).catch(()=>{}).finally(()=>statsBusy=false)}
+if(rtcVideo){
+ const fps=rtcFrames/Math.max(.001,(now-rtcMetricAt)/1000);
+ $('#stream-stats').textContent='WebRTC · '+(frozen?'표시 정지':'웹 프레임 '+fps.toFixed(1)+'fps');
+ rtcFrames=0;rtcMetricAt=now;
+}
+if(!statsBusy){statsBusy=true;api('/cam/stats').then(stats=>{cameraStats=stats;syncRtcCapture(stats.test);const active=stats.test&&!stats.test.done;if(active&&!controlsSynced){$('#fps').value=String(stats.test.fps);$('#quality').value=String(stats.test.kbps);controlsSynced=true}$('#transport-note').textContent=active?(stats.test.transport==='webrtc'?'WebRTC · 같은 Wi-Fi에서 안경과 PC 한 대 연결':stats.test.transport==='http'&&stats.test.mode==='video'?'이전 APK의 HTTP 전송 중입니다. 앱 0.2.8로 업데이트하면 연속 전송을 사용합니다.':transport==='websocket'?'연속 영상 전송 연결됨':'영상 연결 대기'):''}).catch(()=>{}).finally(()=>statsBusy=false)}
 },2000);
 connect();poll();recognize();requestAnimationFrame(draw);

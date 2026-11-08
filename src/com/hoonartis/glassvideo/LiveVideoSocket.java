@@ -38,7 +38,7 @@ final class LiveVideoSocket {
         if (closed || socket != null || now() - attemptAt < 1000) return;
         attemptAt = now(); waitingKey = true; pending.clear();
         URI uri = URI.create(url.get().replaceFirst("^http", "ws"));
-        WebSocketClient client = new WebSocketClient(uri, new Draft_6455(), Collections.singletonMap("User-Agent", "RokidGlassVideo/0.2.10"), 5000) {
+        WebSocketClient client = new WebSocketClient(uri, new Draft_6455(), Collections.singletonMap("User-Agent", "RokidGlassVideo/0.2.19"), 5000) {
             @Override public void onOpen(ServerHandshake handshake) {
                 synchronized (LiveVideoSocket.this) {
                     if (closed || socket != this) { close(); return; }
