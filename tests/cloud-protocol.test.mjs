@@ -582,6 +582,12 @@ test('confirmed aim fallback never invents a location or overrides known off-cen
 function stateSocket(){
  let attachment;return {readyState:1,messages:[],serializeAttachment(a){attachment=structuredClone(a)},deserializeAttachment(){return structuredClone(attachment)},send(text){this.messages.push(JSON.parse(text))},close(code){this.readyState=3;this.code=code}};
 }
+test('expired or replaced WebSocket credentials cannot submit another message',()=>{
+ const {r}=room();r.pairedDevice='current-device';
+ const replaced=stateSocket();replaced.serializeAttachment({role:'state-client',side:'device',deviceId:'previous-device',expiresAt:Date.now()+10000});
+ r.webSocketMessage(replaced,'{"type":"ping"}');assert.equal(replaced.code,1008);
+ const expired=stateSocket();expired.serializeAttachment({role:'viewer',expiresAt:Date.now()-1});r.webSocketMessage(expired,'{"ping":1}');assert.equal(expired.code,1008);
+});
 test('state subscribers get one outstanding snapshot and resume at current state',async()=>{
  const {r,request}=room(),ws=stateSocket();r.ctx.getWebSockets=()=>[ws];
  await r.events.connect(ws,'viewer','pc');assert.equal(ws.messages.length,1);

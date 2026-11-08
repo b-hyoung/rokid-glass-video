@@ -12,8 +12,8 @@ function signingKey(secret){
   if(!signingKeys.has(secret)){if(signingKeys.size>=2)signingKeys.clear();signingKeys.set(secret,crypto.subtle.importKey('raw',encoder.encode(secret),{name:'HMAC',hash:'SHA-256'},false,['sign','verify']))}
   return signingKeys.get(secret);
 }
-export async function signCredential(secret,room,role,now=Date.now()){
-  const payload=base64(encoder.encode(JSON.stringify({v:1,protocol:1,room,role,exp:now+(role==='device'?7*86400000:12*3600000)})));
+export async function signCredential(secret,room,role,now=Date.now(),deviceId=crypto.randomUUID()){
+  const payload=base64(encoder.encode(JSON.stringify({v:1,protocol:1,room,role,...(role==='device'?{deviceId}:{}),exp:now+(role==='device'?7*86400000:12*3600000)})));
   const signature=await crypto.subtle.sign('HMAC',await signingKey(secret),encoder.encode(payload));
   return payload+'.'+base64(new Uint8Array(signature));
 }
@@ -24,7 +24,7 @@ export async function verifyCredential(secret,token,now=Date.now()){
     if(!await crypto.subtle.verify('HMAC',await signingKey(secret),bytes(parts[1]),encoder.encode(parts[0])))return null;
     const claims=JSON.parse(new TextDecoder().decode(bytes(parts[0])));
     if(claims.v!==1||claims.protocol!==1||!['controller','device'].includes(claims.role)||
-       !/^[0-9a-f-]{36}$/.test(claims.room)||!Number.isSafeInteger(claims.exp)||claims.exp<=now)return null;
+       !/^[0-9a-f-]{36}$/.test(claims.room)||claims.role==='device'&&!/^[0-9a-f-]{36}$/.test(claims.deviceId)||!Number.isSafeInteger(claims.exp)||claims.exp<=now)return null;
     return claims;
   }catch{return null}
 }
@@ -57,7 +57,7 @@ function dynamic(path){return path.startsWith('/recognition/')||path.startsWith(
 const protectedPages=new Set(['/','/control','/control/','/cam','/recognition','/recognition/','/local-check.html']);
 export async function secureFetch(request,env,next){
   if(env.SESSION_SCOPED)return next(request,env);
-  const headers=new Headers(request.headers);headers.delete('X-Glass-Role');headers.delete('X-Glass-Room');
+  const headers=new Headers(request.headers);for(const name of ['X-Glass-Role','X-Glass-Room','X-Glass-Device','X-Glass-Expires'])headers.delete(name);
   request=new Request(request,{headers});
   if(env.ACCESS_MODE!=='paired')return next(request,env);
   const url=new URL(request.url),path=url.pathname;
@@ -81,6 +81,12 @@ export async function secureFetch(request,env,next){
     const response=await env.ACCESS.get(env.ACCESS.idFromName('pairing-registry')).fetch(internal);
     if(!response.ok)return response;
     const result=await response.json();
+    if(result.token&&result.role==='device'){
+      const device=await verifyCredential(env.SESSION_SECRET,result.token);
+      if(!device)return json({error:'기기 자격 발급에 실패했습니다.'},503);
+      const bound=await env.ROOM.get(env.ROOM.idFromName('workspace:'+device.room)).fetch(new Request('https://internal/recognition/device-bind',{method:'POST',body:JSON.stringify({deviceId:device.deviceId}),headers:{'X-Glass-Role':'pairing-service'}}));
+      if(!bound.ok)return json({error:'기기 연결에 실패했습니다. 새 코드를 만드세요.'},503);
+    }
     if(result.token&&result.role==='controller'){
       const {token,...publicResult}=result;return json(publicResult,200,{'Set-Cookie':cookie(request,token)});
     }
@@ -91,8 +97,14 @@ export async function secureFetch(request,env,next){
   if(!roleAllows(claims.role,url,request.method))return json({error:'이 기능에 대한 권한이 없습니다.'},403);
   if(claims.role==='controller'&&mutationGets.has(path)&&request.method!=='POST')return json({error:'POST 요청이 필요합니다.'},405);
   if(request.headers.has('Origin')&&request.headers.get('Origin')!==url.origin)return json({error:'다른 사이트의 요청입니다.'},403);
-  const authorized=new Headers(request.headers);authorized.set('X-Glass-Role',claims.role);authorized.set('X-Glass-Room',claims.room);
-  return next(new Request(request,{headers:authorized}),scopeEnvironment(env,claims));
+  const authorized=new Headers(request.headers);authorized.set('X-Glass-Role',claims.role);authorized.set('X-Glass-Room',claims.room);authorized.set('X-Glass-Expires',String(claims.exp));
+  if(claims.role==='device')authorized.set('X-Glass-Device',claims.deviceId);
+  const scoped=scopeEnvironment(env,claims);
+  if(claims.role==='device'&&(path==='/videos.json'||path.startsWith('/v/'))){
+    const allowed=await scoped.ROOM.get(scoped.ROOM.idFromName('glasses-main')).fetch(new Request('https://internal/recognition/device-access',{headers:authorized}));
+    if(!allowed.ok)return allowed;
+  }
+  return next(new Request(request,{headers:authorized}),scoped);
 }
 
 export class PairingRegistry{

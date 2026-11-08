@@ -32,7 +32,7 @@ import {validateSnapshot as localTargets,restoreSnapshot} from '../cloud/library
 export class LocalGlassRoom extends GlassRoom {
   async fetch(request){
     const url=new URL(request.url);
-    if(url.pathname==='/status'){const response=await super.fetch(request);return json({...await response.json(),hosting:'local'})}
+    if(url.pathname==='/status'){const response=await super.fetch(request);if(!response.ok)return response;return json({...await response.json(),hosting:'local'})}
     if(url.pathname!=='/local/import')return super.fetch(request);
     if(request.method!=='POST')return json({error:'POST 요청이 필요합니다.'},405);
     try{

@@ -68,6 +68,15 @@ test('anonymous access, cross-origin requests, GET mutations and missing configu
  assert.equal((await request('/recognition/import',{}, {headers:{'X-Glass-Role':'controller'}})).status,401);
  env.SESSION_SECRET='';assert.equal((await request('/status',null,owner)).status,503);
 });
+
+test('re-pairing invalidates the previous device and clients cannot forge a binding',async()=>{
+ const {request,create}=setup(),owner=await create();
+ const pair=async()=>{const code=await request('/access/code',{},owner);return (await request('/access/pair',{code:code.data.code,protocol:1})).data.token};
+ const previous=await pair();assert.equal((await request('/status',null,{token:previous})).status,200);
+ const next=await pair();assert.equal((await request('/status',null,{token:previous})).status,403);assert.equal((await request('/status',null,{token:next})).status,200);
+ assert.equal((await request('/videos.json',null,{token:previous})).status,403);assert.equal((await request('/videos.json',null,{token:next})).status,200);
+ assert.equal((await request('/recognition/device-bind',{deviceId:crypto.randomUUID()},{...owner,headers:{'X-Glass-Role':'pairing-service'}})).status,403);
+});
 test('pairing expiry and repeated guesses are enforced after registry recreation',async()=>{
  const {env,request,create}=setup(),owner=await create();
  const code=await request('/access/code',{},owner),registry=env.ACCESS.get('pairing-registry');

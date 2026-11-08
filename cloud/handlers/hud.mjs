@@ -5,7 +5,7 @@ export async function handleHud(req,u){
     if((p==='/recognition/device'||p==='/recognition/hud')&&req.headers.get('Upgrade')?.toLowerCase()==='websocket'){
       const role=p==='/recognition/device'?'hud-device':'hud-viewer';
       if(role==='hud-device')for(const old of this.ctx.getWebSockets())if(old.deserializeAttachment?.()?.role===role)try{old.close(1000,'New HUD session')}catch{}
-      const pair=new WebSocketPair();this.ctx.acceptWebSocket(pair[1]);pair[1].serializeAttachment({role,seq:0});
+      const pair=new WebSocketPair();this.ctx.acceptWebSocket(pair[1]);pair[1].serializeAttachment({expiresAt:Number(req.headers.get('X-Glass-Expires'))||null,deviceId:req.headers.get('X-Glass-Device'),role,seq:0});
       if(role==='hud-viewer'&&this.deviceHud&&Date.now()-this.deviceHud.at<2000){pair[1].send(JSON.stringify(this.hudForViewer(this.deviceHud)));this.hudDelivery.set(pair[1],{seq:this.deviceHud.seq,at:Date.now()})}
       return new Response(null,{status:101,webSocket:pair[0]});
     }

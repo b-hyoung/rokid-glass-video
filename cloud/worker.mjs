@@ -31,6 +31,8 @@ export class GlassRoom {
   constructor(ctx,env) {
     this.ctx=ctx;this.env=env;this.seq=Date.now();this.commands=[];this.waiters=new Set();this.seen=new Map();
     this.events=new StateFeed(this);
+    this.ctx.storage.sql.exec('CREATE TABLE IF NOT EXISTS paired_device (id INTEGER PRIMARY KEY,device_id TEXT NOT NULL)');
+    this.pairedDevice=this.ctx.storage.sql.exec('SELECT device_id FROM paired_device WHERE id=1').toArray()[0]?.device_id??null;
     this.test=null;this.tele=null;this.latest=null;this.first=null;this.recent=[];this.bytes=0;this.frameNo=0;this.focus=null;this.focusAt=0;this.locked=null;this.lastVisible=0;this.lastResult=0;this.active=false;this.epoch=0;
     this.state={enabled:false,detections:[],progress:0,focused:null,at:0};this.version=Date.now();
     this.displayHistory=new Map();this.focusCorners=null;
@@ -155,10 +157,21 @@ export class GlassRoom {
   }
   async fetch(req) {
     const u=new URL(req.url),p=u.pathname,q=u.searchParams;
+    if(p==='/recognition/device-bind'){
+      if(this.env.ACCESS_MODE!=='paired'||req.headers.get('X-Glass-Role')!=='pairing-service'||req.method!=='POST')return json({error:'Forbidden'},403);
+      const {deviceId}=await req.json();if(!/^[0-9a-f-]{36}$/.test(deviceId))return json({error:'Invalid device'},400);
+      this.ctx.storage.sql.exec('INSERT OR REPLACE INTO paired_device VALUES (1,?)',deviceId);this.pairedDevice=deviceId;
+      for(const ws of this.ctx.getWebSockets())if(['camera','hud-device','rtc-device'].includes(ws.deserializeAttachment?.()?.role)||ws.deserializeAttachment?.()?.side==='device')try{ws.close(1008,'Device replaced')}catch{}
+      for(const finish of [...this.waiters])finish({seq:this.seq});
+      this.commands=[];this.seen.clear();this.playback.stop();if(this.test){this.test.done=true;this.saveCamera()}this.active=false;this.reset();await this.events.publish();
+      return json({ok:true});
+    }
+    if(this.env.ACCESS_MODE==='paired'&&req.headers.get('X-Glass-Role')==='device'&&req.headers.get('X-Glass-Device')!==this.pairedDevice)return json({error:'다시 페어링해야 하는 안경입니다.'},403);
+    if(p==='/recognition/device-access'&&req.headers.get('X-Glass-Role')==='device')return json({ok:true});
     if(p==='/recognition/events'&&req.headers.get('Upgrade')?.toLowerCase()==='websocket'){
       const side=q.get('role');if(!['device','viewer'].includes(side))return json({error:'Invalid state role'},400);
       const pair=new WebSocketPair();this.ctx.acceptWebSocket(pair[1]);
-      await this.events.connect(pair[1],side,String(q.get('id')||'glasses').slice(0,80),String(q.get('app')||'').slice(0,20));
+      await this.events.connect(pair[1],side,String(q.get('id')||'glasses').slice(0,80),String(q.get('app')||'').slice(0,20),Number(req.headers.get('X-Glass-Expires'))||null,req.headers.get('X-Glass-Device'));
       return new Response(null,{status:101,webSocket:pair[0]});
     }
     if(p==='/recognition/snapshot')return json(await this.events.snapshot());
@@ -173,6 +186,7 @@ export class GlassRoom {
   }
   webSocketMessage(ws,message){
     const camera=ws.deserializeAttachment?.();
+    if(camera?.expiresAt&&Date.now()>=camera.expiresAt||camera?.deviceId&&camera.deviceId!==this.pairedDevice){try{ws.close(1008,'Pairing expired or replaced')}catch{}return}
     if(camera?.role==='state-client')return this.events.message(ws,message);
     if(camera?.role==='rtc-device'||camera?.role==='rtc-viewer'){
       if(this.test?.done||this.test?.transport!=='webrtc'||camera.test!==this.test.test)return;

@@ -32,7 +32,7 @@ export async function handleConnection(req,u){
       if(old)try{old.close(1008,'Replaced by new connection')}catch{}
       const pair=new WebSocketPair();
       this.ctx.acceptWebSocket(pair[1]);
-      pair[1].serializeAttachment({role,test});
+      pair[1].serializeAttachment({expiresAt:Number(req.headers.get('X-Glass-Expires'))||null,deviceId:req.headers.get('X-Glass-Device'),role,test});
       const device=this.rtcSocket('rtc-device',test);
       const viewer=this.rtcSocket('rtc-viewer',test);
       if(device&&viewer)try{viewer.send('{"type":"ready"}')}catch{}
@@ -40,7 +40,7 @@ export async function handleConnection(req,u){
     }
     if(p==='/cam/upload' && req.headers.get('Upgrade')?.toLowerCase()==='websocket'){
       if(!this.test||this.test.done||this.test.transport==='webrtc'||String(this.test.test)!==q.get('test'))return json({error:'촬영을 다시 시작하세요'},409);
-      const pair=new WebSocketPair();this.ctx.acceptWebSocket(pair[1]);pair[1].serializeAttachment({role:'camera',test:this.test.test,id:q.get('id')||'glasses'});
+      const pair=new WebSocketPair();this.ctx.acceptWebSocket(pair[1]);pair[1].serializeAttachment({expiresAt:Number(req.headers.get('X-Glass-Expires'))||null,deviceId:req.headers.get('X-Glass-Device'),role:'camera',test:this.test.test,id:q.get('id')||'glasses'});
       this.trace('camera_socket_open',{test:this.test.test});
       return new Response(null,{status:101,webSocket:pair[0]});
     }
@@ -67,7 +67,7 @@ export async function handleConnection(req,u){
     }
     if(p==='/cam/ws' && req.headers.get('Upgrade')?.toLowerCase()==='websocket') {
       const pair=new WebSocketPair();this.ctx.acceptWebSocket(pair[1]);
-      pair[1].serializeAttachment({role:'viewer',binary:q.get('binary')==='1'});
+      pair[1].serializeAttachment({expiresAt:Number(req.headers.get('X-Glass-Expires'))||null,deviceId:req.headers.get('X-Glass-Device'),role:'viewer',binary:q.get('binary')==='1'});
       // Bootstrap only the codec settings. Replaying an old GOP adds seconds of delay.
       if(this.test&&!this.test.done&&this.config.size){const chunks=[...this.config.values()],bytes=new Uint8Array(chunks.reduce((n,c)=>n+c.length+4,0));let offset=0;for(const c of chunks){bytes.set([0,0,0,1],offset);bytes.set(c,offset+4);offset+=c.length+4}pair[1].send(pack({kind:'h264',config:true,test:this.test.test,fps:this.test.fps},bytes))}
       this.requestKey();

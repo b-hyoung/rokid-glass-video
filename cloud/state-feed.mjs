@@ -15,8 +15,8 @@ export class StateFeed{
     const camera=await(await handleConnection.call(this.room,stats,new URL(stats.url))).json();
     return {recognition,status,camera};
   }
-  async connect(ws,side,id,app=''){
-    ws.serializeAttachment({role:'state-client',side,id,app,submission:0});
+  async connect(ws,side,id,app='',expiresAt=null,deviceId=null){
+    ws.serializeAttachment({role:'state-client',side,id,app,expiresAt,deviceId,submission:0});
     if(side==='device')this.room.seen.set(id,Date.now());
     await this.deliver(ws);
   }
