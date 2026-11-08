@@ -4,7 +4,6 @@ import ipaddress
 import json
 import os
 from pathlib import Path
-import re
 import shutil
 import socket
 import subprocess
@@ -13,6 +12,7 @@ import time
 import urllib.error
 import urllib.request
 import webbrowser
+from release_assets import contract, validate_assets, runtime_config
 
 ROOT = Path(__file__).resolve().parents[1]
 RUNTIME = ROOT / 'runtime'
@@ -40,9 +40,10 @@ def lan_urls(port):
 
 
 def prepare_assets(port):
+    release = validate_assets(mode='web')
     ASSETS.mkdir(parents=True, exist_ok=True)
     for source in (ROOT / 'cloud').rglob('*'):
-        if source.is_file() and source.name not in ('worker.mjs', 'target-store.mjs', 'app.js', 'index.html'):
+        if source.is_file() and source.name not in ('worker.mjs', 'target-store.mjs') and 'handlers' not in source.parts:
             copy_if_changed(source, ASSETS / 'cloud' / source.relative_to(ROOT / 'cloud'))
     model = ROOT / 'build/appearance-v1.onnx'
     ort = ROOT / 'build/appearance-web/node_modules/onnxruntime-web/dist'
@@ -69,14 +70,7 @@ def prepare_assets(port):
         listing[key] = {'title': video['title'], 'file': filename, 'loop': bool(video.get('loop')),
                         'size': source.stat().st_size, 'ver': int(source.stat().st_mtime * 1000)}
     write_if_changed(ASSETS / 'videos.json', json.dumps(listing, ensure_ascii=False))
-    index = (ROOT / 'cloud/index.html').read_text(encoding='utf-8')
-    index = re.sub(r'<a href="/downloads/glass-video-[^"]+">[^<]+</a>',
-                   '<a href="/local-check.html">녹화·사진 인식 테스트</a>', index)
-    index = index.replace('<header>', '<header><p class="hint">로컬 PC 서버 · <a href="/local-check.html">사진·녹화 테스트</a> · <a href="/local-setup.html">안경 연결 방법</a></p>', 1)
-    index = index.replace('Cloudflare로 직접 전송', '이 PC로 직접 전송')
-    write_if_changed(ASSETS / 'cloud/index.html', index)
-    app = (ROOT / 'cloud/app.js').read_text(encoding='utf-8').replace('Cloudflare 연결 · 안경 ', '로컬 PC 연결 · 안경 ')
-    write_if_changed(ASSETS / 'cloud/app.js', app)
+    write_if_changed(ASSETS / 'runtime-config.json', json.dumps(runtime_config(release, mode='local')))
     for filename in ('local-check.html', 'local-check.js', 'local-setup.html'):
         copy_if_changed(ROOT / 'tools' / filename, ASSETS / filename)
     info = {'local': True, 'service': 'rokid-glass-video-local', 'port': port, 'pcUrl': f'http://localhost:{port}', 'lanUrls': lan_urls(port)}
@@ -94,7 +88,8 @@ def wrangler_command():
     if cache.exists():
         candidates.extend(sorted(cache.glob('*/node_modules/wrangler/bin/wrangler.js'), key=lambda p: p.stat().st_mtime, reverse=True))
     for candidate in candidates:
-        if candidate.exists():
+        package = candidate.parent.parent / 'package.json'
+        if candidate.exists() and package.exists() and json.loads(package.read_text(encoding='utf-8')).get('version') == contract()['tools']['wrangler']:
             return [node, str(candidate)]
     npm = Path(node).resolve().parent / 'node_modules/npm/bin/npm-cli.js'
     if not npm.exists():

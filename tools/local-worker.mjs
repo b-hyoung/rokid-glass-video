@@ -31,7 +31,7 @@ async function videoAsset(request,env){
 
 export function localTargets(data,videos){
   if(!Array.isArray(data.targets)||data.targets.length>MAX_TARGETS)throw Error('등록 대상 목록을 확인하세요.');
-  const ids=new Set();
+  const ids=new Set(),imageIds=new Set();
   const targets=data.targets.map(target=>{
     if(typeof target.id!=='string'||!target.id||target.id.length>80||ids.has(target.id))throw Error('대상 ID가 잘못됐거나 중복됐습니다.');
     ids.add(target.id);
@@ -41,7 +41,10 @@ export function localTargets(data,videos){
     if(!target.images.length&&!appearance)throw Error('사진이나 벡터가 없는 대상은 가져올 수 없습니다.');
     const images=target.images.map(image=>{
       if(typeof image.image!=='string'||image.image.length>700000||!/^data:image\/jpeg;base64,[A-Za-z0-9+/]+=*$/.test(image.image))throw Error('등록 사진 형식이나 용량을 확인하세요.');
-      return {image:image.image,capture:image.capture??null};
+      const id=image.id??crypto.randomUUID(),created_at=image.created_at??0;
+      if(typeof id!=='string'||!id||id.length>160||imageIds.has(id)||!Number.isSafeInteger(created_at)||created_at<0)throw Error('사진 ID 또는 저장 시간이 잘못됐습니다.');
+      imageIds.add(id);
+      return {id,created_at,image:image.image,capture:image.capture??null};
     });
     return {id:target.id,name:target.name.trim().slice(0,60),key:target.key,images,appearance};
   });
@@ -62,7 +65,7 @@ export class LocalGlassRoom extends GlassRoom {
         if(this.previewOnly)for(const table of ['target_batches','target_image_info','target_images','target_vectors','targets'])this.ctx.storage.sql.exec(`DELETE FROM ${table}`);
         for(const target of data.targets){
           this.ctx.storage.sql.exec('INSERT INTO targets VALUES (?,?,?,NULL)',target.id,target.name,target.key);
-          for(const image of target.images){const id=this.store.addImage(target.id,image.image);if(image.capture)this.ctx.storage.sql.exec('INSERT INTO target_image_info VALUES (?,?)',id,JSON.stringify(image.capture))}
+          for(const image of target.images){const id=image.id;this.ctx.storage.sql.exec('INSERT INTO target_images VALUES (?,?,?,?)',id,target.id,image.image,image.created_at);if(image.capture)this.ctx.storage.sql.exec('INSERT INTO target_image_info VALUES (?,?)',id,JSON.stringify(image.capture))}
           if(target.appearance)this.ctx.storage.sql.exec('INSERT INTO target_vectors VALUES (?,?)',target.id,JSON.stringify(target.appearance));
         }
         if(data.guide)this.ctx.storage.sql.exec('INSERT OR REPLACE INTO registration_settings VALUES (1,?)',JSON.stringify(data.guide));

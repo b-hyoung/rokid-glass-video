@@ -9,9 +9,12 @@ import {VisionClient} from './vision-client.js';
 import {Registration} from './registration.js';
 import {TargetLibrary} from './library.js';
 import {RtcVideo} from './rtc-video.js';
+import {loadRuntimeConfig,applyRuntimeConfig} from './runtime-config.js';
+import {api} from './api-client.js';
+const runtime=await loadRuntimeConfig();
+applyRuntimeConfig(runtime);
 const $=s=>document.querySelector(s),screen=$('#screen'),g=screen.getContext('2d'),frame=document.createElement('canvas'),fg=frame.getContext('2d');
 let frozen=false,selected=null,drag=null,frameAt=0,frameCount=0,matchedFrame=0,cvReady=false,matcher=new VisionClient(),registration,version=0,loading=false,state={enabled:false,detections:[]},message='',socket;
-const api=async(path,options)=>{const r=await fetch(path,options);const j=await r.json();if(!r.ok)throw Error(j.error||r.status);return j};
 const showError=e=>{message=e.message||String(e);$('#capture-note').textContent=message};
 const timing=new LiveTiming();
 let rtcVideo=null,rtcStatus='',rtcFrames=0,rtcMetricAt=0,captureCommandBusy=false;
@@ -143,7 +146,7 @@ const library=new TargetLibrary({api,crop:()=>{
   c.getContext('2d').drawImage(frozenFrame,selected.x,selected.y,selected.w,selected.h,0,0,c.width,c.height);return c.toDataURL('image/jpeg',.85);
 },onSaved:()=>{selected=null}});
 registration=new Registration({api,library,vision:matcher,live:()=>frameAt&&performance.now()-frameDrawnAt<1200&&timing.fresh(frameAt),unfreeze:()=>$('#glasses').click()});
-async function refresh(){const sent=performance.now();const latest=await api('/recognition/status');if(latest.epoch!==state.epoch||latest.at>=state.at)state=latest;timing.observe(latest.serverNow,sent);registration.observe(state.guide);const status=await api('/status');$('#connection').textContent='Cloudflare 연결 · 안경 '+status.glasses+'대 · '+(frameAt&&performance.now()-frameDrawnAt<1200&&timing.fresh(frameAt)?'영상 수신 중':'촬영 영상 대기');$('#capture-start').disabled=!status.glasses;
+async function refresh(){const sent=performance.now();const latest=await api('/recognition/status');if(latest.epoch!==state.epoch||latest.at>=state.at)state=latest;timing.observe(latest.serverNow,sent);registration.observe(state.guide);const status=await api('/status');$('#connection').textContent=(runtime.mode==='local'?'로컬 PC':'Cloudflare')+' 연결 · 안경 '+status.glasses+'대 · '+(frameAt&&performance.now()-frameDrawnAt<1200&&timing.fresh(frameAt)?'영상 수신 중':'촬영 영상 대기');$('#capture-start').disabled=!status.glasses;
 $('#state').textContent=!cvReady?'인식 엔진 준비 중':!state.enabled?'인식 대기 중':state.focused&&state.progress>0?'재생 진행 '+Math.round(state.progress*100)+'%':state.locked?'영상 재생 신호 전송됨':'시야의 대상 찾는 중';
 await library.sync(state.version);
 if(cvReady&&!loading&&version!==library.version){loading=true;try{const nextVersion=library.version;await matcher.references(library.targets);version=nextVersion}finally{loading=false}}}
