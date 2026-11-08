@@ -83,20 +83,16 @@ def wrangler_command():
     node = shutil.which('node')
     if not node:
         raise RuntimeError('Node.js is required.')
-    candidates = [ROOT / 'node_modules/wrangler/bin/wrangler.js', ROOT / 'build/local-worker/node_modules/wrangler/bin/wrangler.js']
-    cache = Path(os.environ.get('LOCALAPPDATA', Path.home() / '.cache')) / 'npm-cache/_npx'
-    if cache.exists():
-        candidates.extend(sorted(cache.glob('*/node_modules/wrangler/bin/wrangler.js'), key=lambda p: p.stat().st_mtime, reverse=True))
-    for candidate in candidates:
-        package = candidate.parent.parent / 'package.json'
-        if candidate.exists() and package.exists() and json.loads(package.read_text(encoding='utf-8')).get('version') == contract()['tools']['wrangler']:
-            return [node, str(candidate)]
+    candidate = ROOT / 'node_modules/wrangler/bin/wrangler.js'
+    package = candidate.parent.parent / 'package.json'
+    if candidate.exists() and package.exists() and json.loads(package.read_text(encoding='utf-8')).get('version') == contract()['tools']['wrangler']:
+        return [node, str(candidate)]
     npm = Path(node).resolve().parent / 'node_modules/npm/bin/npm-cli.js'
     if not npm.exists():
-        raise RuntimeError('Install Wrangler locally with npm install --no-save --no-package-lock wrangler@4.158.0')
-    print('Installing local Worker runtime (one time)...', flush=True)
-    subprocess.run([node, str(npm), 'install', '--prefix', str(ROOT / 'build/local-worker'), '--no-audit', '--no-fund', '--no-package-lock', 'wrangler@4.158.0'], check=True)
-    return [node, str(ROOT / 'build/local-worker/node_modules/wrangler/bin/wrangler.js')]
+        raise RuntimeError('Run npm ci in the project directory to install the locked Worker runtime.')
+    print('Installing the locked local Worker runtime (one time)...', flush=True)
+    subprocess.run([node, str(npm), 'ci', '--no-audit', '--no-fund'], cwd=ROOT, check=True)
+    return [node, str(candidate)]
 
 
 def api(port, path, data=None):

@@ -1,6 +1,6 @@
 # 글래스 영상 (Rokid Glasses용)
 
-다음 작업과 인계: [0.2.10 이후 작업 목록](docs/NEXT_STEPS.md)
+현재 개선 계획: [구현 계획](docs/IMPLEMENTATION_PLAN_20261109.md) · [진행 및 검증 기록](docs/IMPLEMENTATION_PROGRESS_20261109.md) · [백업·복구·빌드](docs/RECOVERY.md). 아래 이전 버전 설명은 개발 이력이다. 현재 앱 소스는 0.2.20 후보이며 정식 다운로드를 교체하지 않았다.
 
 ## 로컬 PC에서 실행
 
@@ -12,7 +12,7 @@ Windows에서는 프로젝트의 **start-local.cmd**를 실행하거나 `python 
 - 등록 사진·벡터와 보정값은 `runtime/local-state`에 저장돼 재시작해도 유지된다. 운영 Cloudflare 등록 데이터와는 별개다. 백업 JSON이 있으면 `python tools/start_local.py --targets <파일>`로 빈 로컬 저장소에 가져올 수 있다. 이미 로컬에 등록된 대상이 있으면 덮어쓰지 않는다. 현재 PC의 준비된 백업은 `runtime/local-targets-import.json`이다.
 - 창을 닫거나 Ctrl+C로 서버를 중지한다. `--no-open`은 브라우저 자동 열기를 끄고, `--port 8790`처럼 다른 포트를 선택하면 포트별 별도 저장소를 쓴다. 실행 로그는 `runtime/local-server.log`에 남는다.
 
-준비물: Node.js·Python·Chrome 및 기존 `build/appearance-v1.onnx`, `build/appearance-web`의 브라우저 추론 파일. 이 PC에는 준비돼 있다. Wrangler가 없으면 실행기가 `build/local-worker`에 개발 런타임을 설치한다. 최초 도구 설치에는 인터넷이 필요할 수 있으며, 이후 인식과 데이터 저장은 PC에서 수행한다. 물체 탐지 정확도는 운영과 같은 엔진의 현재 한계를 그대로 반영한다.
+준비물: Node.js·Python·Chrome 및 `release.json`에 고정된 모델·추론 파일. 새 체크아웃에서는 복구 안내에 따라 파일을 준비한다. Wrangler가 없으면 실행기가 프로젝트의 lockfile로 `npm ci`를 실행한다. 최초 도구 설치에는 인터넷이 필요하며, 이후 인식과 데이터 저장은 PC에서 수행한다. 물체 탐지 정확도는 운영과 같은 엔진의 현재 한계를 그대로 반영한다.
 
 관련 파일: `tools/start_local.py`, `wrangler.local.jsonc`, `tools/local-worker.mjs`.
 
@@ -22,7 +22,7 @@ Windows에서는 프로젝트의 **start-local.cmd**를 실행하거나 `python 
 
 WebRTC 영상은 안경에서 브라우저로 직접 흐른다. Worker의 `/cam/rtc`는 연결 설정만 전달하며, 촬영 명령과 웹 인식·HUD는 기존 경로를 쓴다. 이 모드에서는 별도 YUV 출력 없이 촬영하며 HUD는 웹이 찾은 위치를 표시한다. 직접 연결이 가능한 LAN을 대상으로 하며 TURN은 구성하지 않았다.
 
-로컬에서 시험할 때는 `python tools/build_pages.py` 후 `npx wrangler dev --ip 0.0.0.0`으로 열고, PC에서는 `http://localhost:8787/recognition`에 접속한다. 안경 앱에는 같은 Worker의 PC LAN 주소를 지정한다. 기존 설치에 덮어쓸 APK는 기존과 동일한 키로 서명해야 한다.
+로컬 시험은 `python tools/start_local.py`로 열고, PC에서는 `http://localhost:8787/recognition`에 접속한다. 안경 앱에는 같은 Worker의 PC LAN 주소를 지정한다. 기존 설치에 덮어쓸 APK는 기존과 동일한 키로 서명해야 한다.
 
 ## 0.2.10 · 안경 내부 추적과 표시 확인
 
@@ -73,10 +73,9 @@ https://glass-2412.youqlrqod.workers.dev/recognition
 ### 배포와 검증
 
 ```sh
-python3 tools/build_android.py  # 선택: 새 APK가 필요한 경우, 기존 서명 키 사용
-python3 tools/build_pages.py
-npx wrangler@4.157.0 deploy --durable-objects-code-update-mode immediate
-node --test tests/*.test.mjs
+python3 tools/check_project.py
+python3 tools/build_android.py  # 기존 키로 후보 APK 생성; 정식 배포 아님
+python3 tools/build_pages.py --mode web --output build/web-candidate
 ```
 
 0.2.8은 원본의 Camera2 해상도·고정 fps 선택·하드웨어 H.264 설정(2Mbps, 키프레임 1초)을 유지한다. Cloudflare의 `transport: websocket` 명령을 받으면 같은 인코더 출력을 100ms 단위로 지속 연결에 보낸다. 이전 로컬 서버 명령에는 기존 순차 HTTP POST 전송을 그대로 사용한다. 신규 전송은 밀렸을 때 연결을 반복해서 끊지 않고 전송 대기열을 제한하며 다음 키프레임부터 복구한다. 재연결마다 SPS/PPS를 다시 보낸다.
@@ -160,7 +159,7 @@ cloudflared tunnel --url http://localhost:8787   # 외부 주소(https://xxx.try
 
 ## 앱 빌드
 ```
-SERVER=https://xxx.trycloudflare.com bash build.sh   # → build/glass-video.apk (JDK 21, SDK build-tools·platform 36)
+SERVER=https://xxx.trycloudflare.com bash build.sh   # → build/glass-video-0.2.20-candidate.apk (검증 JDK 25, SDK 36)
 ```
 빠른 터널 주소는 켤 때마다 바뀐다. 다시 빌드하거나, 설치된 앱에 한 번 넘겨 주면 기억한다:
 ```

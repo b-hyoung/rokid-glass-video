@@ -88,7 +88,7 @@ def main():
         if args.release and fingerprint!=release['app']['certificateSha256']:
             raise SystemExit('Signing certificate differs from the approved release certificate')
         os.replace(signed,apk)
-        apk.with_suffix('.json').write_text(json.dumps({'version':version,'versionCode':version_code,'protocol':release['protocol'],'sha256':sha256(apk),'certificateSha256':fingerprint,'signatureVerified':True,'candidate':not args.release},indent=2),encoding='utf-8')
+        apk.with_suffix('.json').write_text(json.dumps({'version':version,'versionCode':version_code,'protocol':release['protocol'],'sha256':sha256(apk),'certificateSha256':fingerprint,'signatureVerified':True,'candidate':not args.release,'defaultServer':tree.find('.//string[@name="default_server"]').text,'localServers':tree.find('.//string[@name="local_servers"]').text or ''},indent=2),encoding='utf-8')
         print(apk)
 
 if __name__ == '__main__':

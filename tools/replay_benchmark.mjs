@@ -11,6 +11,7 @@ const root=fileURLToPath(new URL('..',import.meta.url));
 const arg=(name,fallback)=>{const i=process.argv.indexOf(name);return i<0?fallback:process.argv[i+1]};
 const datasetPath=path.resolve(arg('--dataset','runtime/benchmark/dataset.json'));
 const source=path.resolve(arg('--source',root)),dataset=JSON.parse(await fs.readFile(datasetPath,'utf8'));
+const assetRoot=path.resolve(arg('--asset-root',root));
 const files=new Map(),digest=buffer=>createHash('sha256').update(buffer).digest('hex');
 async function fixture(entry){
   const filename=path.resolve(path.dirname(datasetPath),entry.path),bytes=await fs.readFile(filename);
@@ -21,14 +22,18 @@ const targets=JSON.parse((await fs.readFile(path.resolve(path.dirname(datasetPat
 if(digest(await fs.readFile(path.resolve(path.dirname(datasetPath),dataset.targets.path)))!==dataset.targets.sha256)throw Error('Targets checksum mismatch');
 const cases=[];
 for(const scene of dataset.cases){const frames=[];for(const f of scene.frames)frames.push({...f,url:await fixture(f)});cases.push({...scene,frames})}
-const release=JSON.parse(await fs.readFile(path.join(root,'release.json'),'utf8'));
-const assets=new Map(release.assets.map(a=>['/'+a.destination,path.join(root,a.source)]));
-for(const asset of release.assets)if(digest(await fs.readFile(path.join(root,asset.source)))!==asset.sha256)throw Error('Asset checksum mismatch: '+asset.source);
+const release=JSON.parse(await fs.readFile(path.join(assetRoot,'release.json'),'utf8'));
+const assets=new Map(release.assets.map(a=>['/'+a.destination,path.join(assetRoot,a.source)]));
+for(const asset of release.assets)if(digest(await fs.readFile(path.join(assetRoot,asset.source)))!==asset.sha256)throw Error('Asset checksum mismatch: '+asset.source);
 const server=http.createServer(async(req,res)=>{
   try{
     const url=new URL(req.url,'http://localhost');
     if(url.pathname==='/'){res.setHeader('Content-Type','text/html');res.end('<title>Offline recognition benchmark</title>');return}
     if(url.pathname==='/dataset'){res.setHeader('Content-Type','application/json');res.end(JSON.stringify({targets:targets.targets,cases}));return}
+    if(url.pathname==='/runtime-probe.js'){
+      res.setHeader('Content-Type','text/javascript');
+      res.end(`importScripts('/cloud/ort/ort.wasm.min.js');ort.env.wasm.wasmPaths='/cloud/ort/';ort.env.wasm.numThreads=1;(async()=>{const session=await ort.InferenceSession.create('/cloud/appearance-v1.onnx',{executionProviders:['wasm']});const output=await session.run({image:new ort.Tensor('float32',new Float32Array(3*3*224*224),[3,3,224,224])});postMessage({features:output.features.data.length,finite:output.features.data.every(Number.isFinite)})})().catch(e=>postMessage({error:e.message}));`);return;
+    }
     if(files.has(url.pathname)){res.setHeader('Content-Type','image/jpeg');res.end(files.get(url.pathname));return}
     const filename=assets.get(url.pathname)||(url.pathname.startsWith('/cloud/')&&path.resolve(source,'.'+url.pathname));
     if(!filename||!assets.has(url.pathname)&&!filename.startsWith(path.join(source,'cloud')+path.sep)){res.writeHead(404);res.end();return}
@@ -75,21 +80,25 @@ try{
           frames.push({ms:result.ms,wallMs,ids,expected:frame.expected||scene.expected||[],corners:result.found.map(f=>({id:f.id,corners:f.corners}))});at+=scene.intervalMs||650;
         }
         const expected=scene.expected||[],missed=expected.filter(id=>!first.has(id));
-        trials.push({frames,first:Object.fromEntries(first),missed,success:!missed.length});
+        const unexpected=(scene.checkUnexpected===true||!expected.length)?[...new Set(frames.flatMap(f=>f.ids).filter(id=>!expected.includes(id)))]:[];
+        trials.push({frames,first:Object.fromEntries(first),missed,unexpected,success:!missed.length&&!unexpected.length});
       }
       results.push({name:scene.name,expected:scene.expected||[],trials});
     }
-    vision.worker.terminate();return {engine:vision.version,cases:results};
+    vision.worker.terminate();
+    const model=${process.argv.includes('--verify-model')}?await new Promise((resolve,reject)=>{const worker=new Worker('/runtime-probe.js');worker.onmessage=({data})=>{worker.terminate();data.error?reject(Error(data.error)):resolve(data)};worker.onerror=e=>reject(Error(e.message))}):null;
+    return {engine:vision.version,cases:results,model};
   })()`;
   const timeout=setTimeout(()=>{for(const p of pending.values())p.reject(Error('Benchmark timed out'))},180000);
   let evaluated;try{evaluated=await send('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true})}finally{clearTimeout(timeout)}
   if(evaluated.exceptionDetails)throw Error(JSON.stringify(evaluated.exceptionDetails));
   const result=evaluated.result.value;
   const percentile=(values,p)=>values.length?[...values].sort((a,b)=>a-b)[Math.ceil(values.length*p)-1]:null;
-  result.summary=result.cases.map(c=>{const times=c.trials.flatMap(t=>c.expected.map(id=>t.first[id]??null));const misses=times.filter(t=>t===null).length;const known=times.filter(t=>t!==null);return {name:c.name,attempts:times.length,misses,successfulMedianMs:percentile(known,.5),successfulP95Ms:percentile(known,.95),allPassed:!misses}});
+  result.summary=result.cases.map(c=>{const times=c.trials.flatMap(t=>c.expected.map(id=>t.first[id]??null));const misses=times.filter(t=>t===null).length;const known=times.filter(t=>t!==null),unexpected=c.trials.reduce((n,t)=>n+t.unexpected.length,0);return {name:c.name,attempts:times.length,misses,unexpected,successfulMedianMs:percentile(known,.5),successfulP95Ms:percentile(known,.95),allPassed:!misses&&!unexpected}});
   result.datasetSha256=digest(await fs.readFile(datasetPath));result.hardwareValidated=false;result.source=source;
   const report=path.resolve(arg('--report','runtime/benchmark/latest.json'));await fs.mkdir(path.dirname(report),{recursive:true});await fs.writeFile(report,JSON.stringify(result,null,2));
-  console.log(JSON.stringify({report,engine:result.engine,summary:result.summary}));
+  console.log(JSON.stringify({report,engine:result.engine,summary:result.summary,model:result.model}));
+  if(result.model&&(!result.model.finite||result.model.features!==1728))throw Error('Appearance model smoke check failed');
   if(process.argv.includes('--require-all')&&result.summary.some(c=>!c.allPassed))process.exitCode=1;
 }finally{
   socket?.close();browser.kill();await new Promise(resolve=>server.close(resolve));

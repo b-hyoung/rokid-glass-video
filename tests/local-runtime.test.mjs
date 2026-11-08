@@ -42,6 +42,15 @@ test('local import preserves target identity, photo metadata and existing local 
   const target=live.targets(true)[0];assert.equal(target.id,'saved-photo-id');assert.equal(target.images.length,2);assert.equal(target.images.find(i=>i.capture)?.capture.source,'photo');
 });
 
+test('backup restore preserves original image IDs, timestamps and vector components exactly',async()=>{
+  const {live,request}=environment();
+  const vector=Array(576).fill(0);vector[0]=.6;vector[1]=.800000000000001;
+  const appearance={model:'mobilenet-v3-small-imagenet1k-v1',vectors:[vector]};
+  const original={...snapshot.targets[0],appearance,images:[{id:'original-image',created_at:1234,image,capture:{source:'photo',filename:'original.jpg'}}]};
+  assert.equal((await request('/local/import',{targets:[original]})).status,200);
+  const restored=live.targets(true)[0];assert.deepEqual(restored.appearance,appearance);assert.deepEqual(restored.images,original.images);
+});
+
 test('preview synchronization copies the current library without replacing live data',async()=>{
   const {live,preview,request}=environment();await request('/local/import',snapshot);
   assert.equal((await request('/preview/sync',{})).status,200);

@@ -12,7 +12,9 @@ public class SessionWorkersTest {
         for(int round=0;round<50;round++){
             owner.begin();long ticket=owner.ticket();CountDownLatch entered=new CountDownLatch(1),released=new CountDownLatch(1);
             owner.start("recognition",()->{int n=active.incrementAndGet();maximum.accumulateAndGet(n,Math::max);entered.countDown();try{while(owner.active())if(!owner.pause(10000))break;}finally{active.decrementAndGet();if(owner.current(ticket))callbacks.incrementAndGet();released.countDown();}});
-            check(entered.await(2,TimeUnit.SECONDS),"worker starts");owner.end();
+            check(entered.await(2,TimeUnit.SECONDS),"worker starts");
+            check(!owner.start("recognition",()->{}),"duplicate role must not start");
+            owner.end();
             check(!owner.current(ticket),"old callbacks cannot become current");check(released.await(2,TimeUnit.SECONDS),"stop interrupts blocked sleep");
         }
         check(maximum.get()==1&&callbacks.get()==0,"one current worker, zero stale callbacks");
