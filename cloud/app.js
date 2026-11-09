@@ -201,17 +201,19 @@ async function recognize(){
  setTimeout(recognize,100);
 }
 const foundStatus=$('#found');
+const monitor=$('#hud-monitor');
 function draw(now){
   player.tick(now);
   if(!frozen&&frameAt&&!timing.fresh(frameAt,now)){
     diagnostics.record('screen_clear',{reason:'frame_stale',...diagState()});
     diagnosticCleared=true;frameAt=0;g.clearRect(0,0,screen.width,screen.height);
   }
-  const showRecognition=frameAt&&!frozen&&!registration.enabled&&(timing.age(state.at,now)??Infinity)<2200;
-  const showFocus=frameAt&&!frozen&&!registration.enabled&&state.focused&&state.focused!==state.locked&&
+  const displayPlayback=monitor.dataset.mode==='playback'||monitor.dataset.mode==='loading';
+  const showRecognition=!displayPlayback&&frameAt&&!frozen&&!registration.enabled&&(timing.age(state.at,now)??Infinity)<2200;
+  const showFocus=!displayPlayback&&frameAt&&!frozen&&!registration.enabled&&state.focused&&state.focused!==state.locked&&
     (state.focusExpiresAt?now+(timing.offset??0)<state.focusExpiresAt:showRecognition);
   const detections=showRecognition?state.detections.filter(target=>!target.approximate&&!target.provisional):[];
-  const caption=!frameAt?'안경 카메라 영상 대기':frozen?'등록용 화면 정지':
+  const caption=displayPlayback?(monitor.dataset.mode==='playback'?'안경에 연결 영상 표시 중':'안경에서 연결 영상 불러오는 중'):!frameAt?'안경 카메라 영상 대기':frozen?'등록용 화면 정지':
     detections.length?'인식된 물체 · '+detections.map(target=>target.name).join(' · '):'인식된 대상 없음';
   if(foundStatus.textContent!==caption)foundStatus.textContent=caption;
   if(frameAt){
@@ -233,11 +235,11 @@ function draw(now){
       const left=x*screen.width;
       g.fillText(label,Math.max(4,Math.min(left,screen.width-g.measureText(label).width-4)),Math.max(20,y*screen.height-8));
     }
-    registration.draw(g,screen.width,screen.height);
-    if(selected){
+    if(!displayPlayback)registration.draw(g,screen.width,screen.height);
+    if(selected&&!displayPlayback){
       g.strokeStyle='#68ff8a';g.lineWidth=2;g.strokeRect(selected.x,selected.y,selected.w,selected.h);
     }
-    if(!registration.enabled){
+    if(!registration.enabled&&!displayPlayback){
       const aim=state.guide?.calibrated?state.guide.camera:{cx:.5,cy:.5};
       const x=screen.width*aim.cx,y=screen.height*aim.cy;
       g.strokeStyle='#68ff8a';g.lineWidth=2;g.beginPath();

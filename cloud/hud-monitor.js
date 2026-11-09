@@ -1,14 +1,24 @@
 const summary=document.querySelector('#hud-summary'),preview=document.querySelector('#hud-preview'),labels=document.querySelector('#hud-labels'),names=document.querySelector('#hud-names'),video=document.querySelector('#hud-video-state');
 const player=document.querySelector('#hud-player'),playerStatus=document.querySelector('#hud-player-status');
-const playbackPane=document.querySelector('#hud-playback');
+const playbackPane=document.querySelector('#hud-playback'),display=document.querySelector('#hud-display'),scene=document.querySelector('#monitor-scene'),monitor=document.querySelector('#hud-monitor'),resume=document.querySelector('#hud-resume');
 let socket,timer,lastAt=0,lastText='',revision='',connected=false;
-let playbackId='';
+let playbackId='',displayAspect=16/9;
+function layout(){
+  // MainActivity.fit() centers a contained video in the glasses' full display.
+  // Fit that display in the camera monitor without stretching either image.
+  const width=Math.min(scene.clientWidth,scene.clientHeight*displayAspect);
+  display.style.width=width+'px';display.style.height=(width/displayAspect)+'px';
+}
+new ResizeObserver(layout).observe(scene);
 function text(value){if(value!==lastText){summary.textContent=value;lastText=value}}
 function stopPreview(){
   if(!playbackId)return;
   playbackId='';
-  player.pause();player.removeAttribute('src');player.load();player.hidden=true;playerStatus.textContent='';
+  player.pause();player.removeAttribute('src');player.load();player.hidden=true;playerStatus.textContent='';resume.hidden=true;
 }
+function startPreview(id){player.play().catch(error=>{
+  if(playbackId===id&&error.name==='NotAllowedError'){playerStatus.textContent='모니터링 영상을 보려면 화면의 버튼을 눌러 주세요.';resume.hidden=false;}
+});}
 function playPreview(state){
   const media=state.media;
   if(!state.playbackId||typeof media?.url!=='string'||!/^\/v\/[\w.-]+\.mp4$/i.test(media.url))return false;
@@ -16,18 +26,18 @@ function playPreview(state){
   stopPreview();
   const id=playbackId=state.playbackId;
   player.hidden=false;player.loop=!!media.loop;player.muted=true;player.src=media.url;
-  player.play().catch(error=>{
-    if(playbackId===id&&error.name==='NotAllowedError')playerStatus.textContent='웹 미리보기를 보려면 재생 버튼을 눌러 주세요.';
-  });
+  startPreview(id);
   return true;
 }
 player.addEventListener('error',()=>{if(playbackId)playerStatus.textContent='안경은 재생 중이지만 웹에서 영상을 불러오지 못했습니다.'});
-player.addEventListener('playing',()=>{playerStatus.textContent=''});
-function clear(message){lastAt=0;revision='';stopPreview();labels.replaceChildren();names.replaceChildren();video.replaceChildren();video.hidden=true;playbackPane.hidden=true;preview.dataset.mode='idle';text(message)}
+player.addEventListener('playing',()=>{playerStatus.textContent='';resume.hidden=true});
+resume.onclick=()=>{if(playbackId)startPreview(playbackId)};
+function clear(message){lastAt=0;revision='';stopPreview();labels.replaceChildren();names.replaceChildren();video.replaceChildren();video.hidden=true;playbackPane.hidden=true;monitor.dataset.mode=preview.dataset.mode='idle';text(message)}
 function draw(state){
   // This module has no camera frames and cannot originate a recognition result.
   lastAt=performance.now();const objects=state.visible?state.objects:[];
-  const mode=state.visible?state.mode:'idle';preview.dataset.mode=mode;
+  const mode=state.visible?state.mode:'idle';monitor.dataset.mode=preview.dataset.mode=mode;
+  displayAspect=state.width/state.height;layout();
   preview.style.aspectRatio=state.width+'/'+state.height;
   const signature=JSON.stringify([objects,mode,state.title,state.tracking,state.playbackId,state.media]);
   if(signature===revision)return;revision=signature;

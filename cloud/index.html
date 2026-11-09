@@ -8,18 +8,19 @@
 
 #registration{margin-top:18px}#registration-step{font-size:13px}summary{cursor:pointer;color:#b7e1bf;padding:10px 0}fieldset{border:0;padding:0;margin:0;min-width:0}.guide-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}.guide-grid h3{font-size:14px;color:#b7e1bf}.guide-grid label{display:flex;justify-content:space-between;font-size:13px}.guide-grid output{color:#80ef97}input[type=range]{width:100%;accent-color:#65ed82;margin:6px 0 16px;min-height:24px}#capture-samples{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px;max-height:340px;overflow:auto}#capture-samples button{font-size:12px;padding:4px}#capture-samples img{width:100%;height:72px;object-fit:contain;display:block}#capture-samples [aria-pressed=false]{opacity:.45}#capture-samples [aria-pressed=true]{border-color:#80ef97}#registration-note{min-height:24px;color:#cce8d2}fieldset:disabled{opacity:.55}@media(max-width:500px){.guide-grid{grid-template-columns:1fr;gap:6px}.library-heading{flex-wrap:wrap}}
 .monitor-grid{display:grid;grid-template-columns:minmax(0,1fr);align-items:start;gap:12px}
-@media(min-width:1050px){.monitor-grid:has(#hud-playback:not([hidden])){grid-template-columns:minmax(0,3fr) minmax(0,2fr)}}
 .registering .monitor-grid{position:sticky;top:8px;z-index:2}
 .registering .stage{min-height:0;border:1px solid #41684c}
 .registering #screen{max-height:36vh}.registering summary{scroll-margin-top:39vh}
 @media(max-width:750px){.registering .monitor-grid{top:0}.registering #screen{max-height:30vh}}
-#hud-playback{min-width:0;background:#151d18;border:1px solid #41684c;padding:12px}
-#hud-playback h3{font-size:14px;color:#b7e1bf;margin:0 0 8px}
-#hud-player,#hud-video-state{width:100%;aspect-ratio:16/9;background:#050806}
-#hud-player{display:block;object-fit:contain}
-#hud-video-state{display:grid;place-content:center;text-align:center;padding:12px}
+#monitor-scene{position:relative;display:grid;place-items:center;max-width:100%;min-width:0}
+#hud-playback{position:absolute;inset:0;overflow:hidden;pointer-events:none;line-height:1.5}
+#hud-display{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
+#hud-player{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:contain;background:transparent}
+#hud-video-state{position:absolute;bottom:0;left:0;right:0;text-align:center;padding:8px;color:#68ff8a;background:#050806b3}
 #hud-video-state strong{overflow-wrap:anywhere}
+#hud-player-status{position:absolute;top:0;left:0;right:0;margin:0;padding:8px;text-align:center;background:#050806b3}
 #hud-player-status:empty{display:none}
+#hud-resume{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:auto}
 #hud-monitor{min-width:0}
 #found{margin:8px 0 0;color:#b7e1bf;overflow-wrap:anywhere}
 #hud-summary{margin:4px 0 12px}
@@ -62,21 +63,23 @@
 <div class="add-image"><h3>이미지 추가</h3><p id="add-guide" class="hint">안경 화면을 멈추고 물건 영역을 드래그한 뒤 등록하세요.</p><button id="add" class="primary" type="button">새 대상과 이미지 등록</button><p id="selection" class="hint" role="status">선택한 영역 없음</p></div></section>
 <section><h2>3 · 인식 실행</h2><div class="row"><button id="start" class="primary">인식 시작</button><button id="stop">인식 중지</button></div><p id="state">인식 엔진 준비 중</p><p class="hint">사진과 벡터를 함께 등록한 물체는 카메라 시야에서 두 결과가 일치하면 조준하기 전에도 안경에 ▶와 이름이 표시됩니다. 표시된 물체에 조준점을 2.5초 유지하면 연결 영상이 재생됩니다. 재생 중에는 다른 대상의 영상이 시작되지 않습니다. 안경 버튼으로 영상을 종료한 뒤 중앙을 비우고 다시 조준하세요. 같은 대상을 다시 재생하려면 시야 밖으로 2초 이상 벗어나게 하세요.</p></section></aside>
 <div>
-<h2 id="hud-heading">안경 카메라 · 인식 모니터</h2>
+<h2 id="hud-heading">안경 시야 모니터링</h2>
 <div id="hud-monitor" class="monitor-grid" role="region" aria-labelledby="hud-heading">
   <div>
-    <div class="stage"><canvas id="screen" width="960" height="540" aria-label="안경 카메라와 인식 표시"></canvas></div>
+    <div class="stage"><div id="monitor-scene">
+      <canvas id="screen" width="960" height="540" aria-label="안경 카메라와 인식 표시"></canvas>
+      <div id="hud-playback" aria-label="안경 영상 표시" hidden><div id="hud-display">
+        <video id="hud-player" aria-label="안경에 표시 중인 연결 영상" muted playsinline hidden></video>
+        <div id="hud-video-state" role="status" hidden></div>
+        <p id="hud-player-status" class="hint" role="status"></p>
+        <button id="hud-resume" type="button" hidden>모니터링 영상 보기</button>
+      </div></div>
+    </div></div>
     <p id="found" role="status">인식된 대상 없음</p>
-  </div>
-  <div id="hud-playback" aria-labelledby="hud-playback-heading" hidden>
-    <h3 id="hud-playback-heading">안경에서 재생 중인 영상</h3>
-    <video id="hud-player" aria-label="안경에서 재생 중인 영상" controls muted playsinline hidden></video>
-    <div id="hud-video-state" hidden></div>
-    <p id="hud-player-status" class="hint" role="status"></p>
-    <p class="hint">웹에서는 같은 영상이 음소거로 시작되며, 안경과 재생 위치가 다를 수 있습니다.</p>
   </div>
 </div>
 <p class="hint">초록 테두리: 인식 대상 · 가운데 원: 조준점 · 원 둘레: 재생까지 남은 시간</p>
+<p class="hint">안경에서 영상을 표시하면 이 화면에도 같은 위치·비율로 겹쳐 표시합니다. 카메라와 안경 표시 상태를 합성한 미리보기로, 실제 시야·재생 시점에는 차이가 있습니다.</p>
 <p id="hud-summary" class="hint" role="status">안경 앱의 표시 정보를 기다리고 있습니다.</p>
 <details>
   <summary>안경에 표시된 이름과 위치 확인</summary>
