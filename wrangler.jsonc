@@ -2,6 +2,7 @@
   "name": "glass-2412",
   "main": "cloud/worker.mjs",
   "compatibility_date": "2026-11-01",
+  "vars": {"ACCESS_MODE":"legacy"},
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
