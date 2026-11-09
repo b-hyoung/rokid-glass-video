@@ -10,7 +10,7 @@ const folder=path.resolve('runtime/paired-'+new URL(origin).port),keys=JSON.pars
 async function request(route,{data,cookie,token,method,headers={}}={}){
  const response=await fetch(origin+route,{method:method||(data?'POST':'GET'),headers:{...(cookie?{Cookie:cookie}:{}),...(token?{Authorization:'Bearer '+token}:{}),'Content-Type':'application/json',...headers},body:data?JSON.stringify(data):undefined,redirect:'manual'});
  const result=response.headers.get('Content-Type')?.includes('json')?await response.json():null;
- return {status:response.status,data:result,cookie:response.headers.get('set-cookie')?.split(';')[0]};
+ return {status:response.status,data:result,cookie:response.headers.getSetCookie().map(c=>c.split(';')[0]).join('; ')};
 }
 async function create(){const response=await request('/access/create',{data:{setupKey:keys.SETUP_SECRET}});assert.equal(response.status,200);return {...response.data,cookie:response.cookie}}
 assert.equal((await request('/recognition/targets')).status,401);
@@ -23,9 +23,9 @@ assert.deepEqual(normalize(restored.targets),normalize(snapshot.targets));assert
 assert.equal((await request('/recognition/targets?room='+a.roomId,{...b,headers:{'X-Glass-Room':a.roomId}})).data.targets.length,0);
 await request('/recognition/targets?id='+snapshot.targets[0].id,{...b,method:'DELETE'});
 assert.equal((await request('/recognition/targets',a)).data.targets.length,snapshot.targets.length);
-const code=(await request('/access/code',{...a,data:{}})).data.code;
-const device=await request('/access/pair',{data:{code,protocol:1}});assert.equal(device.status,200);
-assert.equal((await request('/access/pair',{data:{code,protocol:1}})).status,403);
+async function discovery(){const data={installKey:Buffer.from(crypto.getRandomValues(new Uint8Array(32))).toString('base64url'),label:'Integration glasses',app:'0.2.22',protocol:1};const pending=await request('/access/hello',{data});assert.equal(pending.data.state,'pending');return {data,...pending.data}}
+async function approve(pending){assert.equal((await request('/access/claim',{...a,data:{deviceId:pending.deviceId}})).status,200);const result=await request('/access/hello',{data:pending.data});assert.equal(result.data.state,'connected');return result}
+const first=await discovery(),device=await approve(first);
 assert.equal((await request('/recognition/targets',{token:device.data.token})).status,403);
 assert.equal((await request('/play?key=e',{token:device.data.token,data:{}})).status,403);
 assert.equal((await request('/stop',{...a,data:{},headers:{Origin:'http://other.test'}})).status,403);
@@ -41,10 +41,10 @@ const java=name=>javaHome?path.join(javaHome,'bin',name):name;
 const jars=['Java-WebSocket-1.6.0.jar','slf4j-api-2.0.13.jar'].map(f=>path.resolve('build/deps',f)),classpath=jars.join(path.delimiter);
 execFileSync(java('javac'),['-encoding','UTF-8','-cp',classpath,'-d',native,path.join(native,'BuildInfo.java'),'src/com/hoonartis/glassvideo/DeviceAccess.java','tests/native/PairingTransportProbe.java'],{stdio:'pipe',windowsHide:true});
 execFileSync(java('java'),['-cp',[native,...jars].join(path.delimiter),'com.hoonartis.glassvideo.PairingTransportProbe'],{input:origin+'\n'+device.data.token+'\n',stdio:['pipe','pipe','pipe'],windowsHide:true,timeout:20000});
-const replacementCode=(await request('/access/code',{...a,data:{}})).data.code;
-const replacement=await request('/access/pair',{data:{code:replacementCode,protocol:1}});assert.equal(replacement.status,200);
+const replacement=await approve(await discovery());
+assert.equal((await request('/access/hello',{data:first.data})).data.state,'pending');
 assert.equal((await request('/status',{token:device.data.token})).status,403);assert.equal((await request('/videos.json',{token:device.data.token})).status,403);
 assert.equal((await request('/videos.json',{token:replacement.data.token})).status,200);
 fs.writeFileSync(path.join(folder,'check-credentials.json'),JSON.stringify({a,b,device:replacement.data}),{mode:0o600});
-const report={anonymousRejected:true,workspacesIsolated:true,restoreTargets:restored.targets.length,restoreImages:restored.targets.reduce((n,t)=>n+t.images.length,0),idsPhotosVectorsCalibrationExact:true,deviceReadAndControlRestricted:true,crossOriginRejected:true,codeSingleUse:true,previewIsolated:true,nativeAuthenticatedHttpAndWebSocket:true,previousDeviceRevoked:true,actualAndroidHardwareValidated:false};
+const report={anonymousRejected:true,workspacesIsolated:true,restoreTargets:restored.targets.length,restoreImages:restored.targets.reduce((n,t)=>n+t.images.length,0),idsPhotosVectorsCalibrationExact:true,deviceReadAndControlRestricted:true,crossOriginRejected:true,webOwnerApproval:true,revokedDeviceCannotRebind:true,previewIsolated:true,nativeAuthenticatedHttpAndWebSocket:true,previousDeviceRevoked:true,actualAndroidHardwareValidated:false};
 fs.writeFileSync(path.join(folder,'validation.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report));

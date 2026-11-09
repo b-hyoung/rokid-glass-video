@@ -45,7 +45,7 @@ export class RtcVideo {
       if (this.peer && document.visibilityState === 'visible' &&
           performance.now() - this.lastFrame > 10000) this.retry();
       else if (!this.peer && performance.now() - openedAt > 15000) {
-        this.onStatus('WebRTC · 안경 앱 0.2.14와 같은 Wi-Fi 연결을 확인하세요');
+        this.onStatus('WebRTC · 안경 앱의 연결 설정과 같은 Wi-Fi 연결을 확인하세요');
       }
     }, 2000);
   }

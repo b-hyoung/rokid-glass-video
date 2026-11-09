@@ -15,6 +15,7 @@ import {StateClient,RetryDelay} from './state-client.js';
 const runtime=await loadRuntimeConfig();
 applyRuntimeConfig(runtime);
 const $=s=>document.querySelector(s),screen=$('#screen'),g=screen.getContext('2d'),frame=document.createElement('canvas'),fg=frame.getContext('2d');
+let lastSnapshot=null;
 let frozen=false,selected=null,drag=null,frameAt=0,frameCount=0,matchedFrame=0,cvReady=false,matcher=new VisionClient(),registration,version=0,loading=false,state={enabled:false,detections:[]},message='',socket;
 const showError=e=>{message=e.message||String(e);$('#capture-note').textContent=message};
 const timing=new LiveTiming();
@@ -147,16 +148,18 @@ const library=new TargetLibrary({api,crop:()=>{
   c.getContext('2d').drawImage(frozenFrame,selected.x,selected.y,selected.w,selected.h,0,0,c.width,c.height);return c.toDataURL('image/jpeg',.85);
 },onSaved:()=>{selected=null}});
 registration=new Registration({api,library,vision:matcher,live:()=>frameAt&&performance.now()-frameDrawnAt<1200&&timing.fresh(frameAt),unfreeze:()=>$('#glasses').click()});
-async function refresh(snapshot=null){const sent=performance.now();const pushed=!!snapshot;
-snapshot??=await api('/recognition/snapshot');const latest=snapshot.recognition;
-if(!pushed&&stateChannel.healthy)return;
+function renderRunState(){
+ $('#start').disabled=!cvReady||loading||!matcher.refs.length||registration?.enabled;
+ $('#state').textContent=loading?'등록 대상 준비 중':!cvReady?'인식 엔진 준비 중':!matcher.refs.length?'대상을 먼저 등록하세요':!state.enabled?'인식 대기 중':state.focused&&state.progress>0?'재생 진행 '+Math.round(state.progress*100)+'%':state.locked?'영상 재생 신호 전송됨':'시야의 대상 찾는 중';
+}
+async function refresh(snapshot){lastSnapshot=snapshot;const latest=snapshot.recognition;
 if(latest.instance!==state.instance||latest.epoch>state.epoch||latest.epoch===state.epoch&&latest.at>=state.at)state=latest;
-if(!pushed)timing.observe(latest.serverNow,sent);registration.observe(state.guide);
+registration.observe(state.guide);
 if(snapshot.camera)applyCameraStats(snapshot.camera);
 const status=snapshot.status;$('#connection').textContent=(runtime.mode==='local'?'로컬 PC':'Cloudflare')+' 연결 · 안경 '+status.glasses+'대 · '+(frameAt&&performance.now()-frameDrawnAt<1200&&timing.fresh(frameAt)?'영상 수신 중':'촬영 영상 대기');$('#capture-start').disabled=!status.glasses;
-$('#state').textContent=!cvReady?'인식 엔진 준비 중':!state.enabled?'인식 대기 중':state.focused&&state.progress>0?'재생 진행 '+Math.round(state.progress*100)+'%':state.locked?'영상 재생 신호 전송됨':'시야의 대상 찾는 중';
+renderRunState();
 await library.sync(state.version);
-if(cvReady&&!loading&&version!==library.version){loading=true;try{const nextVersion=library.version;await matcher.references(library.targets);version=nextVersion}finally{loading=false}}}
+if(cvReady&&!loading&&version!==library.version){loading=true;renderRunState();try{const nextVersion=library.version;await matcher.references(library.targets);version=nextVersion}finally{loading=false;renderRunState()}}}
 
 let refreshing=false,pendingSnapshot=null;
 async function acceptSnapshot(snapshot){
@@ -167,7 +170,7 @@ const stateChannel=new StateClient({onState:acceptSnapshot,onError:showError,onP
 const statusRetry=new RetryDelay();
 async function poll(){
  let delay=1000;
- if(document.visibilityState==='visible'&&!stateChannel.healthy){try{await refresh();statusRetry.reset();delay=2000}catch(e){showError(e);delay=statusRetry.next()}}
+ if(document.visibilityState==='visible'&&!stateChannel.healthy){try{const sent=performance.now(),snapshot=await api('/recognition/snapshot');if(!stateChannel.healthy){timing.observe(snapshot.recognition.serverNow,sent);await acceptSnapshot(snapshot)}statusRetry.reset();delay=2000}catch(e){showError(e);delay=statusRetry.next()}}
  setTimeout(poll,delay);
 }
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')stateChannel.start();else stateChannel.pause()});
@@ -249,6 +252,7 @@ matcher.ready.then(()=>{
   cvReady=true;
   const label=$('#vision-build');
   if(label)label.textContent='인식 엔진 · '+(matcher.version||'이전 버전');
+  renderRunState();if(lastSnapshot)acceptSnapshot(lastSnapshot).catch(showError);
 }).catch(showError);
 api('/videos.json').then(data=>{library.videos=data;$('#video-key').replaceChildren(...Object.entries(data).map(([key,v])=>{const o=document.createElement('option');o.value=key;o.textContent=v.title;return o}));library.render()}).catch(showError);
 setInterval(()=>{
@@ -279,5 +283,5 @@ if(rtcVideo){
 }
 
 },2000);
-function applyCameraStats(stats){cameraStats=stats;syncRtcCapture(stats.test);const active=stats.test&&!stats.test.done;if(active&&!controlsSynced){$('#fps').value=String(stats.test.fps);$('#quality').value=String(stats.test.kbps);controlsSynced=true}$('#transport-note').textContent=active?(stats.test.transport==='webrtc'?'WebRTC · 같은 Wi-Fi에서 안경과 PC 한 대 연결':stats.test.transport==='http'&&stats.test.mode==='video'?'이전 APK의 HTTP 전송 중입니다. 앱 0.2.8로 업데이트하면 연속 전송을 사용합니다.':transport==='websocket'?'연속 영상 전송 연결됨':'영상 연결 대기'):''}
+function applyCameraStats(stats){cameraStats=stats;syncRtcCapture(stats.test);const active=stats.test&&!stats.test.done;if(active&&!controlsSynced){$('#fps').value=String(stats.test.fps);$('#quality').value=String(stats.test.kbps);controlsSynced=true}$('#transport-note').textContent=active?(stats.test.transport==='webrtc'?'WebRTC · 같은 Wi-Fi에서 안경과 PC 한 대 연결':stats.test.transport==='http'&&stats.test.mode==='video'?'이전 앱의 HTTP 전송 중입니다. 연결 설정에서 앱 버전을 확인하세요.':transport==='websocket'?'연속 영상 전송 연결됨':'영상 연결 대기'):''}
 connect();stateChannel.start();poll();recognize();requestAnimationFrame(draw);

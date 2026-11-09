@@ -7,6 +7,12 @@ server/targets/
 .venv/
 runtime/
 node_modules/
+.dev.vars*
+.env
+.env.*
+!.env.example
+*.keystore
+*.jks
 
 # macOS metadata
 .DS_Store

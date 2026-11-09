@@ -5,7 +5,8 @@ export async function handleConnection(req,u){
   const p=u.pathname,q=u.searchParams;
     if(p==='/status'){this.recoverCamera();return json({glasses:[...this.seen.values()].filter(t=>Date.now()-t<45000).length,now:this.commands.at(-1)||null,hosting:'cloudflare',viewers:this.viewers().length+this.httpViewers.size})}
     if(p==='/next'){
-      this.seen.set(q.get('id')||'glasses',Date.now());
+      const id=q.get('id')||'glasses',previous=this.seen.get(id),now=Date.now();this.seen.set(id,now);
+      if(!previous||now-previous>45000)await this.events.publish();
       const after=q.get('after');if(after===null){const seq=this.seq;if(this.test&&!this.test.done&&Date.now()-(this.test.lastAt||0)>3000){this.test.cmdAt=Date.now();this.saveCamera();this.send(this.cameraCommand())}return json({seq})}
       const msg=this.commands.find(m=>m.seq>+after);if(msg)return json(msg);
       return new Promise(resolve=>{let done=false;const finish=m=>{if(done)return;done=true;clearTimeout(timer);this.waiters.delete(finish);resolve(json(m))};const timer=setTimeout(()=>finish({seq:this.seq}),20000);this.waiters.add(finish);req.signal.addEventListener('abort',()=>finish({seq:this.seq}),{once:true})});

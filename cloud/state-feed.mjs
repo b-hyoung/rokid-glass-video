@@ -19,6 +19,7 @@ export class StateFeed{
     ws.serializeAttachment({role:'state-client',side,id,app,expiresAt,deviceId,submission:0});
     if(side==='device')this.room.seen.set(id,Date.now());
     await this.deliver(ws);
+    if(side==='device')await this.publish();
   }
   async deliver(ws){
     if(ws.readyState!==1)return;

@@ -32,9 +32,7 @@ import java.nio.charset.StandardCharsets;
  * 서버 신호를 기다렸다가 그 영상을 서버에서 받아 재생한다.
  * 서버 /next 가 {"cmd":"play","url":"/v/whale.mp4"} 를 주면 재생, {"cmd":"stop"} 이면 끔.
  * 재생 상태(불러오는 중·재생·실패)는 /log 로 서버에 알린다.
- * 서버 주소: 켤 때와 연결이 3번 연속 실패할 때 server.txt(R.string.server_txt, 첫 줄)를 읽어 자동으로 잡는다.
- *   터널 주소가 바뀌어도 앱을 다시 설치할 필요 없음. adb로 직접 넘기면 그 주소로 고정(-d auto 로 자동 복귀):
- *   adb shell am start -n com.hoonartis.glassvideo/.MainActivity -d https://xxx.trycloudflare.com
+ * 서버 주소는 빌드 시 고정한다. 기기 연결 승인과 촬영·인식 설정은 웹에서 제어한다.
  * 터치패드 탭·확인 키로 영상 종료. 안 만져도 신호가 오면 저절로 튼다.
  * {"cmd":"cam",...} 이면 카메라 전송 시험(CameraStreamer). 카메라 권한이 없으면 처음 켤 때 묻는다.
  *
@@ -44,17 +42,16 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
     private final Handler ui = new Handler(Looper.getMainLooper());
     private TextureView view;
     private TextView status;
-    private TextView settingsButton;
     private MediaPlayer player;
     private Surface surface;
     private volatile String server;
     private String id;
-    private boolean pinned; // adb로 직접 넘긴 주소면 server.txt 를 보지 않음
     private SharedPreferences prefs;
     private String pending; // 화면 준비 전에 온 영상 주소
     private boolean pendingLoop;
     private volatile boolean running;
     private final SessionWorkers workers=new SessionWorkers();
+    private final java.util.concurrent.ArrayBlockingQueue<String> reports=new java.util.concurrent.ArrayBlockingQueue<>(20);
     private StateChannel stateChannel;
     private volatile HttpURLConnection conn;
     private CameraStreamer cam;
@@ -73,11 +70,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
     private HudChannel hudChannel;
     private final PlaybackGate playbackGate=new PlaybackGate();
     private String playbackToken="";
-    private static final class PlaybackReport {
-        final String token,event;PlaybackReport(String token,String event){this.token=token;this.event=event;}
-    }
-    private volatile PlaybackReport playbackReport=new PlaybackReport("","");
-    private Thread playbackReporter;
+    private PlaybackReporter playbackReporter;
     private String playbackTitle="";
     private boolean renderedVideo;
     private double aimX=.5,aimY=.5;
@@ -105,22 +98,14 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         root.addView(status, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL));
-        settingsButton=new TextView(this);settingsButton.setText("연결 설정");settingsButton.setTextColor(Color.GREEN);settingsButton.setTextSize(14);settingsButton.setPadding(12,8,12,8);settingsButton.setFocusable(true);settingsButton.setClickable(true);settingsButton.setOnClickListener(v->showConnectionSettings());
-        root.addView(settingsButton,new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT,FrameLayout.LayoutParams.WRAP_CONTENT,Gravity.TOP|Gravity.RIGHT));
-        status.setOnLongClickListener(v->{showConnectionSettings();return true;});
         setContentView(root);
 
         prefs = getSharedPreferences("glass", MODE_PRIVATE);
-        Uri given = getIntent().getData();
-        if (given != null) {
-            boolean auto = given.toString().equals("auto");
-            prefs.edit().putBoolean("pinned", !auto).apply();
-            if (!auto) prefs.edit().putString("server", given.toString()).apply();
-        }
-        pinned = prefs.getBoolean("pinned", false);
-        server = trim(prefs.getString("server", getString(R.string.default_server)));
-        DeviceAccess.configure(prefs.getString("credential_server",""),prefs.getString("device_token",""));
+        // The service origin is fixed at build time. No on-glasses setup flow.
+        server=DeviceAccess.server(getString(R.string.default_server));
+        DeviceAccess.configure(server,prefs.getString("token:"+server,""));
         id = android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
+        playbackReporter=new PlaybackReporter(()->server,(origin,token,event)->playbackPost(origin,token,event).optLong("seq"),(origin,token,seq)->postSession(()->{if(origin.equals(server))playbackGate.acknowledged(token,seq);}));
         localTracking=new LocalTracking(()->recognitionOverlay.postInvalidateOnAnimation());
         hudChannel=new HudChannel(()->server);
         recognitionOverlay.attach(localTracking,hudChannel);
@@ -146,62 +131,6 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         return e.getClass().getSimpleName() + (m == null ? "" : ": " + (m.length() > 60 ? m.substring(0, 60) : m));
     }
 
-    private static String trim(String s) {
-        while (s.endsWith("/")) s = s.substring(0, s.length() - 1);
-        return s;
-    }
-
-    private void changeConnection(String address,String token,boolean automatic){
-        stopConnections();
-        server=address;pinned=!automatic;
-        SharedPreferences.Editor edit=prefs.edit().putString("server",address).putBoolean("pinned",pinned);
-        if(token!=null)edit.putString("device_token",token).putString("credential_server",address);
-        if(automatic)edit.remove("device_token").remove("credential_server");
-        edit.apply();DeviceAccess.configure(prefs.getString("credential_server",""),prefs.getString("device_token",""));
-        cached.clear();playbackGate.serverChanged();playbackReport=new PlaybackReport("","");
-        localTracking.update(null,0);recognitionOverlay.update(null);connectionStatus="새 서버 연결 중";
-        startConnections();
-    }
-
-    private void showConnectionSettings(){
-        android.widget.LinearLayout layout=new android.widget.LinearLayout(this);layout.setOrientation(android.widget.LinearLayout.VERTICAL);layout.setPadding(24,12,24,12);
-        TextView summary=new TextView(this);summary.setText("앱 "+BuildInfo.VERSION+" · "+connectionStatus+"\n서버 주소와 PC에서 만든 연결 코드를 입력하세요.");layout.addView(summary);
-        android.widget.EditText address=new android.widget.EditText(this);address.setSingleLine(true);address.setInputType(android.text.InputType.TYPE_CLASS_TEXT|android.text.InputType.TYPE_TEXT_VARIATION_URI);address.setHint("서버 주소 · http://PC주소:포트");address.setText(server);layout.addView(address);
-        android.widget.EditText code=new android.widget.EditText(this);code.setSingleLine(true);code.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);code.setHint("8자리 연결 코드 · 기존 연결은 비워 두기");code.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(8)});layout.addView(code);
-        android.app.AlertDialog dialog=new android.app.AlertDialog.Builder(this).setTitle("안경 연결 설정").setView(layout).setPositiveButton("연결",null).setNegativeButton("취소",null).setNeutralButton("자동 탐색",null).create();
-        java.util.concurrent.atomic.AtomicBoolean dismissed=new java.util.concurrent.atomic.AtomicBoolean();dialog.setOnDismissListener(d->dismissed.set(true));
-        dialog.setOnShowListener(d->{
-            dialog.getButton(android.app.AlertDialog.BUTTON_NEUTRAL).setOnClickListener(v->{changeConnection(getString(R.string.default_server),null,true);dialog.dismiss();});
-            dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener(v->{
-                final String target;
-                try{target=DeviceAccess.server(address.getText().toString());}catch(IllegalArgumentException error){address.setError(error.getMessage());return;}
-                String pairing=code.getText().toString().trim();
-                if(pairing.isEmpty()){changeConnection(target,null,false);dialog.dismiss();return;}
-                if(!pairing.matches("[0-9]{8}")){code.setError("8자리 코드를 입력하세요.");return;}
-                dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setEnabled(false);summary.setText("PC와 연결 중…");
-                workers.start("pairing",()->{
-                    HttpURLConnection connection=null;
-                    try{
-                        connection=(HttpURLConnection)new URL(target+"/access/pair").openConnection();
-                        if(!workers.track(connection))return;
-                        connection.setConnectTimeout(5000);connection.setReadTimeout(5000);connection.setRequestMethod("POST");connection.setDoOutput(true);connection.setRequestProperty("Content-Type","application/json");
-                        byte[] bytes=new JSONObject().put("code",pairing).put("protocol",BuildInfo.PROTOCOL).toString().getBytes(StandardCharsets.UTF_8);
-                        try(java.io.OutputStream out=connection.getOutputStream()){out.write(bytes);}
-                        boolean success=connection.getResponseCode()==200;
-                        java.io.InputStream input=success?connection.getInputStream():connection.getErrorStream();
-                        if(input==null)throw new Exception("서버 응답이 없습니다.");
-                        StringBuilder body=new StringBuilder();try(BufferedReader reader=new BufferedReader(new InputStreamReader(input,StandardCharsets.UTF_8))){String line;while((line=reader.readLine())!=null)body.append(line);}
-                        JSONObject result=new JSONObject(body.toString());if(!success)throw new Exception(result.optString("error","연결에 실패했습니다."));
-                        if(result.optInt("protocol")!=BuildInfo.PROTOCOL||!"device".equals(result.optString("role")))throw new Exception("서버와 앱 버전을 확인하세요.");
-                        String token=result.getString("token");
-                        postSession(()->{if(!dismissed.get()){changeConnection(target,token,false);dialog.dismiss();}});
-                    }catch(Exception error){postSession(()->{if(!dismissed.get()){summary.setText(error.getMessage());dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setEnabled(true);}});}
-                    finally{if(connection!=null)workers.release(connection);}
-                });
-            });
-        });dialog.show();
-    }
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -212,21 +141,75 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         workers.begin();
         running = true;
         ui.post(deviceStatus);
+        if(!DeviceAccess.hasCredential(server)&&!prefs.getBoolean("legacy:"+server,false)){
+            connectionStatus="연결 확인 중";
+            workers.start("enrollment",this::enrollmentLoop);return;
+        }
         workers.start("next",this::listen);
         workers.start("sync",this::syncLoop);
         workers.start("recognition",this::recognitionLoop);
-        workers.start("discovery",this::discoveryLoop);
+        workers.start("logs",this::logLoop);
         stateChannel=new StateChannel(()->server,id,this::applyRecognition);
         stateChannel.start();
         hudChannel.start();
-        if(playbackReporter==null||!playbackReporter.isAlive()){playbackReporter=new Thread(this::playbackLoop,"playback-state");playbackReporter.start();}
+        playbackReporter.start();
         report("앱 시작");
     }
 
-    private void discoveryLoop() {
-        while (workers.active()) {
-            for (int i=0; i<30 && workers.active(); i++) try { Thread.sleep(1000); } catch (InterruptedException ignored) { Thread.currentThread().interrupt();return; }
-            if (workers.active()) resolve();
+    private void enrollmentLoop(){
+        int failures=0;
+        while(workers.active()){
+            try{
+                HttpURLConnection info=(HttpURLConnection)new URL(server+"/access/info").openConnection();
+                if(!workers.track(info))return;
+                info.setConnectTimeout(4000);info.setReadTimeout(4000);
+                int code;String mode="";
+                try{
+                    code=info.getResponseCode();
+                    if(code==200)try(BufferedReader in=new BufferedReader(new InputStreamReader(info.getInputStream(),StandardCharsets.UTF_8))){mode=new JSONObject(in.readLine()).optString("mode");}
+                }finally{workers.release(info);}
+                if(code==404){postSession(()->activateConnection("",true));return;}
+                if(code!=200||!mode.equals("paired"))throw new java.io.IOException("Service unavailable");
+                String key=prefs.getString("install:"+server,"");
+                if(key.isEmpty()){
+                    byte[] bytes=new byte[32];new java.security.SecureRandom().nextBytes(bytes);
+                    key=android.util.Base64.encodeToString(bytes,android.util.Base64.URL_SAFE|android.util.Base64.NO_WRAP|android.util.Base64.NO_PADDING);
+                    prefs.edit().putString("install:"+server,key).apply();
+                }
+                HttpURLConnection hello=(HttpURLConnection)new URL(server+"/access/hello").openConnection();
+                if(!workers.track(hello))return;
+                JSONObject result;
+                try{
+                    hello.setConnectTimeout(4000);hello.setReadTimeout(4000);hello.setRequestMethod("POST");hello.setDoOutput(true);hello.setRequestProperty("Content-Type","application/json");
+                    byte[] body=new JSONObject().put("installKey",key).put("label",android.os.Build.MODEL+" · "+(id==null?"안경":id.substring(Math.max(0,id.length()-4)))).put("app",BuildInfo.VERSION).put("protocol",BuildInfo.PROTOCOL).toString().getBytes(StandardCharsets.UTF_8);
+                    hello.setFixedLengthStreamingMode(body.length);try(java.io.OutputStream out=hello.getOutputStream()){out.write(body);}
+                    try(BufferedReader in=new BufferedReader(new InputStreamReader(hello.getInputStream(),StandardCharsets.UTF_8))){result=new JSONObject(in.readLine());}
+                }finally{workers.release(hello);}
+                if(!workers.active())return;
+                if(result.optString("state").equals("connected")){
+                    if(result.optInt("protocol")!=BuildInfo.PROTOCOL||!"device".equals(result.optString("role")))throw new java.io.IOException("App protocol mismatch");
+                    String token=result.getString("token");postSession(()->activateConnection(token,false));return;
+                }
+                say("웹에서 안경 연결을 선택하세요");failures=0;
+                if(!workers.pause(3000))return;
+            }catch(Exception e){say("자동 연결 중 · Wi-Fi·서버 상태 확인");if(!workers.pause(Math.min(30000,1000L<<Math.min(5,failures++))))return;}
+        }
+    }
+
+    private void activateConnection(String token,boolean legacy){
+        stopConnections();
+        prefs.edit().putString("token:"+server,token).putBoolean("legacy:"+server,legacy).apply();
+        DeviceAccess.configure(server,token);
+        cached.clear();reports.clear();playbackGate.serverChanged();queuePlayback("","");
+        localTracking.update(null,0);recognitionOverlay.update(null);connectionStatus="자동 연결 중";
+        startConnections();
+    }
+
+    private void accessRejected(HttpURLConnection connection)throws java.io.IOException{
+        int code=connection.getResponseCode();
+        if((code==401||code==403)&&(DeviceAccess.hasCredential(server)||prefs.getBoolean("legacy:"+server,false))){
+            postSession(()->activateConnection("",false));
+            throw new java.io.IOException("Web approval required");
         }
     }
 
@@ -319,10 +302,13 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         if(!workers.track(c))throw new InterruptedException("Expired session");
         c.setConnectTimeout(10000);c.setReadTimeout(15000);
         StringBuilder body = new StringBuilder();
-        try(BufferedReader in = new BufferedReader(new InputStreamReader(c.getInputStream(), StandardCharsets.UTF_8))){
+        try{
+            accessRejected(c);
+            try(BufferedReader in = new BufferedReader(new InputStreamReader(c.getInputStream(), StandardCharsets.UTF_8))){
             String line;while(workers.active()&&(line=in.readLine())!=null)body.append(line).append('\n');
             if(!workers.active())throw new InterruptedException("Expired response");
             return body.toString();
+            }
         }finally{workers.release(c);}
     }
 
@@ -335,6 +321,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
     private void stopConnections(){
         endPlayback("stopped");
         running = false;
+        if(playbackReporter!=null)playbackReporter.stop();
         workers.end();
         if(stateChannel!=null)stateChannel.stop();
         ui.removeCallbacks(deviceStatus);
@@ -345,56 +332,8 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         hudChannel.stop();
     }
 
-    /**
-     * 서버에 "새 신호 있나"를 묻고, 서버는 신호가 생길 때까지(최대 25초) 답을 붙잡는다(롱 폴링).
-     * 처음엔 after 없이 물어 지금 번호만 받아서, 켜자마자 옛 신호를 다시 틀지 않는다. 끊기면 1초 뒤 다시.
-     */
-    /**
-     * 서버 주소 고르기: ① 앱에 넣어 둔 같은 와이파이 PC 주소부터 /status 로 찔러 본다(Cloudflare 를 안 거침).
-     * ② 다 안 되면 server.txt(Cloudflare)의 주소들(PC 주소 먼저, 터널 나중)을 차례로. 먼저 답하는 곳으로 붙는다.
-     */
-    private void resolve() {
-        if (pinned) return;
-        if (pick(getString(R.string.local_servers))||pick(getString(R.string.default_server))) return;
-        String text;
-        try { text = get(getString(R.string.server_txt) + "?t=" + System.currentTimeMillis()); }
-        catch (Exception e) { say("Cloudflare 연결 실패 · Wi-Fi·인터넷 확인\n" + why(e)); report("server.txt 실패 " + e); return; }
-        if (!pick(text) && !pick(getString(R.string.local_servers))) say("고정 주소·server.txt 주소 모두 응답 없음");
-    }
-
-    /** 공백·줄바꿈으로 나뉜 주소들을 차례로 찔러 먼저 답하는 곳으로 바꾼다. 붙었으면 true. */
-    private boolean pick(String text) {
-        for (String raw : text.trim().split("[ \t\r\n]+")) {
-            if (!raw.startsWith("http")) continue;
-            String url = trim(raw);
-            if (!reachable(url)||!workers.active()) continue;
-            if (!url.equals(server)) {
-                server = url;
-                HttpURLConnection previous = conn;
-                if (previous != null) previous.disconnect();
-                prefs.edit().putString("server", server).apply();
-                report("서버 주소 자동 설정 " + server + (url.startsWith("https") ? " (Cloudflare)" : " (같은 와이파이 직접)"));
-            }
-            return true;
-        }
-        return false;
-    }
-
-    private boolean reachable(String url) {
-        HttpURLConnection c=null;
-        try {
-            c = (HttpURLConnection) new URL(url + "/status").openConnection();
-        DeviceAccess.apply(c);
-            if(!workers.track(c))return false;
-            c.setConnectTimeout(1500);
-            c.setReadTimeout(2500);
-            int code = c.getResponseCode();
-            return workers.active()&&code == 200;
-        } catch (Exception e) { return false; }finally{if(c!=null)workers.release(c);}
-    }
-
+    /** Web commands reconnect to the same configured service origin. */
     private void listen() {
-        resolve();
         long after = -1;
         long t0 = System.currentTimeMillis(); int tries = 0;
         boolean online = false;
@@ -412,6 +351,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
                 try{
                 c.setConnectTimeout(10000);
                 c.setReadTimeout(40000);
+                accessRejected(c);
                 try (BufferedReader in = new BufferedReader(new InputStreamReader(c.getInputStream(), StandardCharsets.UTF_8))) {
                     String line;
                     while ((line = in.readLine()) != null) body.append(line);
@@ -431,7 +371,6 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
             }
             tries++;
             if (!workers.active())return;
-            if (tries % 3 == 0) { resolve(); after = -1; } // 터널을 다시 켜 주소가 바뀌었을 수 있음(새 서버는 번호가 처음부터)
             if(!workers.pause((long)(Math.min(30000,1000L<<Math.min(5,tries-1))*(.9+Math.random()*.2))))return;
         }
     }
@@ -474,7 +413,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
                     rejectPlayback(token);return;
                 }
                 if(!playbackGate.accept(token,m.optLong("seq"),automatic)){rejectPlayback(token);return;}
-                hide();playbackTitle=title;playbackToken=token;playbackReport=new PlaybackReport(token,"loading");renderedVideo=false;
+                hide();playbackTitle=title;playbackToken=token;queuePlayback(token,"loading");renderedVideo=false;
                 recognitionOverlay.setVisibility(android.view.View.INVISIBLE);
                 publishVideoHud();
                 status.setText("불러오는 중 · " + title);
@@ -512,7 +451,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
                 recognitionOverlay.setVisibility(android.view.View.INVISIBLE);
                 status.setText("");
                 p.start();
-                playbackReport=new PlaybackReport(token,"playing");
+                queuePlayback(token,"playing");
                 report("재생 시작 " + p.getVideoWidth() + "x" + p.getVideoHeight() + " 화면 " + view.getWidth() + "x" + view.getHeight());
             });
             mp.setOnInfoListener((p,what,extra)->{if(player==p&&what==MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START){renderedVideo=true;publishVideoHud();}return false;});
@@ -576,16 +515,19 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
 
     /** 상태를 서버 기록에 남긴다(진단용). */
     private void report(String msg) {
-        new Thread(() -> {
-            try {
-                HttpURLConnection c = (HttpURLConnection) new URL(server + "/log?id=" + id + "&m="
-                        + URLEncoder.encode(msg, "UTF-8")).openConnection();
-        DeviceAccess.apply(c);
-                c.setConnectTimeout(5000);
-                c.getResponseCode();
-                c.disconnect();
-            } catch (Exception ignored) { }
-        }).start();
+        if(!running)return;
+        if(!reports.offer(msg)){reports.poll();reports.offer(msg);}
+    }
+    private void logLoop(){
+        int failures=0;
+        while(workers.active()){
+            try{
+                String message=reports.poll(1,java.util.concurrent.TimeUnit.SECONDS);
+                if(message==null)continue;
+                get(server+"/log?id="+id+"&m="+URLEncoder.encode(message,"UTF-8"));failures=0;
+            }catch(InterruptedException ignored){Thread.currentThread().interrupt();return;}
+             catch(Exception ignored){if(!workers.pause(Math.min(30000,1000L<<Math.min(5,failures++))))return;}
+        }
     }
 
     @Override
@@ -602,7 +544,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
     private void endPlayback(String event){
         hide();
         if(playbackGate.busy()){
-            playbackGate.stop();playbackReport=new PlaybackReport(playbackToken,event);
+            playbackGate.stop();queuePlayback(playbackToken,event);
             report("영상 종료 · "+event);
         }
         recognitionOverlay.invalidate();
@@ -613,8 +555,8 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         if(hudChannel==null||!playbackGate.busy())return;
         try{JSONObject state=new JSONObject();state.put("mode",renderedVideo?"playback":"loading");state.put("width",view.getWidth());state.put("height",view.getHeight());state.put("objects",new org.json.JSONArray());state.put("title",playbackTitle);state.put("playbackId",playbackToken);hudChannel.drawn(state);}catch(Exception ignored){}
     }
-    private JSONObject playbackPost(String token,String event)throws Exception{
-        HttpURLConnection c=(HttpURLConnection)new URL(server+"/recognition/playback").openConnection();
+    private JSONObject playbackPost(String origin,String token,String event)throws Exception{
+        HttpURLConnection c=(HttpURLConnection)new URL(origin+"/recognition/playback").openConnection();
         DeviceAccess.apply(c);
         try{
             c.setConnectTimeout(3000);c.setReadTimeout(3000);c.setRequestMethod("POST");c.setDoOutput(true);c.setRequestProperty("Content-Type","application/json");
@@ -625,27 +567,13 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
     }
     private void rejectPlayback(String token){
         // No media callback and no change to the video already playing.
-        new Thread(()->{try{playbackPost(token,"rejected");}catch(Exception ignored){}},"playback-rejected").start();
+        String origin=server;
+        new Thread(()->{try{playbackPost(origin,token,"rejected");}catch(Exception ignored){}},"playback-rejected").start();
     }
-    private void playbackLoop(){
-        PlaybackReport sentReport=null;long lastSent=0,stoppedAt=android.os.SystemClock.elapsedRealtime();
-        while(running||android.os.SystemClock.elapsedRealtime()-stoppedAt<10000){
-            if(running)stoppedAt=android.os.SystemClock.elapsedRealtime();
-            PlaybackReport current=playbackReport;long now=android.os.SystemClock.elapsedRealtime();
-            String token=current.token,event=current.event;
-            boolean busy="loading".equals(event)||"playing".equals(event);
-            if(!token.isEmpty()&&(current!=sentReport||(busy&&now-lastSent>5000)))try{
-                JSONObject response=playbackPost(token,event);sentReport=current;lastSent=now;
-                if(!busy){long seq=response.optLong("seq");postSession(()->playbackGate.acknowledged(token,seq));}
-            }catch(Exception ignored){}
-            if(!running&&current==sentReport)break;
-            try{Thread.sleep(500);}catch(InterruptedException ignored){}
-        }
-    }
+    private void queuePlayback(String token,String event){if(playbackReporter!=null)playbackReporter.update(token,event);}
 
     @Override
     public boolean onKeyDown(int code, KeyEvent e) {
-        if(code==KeyEvent.KEYCODE_MENU||code==KeyEvent.KEYCODE_DPAD_CENTER&&settingsButton.hasFocus()){if(e.getRepeatCount()==0)showConnectionSettings();return true;}
         if (code == KeyEvent.KEYCODE_DPAD_CENTER || code == KeyEvent.KEYCODE_ENTER
                 || code == KeyEvent.KEYCODE_SPACE || code == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE
                 || code == KeyEvent.KEYCODE_MEDIA_STOP || (code == KeyEvent.KEYCODE_BACK && playbackGate.busy())) {

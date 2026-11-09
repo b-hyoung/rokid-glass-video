@@ -12,7 +12,7 @@ function setup(){
   const response=await secureFetch(new Request('http://localhost'+path,{method:method||(data?'POST':'GET'),body:data?JSON.stringify(data):undefined,headers:{...(token?{Authorization:'Bearer '+token}:{}),...(cookie?{Cookie:cookie}:{}),...headers}}),env,(r,e)=>localWorker.fetch(r,e));
   return {status:response.status,headers:response.headers,data:response.headers.get('Content-Type')?.includes('json')?await response.json():null};
  };
- const create=async()=>{const r=await request('/access/create',{setupKey:env.SETUP_SECRET});assert.equal(r.status,200);return {...r.data,cookie:r.headers.get('Set-Cookie').split(';')[0]}};
+ const create=async()=>{const r=await request('/access/create',{setupKey:env.SETUP_SECRET});assert.equal(r.status,200);return {...r.data,cookie:r.headers.getSetCookie().map(c=>c.split(';')[0]).join('; ')}};
  return {env,request,create};
 }
 test('credentials reject expiry, signature changes, wrong key and changed roles',async()=>{
@@ -24,24 +24,38 @@ test('credentials reject expiry, signature changes, wrong key and changed roles'
  assert.equal(await verifyCredential(key,Buffer.from(JSON.stringify(payload)).toString('base64url')+'.'+parts[1],2000),null);
  assert.equal(await verifyCredential(key,'invalid'),null);
 });
-test('pairing codes are single-use, replacement expires the old code and device role is restricted',async()=>{
- const {env,request,create}=setup(),owner=await create();
- assert.match(owner.cookie,/^glass_session=/);
- assert.equal((await request('/access/code',{})).status,403);
- const first=await request('/access/code',{},owner),second=await request('/access/code',{},owner);
- assert.equal((await request('/access/pair',{code:first.data.code,protocol:1})).status,403);
- const paired=await request('/access/pair',{code:second.data.code,protocol:1});assert.equal(paired.status,200);
- const duplicate=await request('/access/pair',{code:second.data.code,protocol:1});assert.equal(duplicate.status,403);
+const installKey=()=>Buffer.from(crypto.getRandomValues(new Uint8Array(32))).toString('base64url');
+async function discover(request,key=installKey()){
+ const data={installKey:key,protocol:1,label:'Test glasses',app:'0.2.22'};
+ const pending=await request('/access/hello',data);assert.equal(pending.status,200);return {data,...pending.data};
+}
+async function connect(request,owner){
+ const device=await discover(request);
+ assert.equal((await request('/access/claim',{deviceId:device.deviceId},owner)).status,200);
+ return (await request('/access/hello',device.data)).data;
+}
+test('automatic discovery waits for web owner approval and devices have restricted permissions',async()=>{
+ const {env,request,create}=setup(),owner=await create(),pending=await discover(request);
+ assert.match(owner.cookie,/glass_session=/);assert.match(owner.cookie,/glass_owner=/);
+ assert.equal(pending.state,'pending');assert.equal(pending.token,undefined);
+ assert.equal((await request('/access/devices',{})).status,403);
+ const list=await request('/access/devices',{},owner);assert.equal(list.data.devices[0].id,pending.deviceId);
+ assert.equal(JSON.stringify(list.data).includes(pending.data.installKey),false);
+ assert.equal(JSON.stringify(list.data).includes('secret_hash'),false);
+ assert.equal((await request('/access/claim',{deviceId:pending.deviceId},owner)).status,200);
+ const paired=await request('/access/hello',pending.data);assert.equal(paired.status,200);assert.equal(paired.data.state,'connected');
  const device={token:paired.data.token};
  for(const path of ['/recognition/targets','/recognition/backup','/preview/recognition/targets'])assert.equal((await request(path,null,device)).status,403);
  assert.equal((await request('/play?key=e',{},device)).status,403);
  assert.equal((await request('/cam/rtc?role=viewer',null,device)).status,403);
  assert.equal((await request('/recognition/events?role=viewer',null,device)).status,403);
  assert.equal((await request('/recognition/events?role=device',null,owner)).status,403);
- assert.equal((await request('/access/code',{},device)).status,403);
+ assert.equal((await request('/access/claim',{deviceId:pending.deviceId},device)).status,403);
  assert.equal((await request('/status',null,device)).status,200);
  assert.equal(await verifyCredential(env.SESSION_SECRET,paired.data.token).then(c=>c.role),'device');
+ assert.equal((await request('/access/pair',{code:'12345678',protocol:1})).status,404);
 });
+
 test('workspace scope isolates photos, deletion, playback and file preview despite forged headers',async()=>{
  const {request,create}=setup(),a=await create(),b=await create();
  const image='data:image/jpeg;base64,/9j/',id='original-target';
@@ -69,21 +83,43 @@ test('anonymous access, cross-origin requests, GET mutations and missing configu
  env.SESSION_SECRET='';assert.equal((await request('/status',null,owner)).status,503);
 });
 
-test('re-pairing invalidates the previous device and clients cannot forge a binding',async()=>{
- const {request,create}=setup(),owner=await create();
- const pair=async()=>{const code=await request('/access/code',{},owner);return (await request('/access/pair',{code:code.data.code,protocol:1})).data.token};
- const previous=await pair();assert.equal((await request('/status',null,{token:previous})).status,200);
- const next=await pair();assert.equal((await request('/status',null,{token:previous})).status,403);assert.equal((await request('/status',null,{token:next})).status,200);
- assert.equal((await request('/videos.json',null,{token:previous})).status,403);assert.equal((await request('/videos.json',null,{token:next})).status,200);
+test('web replacement and disconnect revoke the previous device without allowing it to rebind itself',async()=>{
+ const {request,create}=setup(),owner=await create(),old=await discover(request);
+ await request('/access/claim',{deviceId:old.deviceId},owner);
+ const previous=(await request('/access/hello',old.data)).data.token;
+ assert.equal((await request('/status',null,{token:previous})).status,200);
+ const next=await connect(request,owner);
+ assert.equal((await request('/status',null,{token:previous})).status,403);assert.equal((await request('/status',null,{token:next.token})).status,200);
+ assert.equal((await request('/videos.json',null,{token:previous})).status,403);assert.equal((await request('/videos.json',null,{token:next.token})).status,200);
+ const retry=await request('/access/hello',old.data);assert.equal(retry.data.state,'pending');assert.equal(retry.data.token,undefined);
  assert.equal((await request('/recognition/device-bind',{deviceId:crypto.randomUUID()},{...owner,headers:{'X-Glass-Role':'pairing-service'}})).status,403);
+ await request('/access/unclaim',{},owner);assert.equal((await request('/status',null,{token:next.token})).status,403);
+ assert.equal((await request('/recognition/targets',null,owner)).status,200);
 });
-test('pairing expiry and repeated guesses are enforced after registry recreation',async()=>{
- const {env,request,create}=setup(),owner=await create();
- const code=await request('/access/code',{},owner),registry=env.ACCESS.get('pairing-registry');
- registry.sql.exec('UPDATE pair_codes SET expires_at=0');
- assert.equal((await request('/access/pair',{code:code.data.code,protocol:1})).status,403);
- for(let i=0;i<20;i++)await request('/access/pair',{code:'11111111',protocol:1});
- assert.equal((await request('/access/pair',{code:'11111111',protocol:1})).status,429);
+
+test('workspace recovery alone cannot claim devices; owner cookies never authorize data APIs',async()=>{
+ const {env,request,create}=setup(),a=await create(),b=await create(),pending=await discover(request);
+ const recovered=await request('/access/login',{roomId:a.roomId,recoveryKey:a.recoveryKey});
+ const controller={cookie:recovered.headers.getSetCookie()[0].split(';')[0]};
+ assert.equal((await request('/access/session',null,controller)).data.owner,false);
+ assert.equal((await request('/access/claim',{deviceId:pending.deviceId},controller)).status,403);
+ assert.equal((await request('/access/owner',{setupKey:'bad'},controller)).status,403);
+ const unlock=await request('/access/owner',{setupKey:env.SETUP_SECRET},controller);
+ const ownerCookie=unlock.headers.getSetCookie()[0].split(';')[0];
+ assert.equal((await request('/access/claim',{deviceId:pending.deviceId},{cookie:controller.cookie+'; '+ownerCookie})).status,200);
+ assert.equal((await request('/access/claim',{deviceId:pending.deviceId},b)).status,409);
+ assert.equal((await request('/recognition/targets',null,{token:ownerCookie.split('=')[1]})).status,403);
+ assert.equal(roleAllows('owner',new URL('https://example.test/status'),'GET'),false);
+});
+
+test('stale discovery and repeated public guesses stay bounded after registry recreation',async()=>{
+ const {env,request,create}=setup(),owner=await create(),pending=await discover(request),registry=env.ACCESS.get('pairing-registry');
+ // Known devices may poll without exhausting the public registration budget.
+ for(let i=0;i<30;i++)assert.equal((await request('/access/hello',pending.data)).status,200);
+ registry.sql.exec('UPDATE discovered_devices SET last_seen=0');
+ assert.equal((await request('/access/claim',{deviceId:pending.deviceId},owner)).status,409);
+ for(let i=0;i<20;i++)await request('/access/login',{roomId:owner.roomId,recoveryKey:'bad'});
+ assert.equal((await request('/access/login',{roomId:owner.roomId,recoveryKey:'bad'})).status,429);
  const restarted=new PairingRegistry({storage:registry.storage},env);
- assert.equal((await restarted.fetch(new Request('http://registry/access/pair',{method:'POST',body:'{"code":"11111111","protocol":1}',headers:{'X-Client':'local'}}))).status,429);
+ assert.equal((await restarted.fetch(new Request('http://registry/access/login',{method:'POST',body:'{}',headers:{'X-Client':'local'}}))).status,429);
 });

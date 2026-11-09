@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="control_server" translatable="false">https://glass-2412.youqlrqod.workers.dev</string>
     <string name="app_name">글래스 영상</string>
-    <!-- 기본 서버 주소. 빠른 터널은 켤 때마다 바뀌니 build.sh 가 SERVER 로 덮어쓴다. -->
+    <!-- 고정 서비스 주소. 개발 후보를 빌드할 때만 SERVER로 지정한다. -->
     <string name="default_server" translatable="false">https://glass-2412.youqlrqod.workers.dev</string>
-    <!-- 지금 서버 주소들이 적힌 txt(한 줄에 하나, 같은 와이파이 PC 주소 먼저·터널 나중). 켤 때와 연결이 3번 연속 실패할 때
-         읽어서 앞에서부터 /status 로 찔러 먼저 답하는 주소로 붙는다.
-         PC에서 python tools/tunnel.py 가 터널을 켜고 이 파일을 새 주소로 올린다. -->
-    <string name="server_txt" translatable="false">https://glass-2412.youqlrqod.workers.dev/server.txt</string>
-    <!-- 같은 와이파이 PC 주소(앱에 직접 넣음). 켤 때 이것부터 시도해 로컬 시험이 Cloudflare(server.txt)에 기대지 않게 한다.
-         PC 주소가 바뀌면 LOCAL="http://...:8787 http://...:8787" bash build.sh 로 넣는다. -->
-    <string name="local_servers" translatable="false"></string>
 </resources>

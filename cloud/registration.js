@@ -23,7 +23,7 @@ export class Registration {
     this.renderControls();this.render();
   }
   error(e){this.note=e.message||String(e);this.render()}
-  observe(d){this.server=d;$('#guide-device').textContent=d?.device?'안경 앱 '+d.device.app+' · 가이드 수신 연결됨':'가이드 지원 앱 대기 · 안경에 0.2.9를 설치하고 앱을 켜 주세요.';if(this.enabled&&d?.enabled&&d.owner!==this.owner){this.enabled=false;this.revision++;this.note='다른 화면이 가이드를 사용 중입니다.';this.render()}}
+  observe(d){this.server=d;$('#guide-device').textContent=d?.device?'안경 앱 '+d.device.app+' · 가이드 수신 연결됨':'가이드 지원 앱 대기 · 안경 앱의 연결 상태를 확인하세요.';if(this.enabled&&d?.enabled&&d.owner!==this.owner){this.enabled=false;this.revision++;this.note='다른 화면이 가이드를 사용 중입니다.';this.render()}}
   publish(save=false){
     const data={owner:this.owner,enabled:this.enabled,phase:this.phase,config:structuredClone(this.config),save,message:this.hudMessage(),progress:this.phase==='capture'?Math.min(1,(performance.now()-this.started)/30000):this.phase==='verify'&&this.verified?1:0,count:this.samples.filter(s=>s.keep).length};
     const result=this.queue.catch(()=>{}).then(async()=>{this.sending=true;try{const d=await this.api('/recognition/guide',{...post(data),signal:AbortSignal.timeout(4000)});this.server=d;this.ackAt=performance.now();return d}finally{this.sending=false}});this.queue=result;return result;
@@ -31,10 +31,10 @@ export class Registration {
   hudMessage(){if(this.phase==='capture')return this.lost?'추적 끊김 · 테두리에 맞추고 PC에서 다시 잡기':`${this.samples.length}장 수집 · 천천히 각도를 바꿔 주세요`;if(this.phase==='review')return '촬영 완료 · PC에서 저장할 장면을 확인하세요';if(this.phase==='verify')return this.verified?'다시 찾기 확인됨 · PC에서 인식을 시작하세요':this.exited?'물체를 다시 바라봐 주세요':'물체를 시야 밖으로 옮긴 뒤 다시 보여 주세요';return '보정 중 · 물체의 같은 모서리를 맞춰 주세요'}
   async open(){await this.api('/stop');this.enabled=true;this.phase='align';this.note='실제 등록할 거리에서 안경 테두리와 웹 저장 영역을 같은 물체에 맞춰 주세요.';try{await this.publish()}catch(e){this.enabled=false;throw e}this.unfreeze();this.render()}
   async close(){if(this.saving)return;this.revision++;this.enabled=false;this.phase='align';this.samples=[];this.corners=null;await this.publish();this.note='가이드를 껐습니다. 인식 시작을 누르면 대상을 찾습니다.';await this.vision.reset();this.render()}
-  async saveAlignment(){if(!this.enabled)throw Error('먼저 안경에 가이드를 켜 주세요.');if(!this.server?.device)throw Error('안경 앱 0.2.9의 가이드 연결을 확인해 주세요.');this.config.calibrated=true;try{await this.publish(true)}catch(e){this.config.calibrated=false;throw e}this.note='이 거리의 보정을 저장했습니다. 물체가 저장 영역에 차도록 맞추고 영상 등록을 시작하세요.';this.renderControls();this.render()}
+  async saveAlignment(){if(!this.enabled)throw Error('먼저 안경에 가이드를 켜 주세요.');if(!this.server?.device)throw Error('안경 앱의 가이드 연결을 확인해 주세요.');this.config.calibrated=true;try{await this.publish(true)}catch(e){this.config.calibrated=false;throw e}this.note='이 거리의 보정을 저장했습니다. 물체가 저장 영역에 차도록 맞추고 영상 등록을 시작하세요.';this.renderControls();this.render()}
   async begin(){
     if(!this.enabled||!this.config.calibrated)throw Error('가이드를 켜고 테두리 보정을 먼저 저장하세요.');
-    if(!this.server?.device)throw Error('안경 앱 0.2.9를 켜 주세요.');
+    if(!this.server?.device)throw Error('안경 앱을 켜 주세요.');
     if(!this.live())throw Error('안경 촬영을 시작하고 실시간 영상이 들어오는지 확인하세요.');
     const current=this.library.current();this.target={targetId:current?.id,name:current?.name||$('#name').value.trim(),key:current?.key||$('#video-key').value};
     if(!this.target.name||!this.target.key)throw Error('대상을 선택하거나 새 대상 이름과 연결 영상을 입력하세요.');

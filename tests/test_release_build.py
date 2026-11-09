@@ -68,6 +68,18 @@ class ReleaseBuildTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'version'):
             validate_assets(self.root)
 
+    def test_candidate_and_unapproved_certificate_cannot_enter_release_assets(self):
+        self.release['app']['apk']='candidate.apk'
+        self.write_release()
+        apk=self.root/'candidate.apk';apk.write_bytes(b'candidate binary')
+        metadata={'version':self.release['app']['version'],'versionCode':self.release['app']['versionCode'],'protocol':self.release['protocol'],'sha256':sha256(apk),'signatureVerified':True,'candidate':True,'certificateSha256':'test-certificate'}
+        apk.with_suffix('.json').write_text(json.dumps(metadata),encoding='utf-8')
+        with self.assertRaisesRegex(ValueError,'Candidate'):
+            validate_assets(self.root,'release')
+        metadata['candidate']=False;apk.with_suffix('.json').write_text(json.dumps(metadata),encoding='utf-8')
+        with self.assertRaisesRegex(ValueError,'certificate'):
+            validate_assets(self.root,'release')
+
 
 if __name__ == '__main__':
     unittest.main()

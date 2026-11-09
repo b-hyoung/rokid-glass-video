@@ -50,12 +50,8 @@ def main():
         shutil.copytree(ROOT / 'res', w / 'res')
         strings = w / 'res/values/strings.xml'
         tree = ET.parse(strings)
-        overrides = {'LOCAL':'local_servers','SERVER':'default_server'}
-        for var, name in overrides.items():
-            if var in os.environ:
-                tree.find(f'.//string[@name="{name}"]').text = os.environ[var]
-                if var=='SERVER':
-                    tree.find('.//string[@name="control_server"]').text=os.environ[var]
+        if 'SERVER' in os.environ:
+            tree.find('.//string[@name="default_server"]').text=os.environ['SERVER']
         tree.write(strings, encoding='utf-8', xml_declaration=True)
         shutil.copy2(ROOT/'AndroidManifest.xml', w)
         # Windows SDK native tools can fail on non-ASCII absolute workspace paths.
@@ -88,7 +84,7 @@ def main():
         if args.release and fingerprint!=release['app']['certificateSha256']:
             raise SystemExit('Signing certificate differs from the approved release certificate')
         os.replace(signed,apk)
-        apk.with_suffix('.json').write_text(json.dumps({'version':version,'versionCode':version_code,'protocol':release['protocol'],'sha256':sha256(apk),'certificateSha256':fingerprint,'signatureVerified':True,'candidate':not args.release,'defaultServer':tree.find('.//string[@name="default_server"]').text,'localServers':tree.find('.//string[@name="local_servers"]').text or ''},indent=2),encoding='utf-8')
+        apk.with_suffix('.json').write_text(json.dumps({'version':version,'versionCode':version_code,'protocol':release['protocol'],'sha256':sha256(apk),'certificateSha256':fingerprint,'signatureVerified':True,'candidate':not args.release,'defaultServer':tree.find('.//string[@name="default_server"]').text},indent=2),encoding='utf-8')
         print(apk)
 
 if __name__ == '__main__':

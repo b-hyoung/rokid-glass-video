@@ -27,6 +27,7 @@ final class DeviceAccess {
         }catch(Exception e){return "";}
     }
     static void configure(String server,String token){current=new Access(origin(server),token!=null&&token.matches("[A-Za-z0-9_.-]{1,2048}")?token:"");}
+    static boolean hasCredential(String server){Access access=current;return !access.token.isEmpty()&&access.origin.equals(origin(server));}
     static Map<String,String> headers(String url){
         Map<String,String> result=new HashMap<>();result.put("User-Agent","RokidGlassVideo/"+BuildInfo.VERSION);
         Access access=current;if(!access.token.isEmpty()&&!access.origin.isEmpty()&&access.origin.equals(origin(url)))result.put("Authorization","Bearer "+access.token);

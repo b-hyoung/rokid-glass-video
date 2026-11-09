@@ -9,7 +9,7 @@ import json
 from pathlib import Path
 import shutil
 import tempfile
-from release_assets import ROOT, validate_assets, runtime_config
+from release_assets import ROOT, validate_assets, runtime_config, sha256
 
 PLAYER = '''<!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -56,7 +56,6 @@ def build(root, output, mode='release'):
             shutil.copy2(apk, stage / 'downloads' / apk.name)
         config = runtime_config(release, downloads=mode == 'release')
         (stage / 'runtime-config.json').write_text(json.dumps(config), encoding='utf-8')
-        (stage / 'release.json').write_text(json.dumps({**config, 'assets': [{'path': a['destination'], 'sha256': a['sha256']} for a in release['assets']]}), encoding='utf-8')
         recording = root / 'recordings/2412_시연영상.mp4'
         if recording.exists():
             (stage / 'video').mkdir()
@@ -64,6 +63,9 @@ def build(root, output, mode='release'):
             (stage / 'video/index.html').write_text(PLAYER, encoding='utf-8')
         (stage / '_headers').write_text('/server.txt\n  Cache-Control: no-store\n/downloads/glass-video.apk\n  Cache-Control: no-store\n/runtime-config.json\n  Cache-Control: no-store\n/cloud/*\n  Cache-Control: no-cache\n', encoding='utf-8')
         (stage / '_redirects').write_text('/demo/2412 /demo/2412/index.html 302\n/demo/2412/ /demo/2412/index.html 302\n', encoding='utf-8')
+        metadata={**config,'assets':[{'path':a['destination'],'sha256':a['sha256']} for a in release['assets']],
+                  'files':{str(p.relative_to(stage)).replace('\\','/'):sha256(p) for p in sorted(stage.rglob('*')) if p.is_file()}}
+        (stage / 'release.json').write_text(json.dumps(metadata,indent=2),encoding='utf-8')
         stage.rename(output)
     return output
 

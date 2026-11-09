@@ -1,6 +1,12 @@
 # 글래스 영상 (Rokid Glasses용)
 
-현재 개선 계획: [구현 계획](docs/IMPLEMENTATION_PLAN_20261109.md) · [진행 및 검증 기록](docs/IMPLEMENTATION_PROGRESS_20261109.md) · [백업·복구·빌드](docs/RECOVERY.md). 아래 이전 버전 설명은 개발 이력이다. 현재 앱 소스는 0.2.20 후보이며 정식 다운로드를 교체하지 않았다.
+현재 앱 소스는 0.2.22 후보입니다. 연결·촬영·인식 설정은 웹에서 제어합니다.
+
+## 페어링 후보 실행
+
+`python tools/start_secure_local.py`로 별도 8791 포트의 페어링 환경을 연다. 처음에는 설정 키가 채워진 연결 페이지가 열리며 새 공간을 만들고 등록 사본을 가져올 수 있다. 안경 앱은 빌드에 지정된 서버에 자동 접속한다. 웹의 **안경 연결** 목록에서 안경을 선택하면 연결된다. 안경에는 설정 화면이나 주소·코드 입력이 없다. 연결 해제와 촬영·인식 설정은 웹에서 한다. 기본 촬영은 같은 Wi-Fi WebRTC이며 H.264·JPEG는 고급 전송 설정에 남아 있다.
+
+현재 후보는 보호된 로컬 운용 환경이며 실물 장시간 검사와 정식 서명 확인을 마친 출시본은 아니다. 아래 8787 실행은 기존 호환 개발 모드다.
 
 ## 로컬 PC에서 실행
 
@@ -159,12 +165,9 @@ cloudflared tunnel --url http://localhost:8787   # 외부 주소(https://xxx.try
 
 ## 앱 빌드
 ```
-SERVER=https://xxx.trycloudflare.com bash build.sh   # → build/glass-video-0.2.20-candidate.apk (검증 JDK 25, SDK 36)
+SERVER=https://xxx.trycloudflare.com bash build.sh   # → build/glass-video-0.2.22-candidate.apk (검증 JDK 25, SDK 36)
 ```
-빠른 터널 주소는 켤 때마다 바뀐다. 다시 빌드하거나, 설치된 앱에 한 번 넘겨 주면 기억한다:
-```
-adb shell am start -n com.hoonartis.glassvideo/.MainActivity -d https://새주소.trycloudflare.com
-```
+현재 앱은 빌드에 지정된 서버에 자동으로 접속한다. 운영에서는 고정 주소를 사용한다. 서버 주소 입력·변경 화면은 안경과 웹 모두 제공하지 않는다. 개발 시험 주소는 `SERVER`로 지정해 별도 후보를 빌드한다.
 
 ## 안경에 설치
 1. Hi Rokid 앱 → 개발자 메뉴에서 ADB 디버깅 켜기

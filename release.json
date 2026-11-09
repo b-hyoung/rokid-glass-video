@@ -3,9 +3,9 @@
   "protocol": 1,
   "engine": "region-v15-object-first",
   "app": {
-    "version": "0.2.21",
-    "versionCode": 23,
-    "apk": "build/glass-video-0.2.21.apk",
+    "version": "0.2.22",
+    "versionCode": 24,
+    "apk": "build/glass-video-0.2.22.apk",
     "certificateSha256": null
   },
   "tools": {
