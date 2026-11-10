@@ -20,7 +20,9 @@ export async function handleConnection(req,u){
       if(!fps){this.trace('camera_stop',{test:this.test?.test??null});if(this.test){this.test.done=true;this.saveCamera()}this.send({cmd:'cam',fps:0});this.active=false;this.reset();return json({ok:true,stop:true})}
       const mode=q.get('mode')==='photo'?'photo':'video';
       const transport=mode==='video'&&q.get('transport')==='webrtc'?'webrtc':'websocket';
-      const cfg={cmd:'cam',mode,fps,sec:Math.max(0,Math.min(3600,+q.get('sec')||0)),crop:1,q:80,kbps:Math.max(500,Math.min(4000,+q.get('kbps')||2000)),test:Math.max(Date.now(),(this.test?.test||0)+1),transport};
+      // WebRTC goes glasses-to-PC on the same Wi-Fi, so it may use a higher cap than server relay.
+      const maxKbps=transport==='webrtc'?8000:4000;
+      const cfg={cmd:'cam',mode,fps,sec:Math.max(0,Math.min(3600,+q.get('sec')||0)),crop:1,q:80,kbps:Math.max(500,Math.min(maxKbps,+q.get('kbps')||2000)),test:Math.max(Date.now(),(this.test?.test||0)+1),transport};
       this.test={...cfg,frames:0,cmdAt:Date.now(),done:false};this.trace('camera_start',{test:cfg.test,fps:cfg.fps,kbps:cfg.kbps,mode:cfg.mode});this.saveCamera();this.latest=null;this.first=null;this.recent=[];this.bytes=0;this.config.clear();this.rate=[];this.delivery.clear();this.reset();this.send(cfg);return json({ok:true,test:cfg.test});
     }
     if(p==='/cam/rtc'&&req.headers.get('Upgrade')?.toLowerCase()==='websocket'){

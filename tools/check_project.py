@@ -31,7 +31,7 @@ def main():
     version=json.loads((ROOT/'release.json').read_text(encoding='utf-8'))['app']['version']
     build_info=Path(work.name)/'BuildInfo.java'
     build_info.write_text('package com.hoonartis.glassvideo; final class BuildInfo { static final String VERSION='+json.dumps(version)+'; }',encoding='utf-8')
-    sources=['PlaybackReporter','SessionWorkers','DeviceAccess','PatchTracker','PlaybackGate','DwellDisplay','LumaFrame']
+    sources=['PlaybackReporter','SessionWorkers','DeviceAccess','PatchTracker','PlaybackGate','DwellDisplay','LumaFrame','BoxMotion']
     checks += [[javac,'-encoding','UTF-8','-d',work.name,str(build_info),*[str(ROOT/'src/com/hoonartis/glassvideo'/f'{name}.java') for name in sources],str(ROOT/'tests/native/SessionWorkersTest.java'),str(ROOT/'tests/native/DeviceAccessTest.java'),str(ROOT/'tests/native/NativeBehaviorTest.java'),str(ROOT/'tests/native/PlaybackReporterTest.java')],
                [java,'-cp',work.name,'com.hoonartis.glassvideo.SessionWorkersTest'],
                [java,'-cp',work.name,'com.hoonartis.glassvideo.PlaybackReporterTest'],

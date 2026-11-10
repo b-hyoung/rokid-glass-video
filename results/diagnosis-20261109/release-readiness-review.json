@@ -1,0 +1,30 @@
+{
+  "commit": "8937a26d5c2bc6490673baad47e44948b285d78d",
+  "scope": "Code review and isolated clean-source checks; no runtime source fixes or deployment performed.",
+  "conclusion": "Controlled internal demos are feasible; general release has unresolved build, signing, authorization, lifecycle, capacity and recognition-validation blockers.",
+  "cleanCheckoutTests": {
+    "passed": 77,
+    "failed": 0
+  },
+  "cleanAssetBuild": {
+    "manifestVersion": "0.2.19",
+    "artifacts": {
+      "dist/cloud/appearance-v1.onnx": false,
+      "dist/cloud/ort/ort.wasm.min.js": false,
+      "dist/cloud/ort/ort-wasm-simd-threaded.wasm": false,
+      "dist/downloads/glass-video.apk": false,
+      "dist/downloads/glass-video-0.2.10.apk": false,
+      "dist/downloads/glass-video-0.2.19.apk": false
+    },
+    "testResult": "Clean source build succeeds while optional release assets are absent"
+  },
+  "apkCertificatesSha256": {
+    "0.2.10": "49e6f994990874054eb003a57f8967c03e4cb276deb22146e6999ca8fcc9df09",
+    "0.2.19-tracking-test": "9e8d112cb61c788ed6f3dfba9f78d3d7b14a13ba135df543e114c23f0081abd1"
+  },
+  "certificateMethod": "keytool -printcert -rfc -jarfile; v1/JAR certificate comparison, not a fresh apksigner v2/v3 verification or installed-device certificate check.",
+  "lifecycleFinding": "Code-path race: onStart creates four new loops, onStop only clears their shared running flag without tracking/canceling their threads. Fast return can revive the old loops. Actual device reproduction not performed.",
+  "productionMutation": false,
+  "workspaceRuntimeAssetsChanged": false,
+  "review": "docs/RELEASE_REVIEW_20261109.md"
+}

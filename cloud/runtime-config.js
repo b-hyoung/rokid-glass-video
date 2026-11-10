@@ -13,7 +13,7 @@ export function applyRuntimeConfig(config,root=document){
   if(link){
     link.hidden=!local&&!config.downloadUrl;
     link.href=local?'/local-check.html':config.downloadUrl||'#';
-    link.textContent=local?'사진·녹화 테스트':'안경 앱 '+config.appVersion+' 받기';
+    link.textContent=local?'사진·녹화 테스트':config.downloadLabel||'안경 앱 '+config.appVersion+' 받기';
   }
   const setup=root.querySelector('#local-setup');if(setup)setup.hidden=!local||config.accessMode==='paired';
   const access=root.querySelector('#connection-access');if(access)access.hidden=config.accessMode!=='paired';

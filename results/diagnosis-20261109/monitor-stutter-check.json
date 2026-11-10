@@ -1,0 +1,16 @@
+{
+  "date": "2026-11-09",
+  "setup": "local Worker; /recognition page in headless Chrome (software and Intel UHD D3D11 GPU); fake glasses posting motion.mp4 as 30fps JPEG (/frame); 15s recognition off, 15s on, 10s CPU profile",
+  "pageMainThread": {
+    "software": {"longTasks": 0, "rafGapsOver50ms": 0, "busyPctRecognitionOn": 6.1},
+    "gpu": {"longTasks": 0, "rafGapsOver50ms": 0, "busyPctRecognitionOn": 11.3}
+  },
+  "messageRates": {
+    "stateMessagesPerSec": {"recognitionOff": 30.4, "recognitionOn": "74.5-85.1"},
+    "imageBitmapsPerSec": {"recognitionOff": 30, "recognitionOn": "46-53"},
+    "cause": "server publishes a full state snapshot on every non-GET request (each camera /frame POST) and on every detection result; detections now run back-to-back (setTimeout 0)"
+  },
+  "cpuPctOfOneCore": {"chromeRecognitionOff": "24-46", "chromeRecognitionOn": "85-93", "workerd": "20-29"},
+  "stateSnapshotBytesToGlasses": 1409,
+  "gaps": ["WebRTC mode records no per-frame timing or getStats in page diagnostics and sends no viewer metrics to the server", "real glasses / WebRTC path not measured (glasses off)"]
+}

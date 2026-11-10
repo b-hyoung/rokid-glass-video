@@ -246,6 +246,8 @@ export class GlassRoom {
   webSocketClose(ws,code,reason){
     this.events.close(ws);
     const attachment=ws.deserializeAttachment?.();if(attachment?.role==='camera')this.trace('camera_socket_close',{test:attachment.test,code,reason:String(reason||'').slice(0,120)});
+    // Every channel's close is traced so reconnect loops can be attributed.
+    else this.trace('socket_close',{role:attachment?.role??attachment?.side??'unknown',side:attachment?.side??null,code,reason:String(reason||'').slice(0,120)});
     if(attachment?.role==='rtc-viewer'&&!this.rtcSocket('rtc-viewer',attachment.test)){
       try{this.rtcSocket('rtc-device',attachment.test)?.send('{"type":"viewer-left"}')}catch{}
     }
@@ -255,5 +257,5 @@ export class GlassRoom {
     const sendable=code>=1000&&code<=1014&&![1004,1005,1006].includes(code)||code>=3000&&code<=4999;
     try{ws.close(sendable?code:1000,reason)}catch{try{ws.close(1000,'')}catch{}}
   }
-  webSocketError(ws){const attachment=ws.deserializeAttachment?.();if(attachment?.role==='camera')this.trace('camera_socket_error',{test:attachment.test});this.delivery.delete(ws);try{ws.close(1011,'stream error')}catch{}}
+  webSocketError(ws){const attachment=ws.deserializeAttachment?.();if(attachment?.role==='camera')this.trace('camera_socket_error',{test:attachment.test});else this.trace('socket_error',{role:attachment?.role??attachment?.side??'unknown'});this.delivery.delete(ws);try{ws.close(1011,'stream error')}catch{}}
 }

@@ -1,4 +1,4 @@
-import {json,DWELL_MS,FOCUS_RESUME_MS,DISPLAY_HOLD_MS,acceptDetectionEnvelope} from '../request-policy.mjs';
+import {json,DWELL_MS,FOCUS_RESUME_MS,DISPLAY_HOLD_MS,MAX_DWELL_CREDIT_MS,acceptDetectionEnvelope} from '../request-policy.mjs';
 import {regionOverlap} from '../region-evidence.mjs';
 import {validSeed} from '../tracking-seed.mjs';
 
@@ -38,8 +38,11 @@ export async function handleRecognition(req,u){
         if(bounds.left>=bounds.right||bounds.top>=bounds.bottom)return [];
         const held=provisional||f.held===true;
         const trackId=typeof f.trackId==='string'&&f.trackId.length<=80?f.trackId:'';
+        // Box velocity (frame units/s) lets the glasses compensate for latency.
+        const velocity=!approximate&&!held&&Array.isArray(f.velocity)&&f.velocity.length===2&&f.velocity.every(Number.isFinite)
+          ?f.velocity.map(v=>Math.max(-3,Math.min(3,v))):null;
         return [{...t,trackId,corners:f.corners,bounds,inliers:approximate?0:Number(f.inliers)||0,matchedAt,
-          approximate,provisional,held,seed:approximate||held?null:validSeed(f.seed)}];
+          approximate,provisional,held,velocity,seed:approximate||held?null:validSeed(f.seed)}];
       });
       const unique=new Map();for(const f of found){if(!unique.has(f.id)||unique.get(f.id).inliers<f.inliers)unique.set(f.id,f)}found.splice(0,found.length,...unique.values());
       // Retain only previously confirmed boxes, without refreshing their age.
@@ -51,7 +54,7 @@ export async function handleRecognition(req,u){
         if(now-previous.at>DISPLAY_HOLD_MS||d.sceneStable!==true||contradicted(previous.target)){
           this.displayHistory.delete(id);
         }else if(!unique.has(id)&&found.length<12){
-          found.push({...previous.target,held:true,seed:null});
+          found.push({...previous.target,held:true,seed:null,velocity:null});
         }
       }
       for(const target of observed)this.displayHistory.set(target.id,{at:now,target});
@@ -76,7 +79,9 @@ export async function handleRecognition(req,u){
       const busy=!!this.playback.current();
       if(this.rearm&&!choice&&!localized.some(inside))this.rearm=false;
       if(busy||this.rearm){this.focus=null;this.focusAt=now}
-      const resuming=this.state.focusMissing||elapsed>750;
+      // Frame time between this result and the previous one, on the server clock.
+      const frameGap=Math.max(0,d.at-(this.state.frameAt||d.at));
+      const resuming=this.state.focusMissing||elapsed>MAX_DWELL_CREDIT_MS;
       const trackChanged=choice?.trackId&&this.state.focusTrackId&&choice.trackId!==this.state.focusTrackId;
       const sameFocus=!!this.focus&&choice?.id===this.focus&&!trackChanged&&(!resuming||
         (!!this.focusCorners&&(!this.state.focusMissingAt||now-this.state.focusMissingAt<=FOCUS_RESUME_MS)&&
@@ -91,7 +96,12 @@ export async function handleRecognition(req,u){
             const observedMs=Math.min(150,Math.max(0,d.at-(this.state.frameAt||d.at)),elapsed);
             this.focusAt=now-this.state.progress*DWELL_MS-observedMs;
           }
-          else if(sameFocus&&elapsed>350)this.focusAt+=elapsed-350;
+          else if(sameFocus){
+            // Credit the observed frame interval (at least the old 350ms slice,
+            // at most MAX_DWELL_CREDIT_MS); delivery delay beyond it earns nothing.
+            const credit=Math.min(MAX_DWELL_CREDIT_MS,Math.max(350,frameGap));
+            if(elapsed>credit)this.focusAt+=elapsed-credit;
+          }
           progress=Math.min(1,(now-this.focusAt)/DWELL_MS);
           this.focusCorners=choice.corners;
         }else{
@@ -121,7 +131,8 @@ export async function handleRecognition(req,u){
         focused:this.focus,progress,frameAgeMs:Math.max(0,now-d.at),detections:found.length});
       this.lastResult=now;this.state={enabled:true,detections:found,aimTarget:aimTarget?.name??null,progress,focused:this.focus,
         focusTrackId,focusReason,focusMode:this.focus?(focusMissing?'paused':'advancing'):'idle',focusExpiresAt,
-        focusStartedAt,focusMissing,focusMissingAt:this.focus?focusMissingAt:0,locked:this.locked,frameAt:d.at,at:now};
+        focusStartedAt,focusMissing,focusMissingAt:this.focus?focusMissingAt:0,locked:this.locked,frameAt:d.at,at:now,
+        analysisMs:Number.isFinite(d.processMs)?Math.round(Math.min(60000,Math.max(0,d.processMs))):null,frameAgeMs:Math.max(0,now-d.at)};
       if(d.preview===true){
         const detections=found.map(({id,trackId,name,corners,bounds,approximate,provisional,held})=>({id,trackId,name,corners,bounds,approximate,provisional,held}));
         return json({ok:true,preview:{...this.state,detections,epoch:this.epoch}});

@@ -27,7 +27,10 @@ def tool(name):
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--release',action='store_true',help='Require an explicitly configured release certificate and key')
+    parser.add_argument('--candidate-output', type=Path, help='Use a separate filename for a candidate APK')
     args=parser.parse_args()
+    if args.candidate_output and (args.release or args.candidate_output.suffix != '.apk'):
+        parser.error('--candidate-output requires a candidate build and an .apk path')
     if not jar.exists():
         raise SystemExit('Set ANDROID_HOME to an SDK containing android-36 and build-tools 36.0.0')
     output = ROOT / 'build'
@@ -39,7 +42,9 @@ def main():
         raise SystemExit('AndroidManifest.xml differs from release.json')
     if args.release and (not release['app']['certificateSha256'] or not os.environ.get('ANDROID_KEYSTORE') or not os.environ.get('ANDROID_KEYSTORE_PASSWORD')):
         raise SystemExit('Verified certificate in release.json and explicit signing key/password environment required')
-    apk = output / f'glass-video-{version}{"" if args.release else "-candidate"}.apk'
+    apk = (args.candidate_output or output / f'glass-video-{version}{"" if args.release else "-candidate"}.apk').resolve()
+    if not apk.parent.is_dir():
+        parser.error('APK output directory must already exist')
     if args.release and apk.exists():
         raise SystemExit('Existing release APK preserved. Increment the version for a new release.')
     with tempfile.TemporaryDirectory(prefix='android-', dir=output) as work:

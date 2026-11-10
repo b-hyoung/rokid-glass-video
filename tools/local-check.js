@@ -100,6 +100,8 @@ for(const [event,name] of [['playing','playing'],['ended','completed'],['error',
 let renewedAt=0;
 $('player').addEventListener('timeupdate',()=>{if(playerId&&!$('player').paused&&performance.now()-renewedAt>5000){renewedAt=performance.now();api('/recognition/playback',post({id:playerId,event:'playing'})).catch(error=>note(error.message))}});
 $('stop-player').onclick=()=>api('/stop',post({})).then(stopPlayer).catch(error=>note(error.message));
+// Aim-to-playback time: from the first focused result to the playback command.
+let focusSince=0,lastAimToPlayMs=null;
 async function analyze(){
   setTimeout(analyze,75);
   if(running&&media&&!analysisBusy&&analysis.width>1){
@@ -111,9 +113,12 @@ async function analyze(){
       await api('/recognition/detections',post({at,epoch,found:result.found,aimMatch:result.aimMatch,sceneStable:result.sceneStable}));
       if(token!==revision||!running)return;
       state=await api('/recognition/status');lastResult=result;
+      if(state.playback&&focusSince){lastAimToPlayMs=Math.round(performance.now()-focusSince);focusSince=0}
+      else if(state.focused&&!state.playback&&!focusSince)focusSince=performance.now();
+      else if(!state.focused&&!state.playback)focusSince=0;
       for(const d of result.found)if(!d.held&&!firstSeen.has(d.id))firstSeen.set(d.id,performance.now()-started);
       $('results').replaceChildren(...(state.detections||[]).map(d=>{const li=document.createElement('li');li.textContent=`${d.name} · ${d.held?'잠시 추적 유지':'인식됨'} · 첫 인식 ${Math.round(firstSeen.get(d.id)||0)}ms`;return li}));
-      $('metrics').textContent=`분석 ${Math.round(result.ms)}ms · 결과 수신 ${Math.round(performance.now()-sample)}ms · ${state.detections.length}개 표시`;
+      $('metrics').textContent=`분석 ${Math.round(result.ms)}ms · 결과 수신 ${Math.round(performance.now()-sample)}ms · ${state.detections.length}개 표시${lastAimToPlayMs===null?'':` · 조준→재생 ${lastAimToPlayMs}ms`}`;
       $('progress').value=state.progress;$('focus').textContent=state.focused?`재생 진행 ${Math.round(state.progress*100)}%`:'조준 대기';
       if(result.appearanceError)note(result.appearanceError);await showPlayback();
     }catch(error){if(token===revision)note(error.message)}finally{analysisBusy=false}

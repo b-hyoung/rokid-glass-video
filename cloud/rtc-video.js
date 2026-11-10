@@ -101,7 +101,25 @@ export class RtcVideo {
     });
   }
 
+  // Inbound video stats: decoded size, rate and bitrate since the previous call.
+  async stats() {
+    const peer = this.peer;
+    if (!peer) return null;
+    let video = null;
+    (await peer.getStats()).forEach(s => { if (s.type === 'inbound-rtp' && s.kind === 'video') video = s; });
+    if (!video || this.peer !== peer) return null;
+    const now = performance.now(), previous = this.previousStats;
+    this.previousStats = {bytes: video.bytesReceived, at: now};
+    return {
+      width: video.frameWidth ?? this.video.videoWidth, height: video.frameHeight ?? this.video.videoHeight,
+      fps: video.framesPerSecond ?? null,
+      kbps: previous && now > previous.at ? Math.round((video.bytesReceived - previous.bytes) * 8 / (now - previous.at)) : null,
+      dropped: video.framesDropped ?? 0, freezes: video.freezeCount ?? 0,
+    };
+  }
+
   closePeer() {
+    this.previousStats = null;
     if (this.frameRequest !== undefined) this.video.cancelVideoFrameCallback(this.frameRequest);
     this.frameRequest = undefined;
     this.video.srcObject = null;

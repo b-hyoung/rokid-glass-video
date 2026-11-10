@@ -1,0 +1,32 @@
+{
+  "date": "2026-11-09",
+  "environment": "headless Chrome (rAF 60/s) driving local-check.html on the local Worker; cloud path simulated from measured production response times (video leg fixed at median/2, ordered uplink). Code: working tree with frame-time dwell + aim-priority search.",
+  "network": {
+    "cloudColo": "LAX",
+    "cloudRequestMs": {"median": 392, "p90": 3264, "max": 10245, "samples": [406,409,376,354,764,739,3264,361,431,392,357,356,367,363,10245]},
+    "localRequestMs": {"median": 16, "max": 32}
+  },
+  "dwell": {
+    "local": {"played": "5/5", "focusToPlayMs": [1918,1830,1821,1851,1799], "serverFrameAgeMedianMs": 20},
+    "cloudTypicalSimulated": {"played": "5/5", "focusToPlayMs": [3625,3213,3377,3776,3657], "serverFrameAgeMedianMs": 415, "note": "stalls (3.2s/10.2s) excluded; during a stall no update reaches the server"}
+  },
+  "motion": {
+    "clip": "photo.jpg panned +/-80px (14.8% width): 0-4s still, 4-10s slow (peak 23%/s), 10-16s fast (peak 46%/s)",
+    "boxOnAnalyzedFrameMeanErrPct": 2.2,
+    "analysisMs": {"median": 18, "p90": 420},
+    "serverBoxErrPctOfWidth": {
+      "local": {"slow": {"mean": 5.0, "p90": 10.9}, "fast": {"mean": 9.7, "p90": 21.1}},
+      "cloudLatencyModel": {"slow": {"mean": 11.3, "p90": 20.8}, "fast": {"mean": 15.1, "p90": 26.8}}
+    },
+    "causes": ["ORB detection pass ~420-520ms every ~650ms blocks updates", "smoothQuad averages with previous corners (lag)", "glasses draw server box as-is; no motion compensation", "cloud network legs"]
+  },
+  "geometry": {
+    "webFrame": "540x960 portrait (1280x720 rotated -90)",
+    "glassesView": "480x640",
+    "productionGuide": {"shape": "circle", "hud": {"cx": 0.54, "cy": 0.45, "width": 0.6, "height": 0.35}, "camera": {"cx": 0.5, "cy": 0.57, "width": 0.6, "height": 0.35}},
+    "boxAnisotropy": {"circleCalibrated": "3.7%", "rectDefaultOrUncalibrated": "33% horizontal stretch"},
+    "monitorPlaybackOverlay": {"drawn": {"left": 0, "top": 0.125, "width": 1, "height": 0.75}, "calibrationImplies": {"left": -0.04, "top": 0.22, "width": 1, "height": 0.778}},
+    "fovCheck": "calibration implies display spans 100% of camera width; published specs (camera ~77x94 deg, display ~23-30 deg diag) suggest ~25-35%. Not verified on device."
+  },
+  "notMeasured": ["real glasses", "current code on production (not deployed)", "live /recognition page end to end (fake HTTP camera path fails to decode)"]
+}

@@ -44,6 +44,12 @@ public class NativeBehaviorTest {
         gate.acknowledged("a",15);check(!gate.accept("old",14,true),"delayed automatic command cannot restart after button");
         check(gate.accept("new",16,true),"fresh automatic selection after server rearm");
         check(gate.accept("manual",17,false),"explicit manual replacement remains available");gate.acknowledged("new",20);check(gate.current("manual"),"old completion cannot affect replacement");
-        System.out.printf(Locale.ROOT,"PASS: 2-object motion, delayed anchor, loss, expiry, exposure, rotation/strides and playback gate; %.1f ms JVM total%n",(System.nanoTime()-start)/1e6);
+        double[] lead=BoxMotion.offset(.4,0,100);
+        check(Math.abs(lead[0]-.04)<1e-9&&lead[1]==0,"a box moving 40%/s is led 4% for 100ms of age");
+        check(Math.abs(BoxMotion.offset(.2,0,2000)[0]-.2*BoxMotion.MAX_LEAD_MS/1000)<1e-9,"lead time is capped");
+        double[] capped=BoxMotion.offset(3,0,250);check(Math.abs(capped[0]-BoxMotion.MAX_SHIFT)<1e-9,"lead distance is capped");
+        check(BoxMotion.offset(.01,0,200)[0]==0,"slow drift is not extrapolated");
+        check(BoxMotion.offset(Double.NaN,0,200)[0]==0&&BoxMotion.offset(.4,0,-5)[0]==0,"invalid velocity or age is ignored");
+        System.out.printf(Locale.ROOT,"PASS: 2-object motion, delayed anchor, loss, expiry, exposure, rotation/strides, playback gate and box lead; %.1f ms JVM total%n",(System.nanoTime()-start)/1e6);
     }
 }

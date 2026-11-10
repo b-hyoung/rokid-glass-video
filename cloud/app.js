@@ -175,7 +175,20 @@ async function poll(){
 }
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')stateChannel.start();else stateChannel.pause()});
 addEventListener('pagehide',()=>stateChannel.stop());
+// One result submission in flight; while it is pending only the newest result
+// waits. Analysis never blocks on the network round trip.
+let submitting=false,queuedSubmission=null,lastCycleAt=0;
+function submitDetections(data){
+ if(submitting){queuedSubmission=data;return}
+ submitting=true;
+ const channelResult=stateChannel.detections(data);
+ Promise.resolve(channelResult||api('/recognition/detections',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}))
+  .then(response=>{const preview=response?.preview;if(preview&&preview.epoch===state.epoch&&preview.at>=state.at)state={...state,...preview}})
+  .catch(showError)
+  .finally(()=>{submitting=false;const next=queuedSubmission;queuedSubmission=null;if(next&&next.epoch===state.epoch&&(timing.age(next.at)??0)<1450)submitDetections(next)});
+}
 async function recognize(){
+ let analyzed=false;
  try{
   if(document.visibilityState==='visible'&&cvReady&&!loading&&frameCount!==matchedFrame&&frameAt&&performance.now()-frameDrawnAt<1200&&timing.fresh(frameAt)){
    const options=registration.options();
@@ -183,22 +196,22 @@ async function recognize(){
     matchedFrame=frameCount;const at=frameAt,epoch=state.epoch,revision=registration.revision;
     const aim=state.guide?.calibrated?state.guide.camera:{cx:.5,cy:.5};
     const result=await matcher.process(frame,{...(options||{mode:'recognize',aim}),at});
-    const age=timing.age(at)??0;
+    analyzed=true;
+    const age=timing.age(at)??0,cycleAt=performance.now();
+    diagnostics.record('recognition_cycle',{processMs:Math.round(result.ms??0),cycleMs:lastCycleAt?Math.round(cycleAt-lastCycleAt):null,frameAgeMs:Math.round(age),pending:submitting});
+    lastCycleAt=cycleAt;
     if(revision===registration.revision&&(options?timing.fresh(at):age<1450)){
      if(result.appearanceError)showError(Error(result.appearanceError));
      if(options)registration.accept(result);
      else if(!registration.enabled){
-       const data={found:result.found,aimMatch:result.aimMatch,sceneStable:result.sceneStable,at,epoch,preview:true};
-       const channelResult=stateChannel.detections(data);
-       const response=await(channelResult||api('/recognition/detections',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}));
-       const preview=response.preview;
-       if(preview&&preview.epoch===state.epoch&&preview.at>=state.at)state={...state,...preview};
+       submitDetections({found:result.found,aimMatch:result.aimMatch,sceneStable:result.sceneStable,at,epoch,preview:true,processMs:result.ms});
      }
     }
    }
   }
  }catch(e){showError(e);if(registration.phase==='capture'){registration.lost=true;registration.error(Error('영역 추적을 멈췄습니다. '+(e.message||e)))}}
- setTimeout(recognize,100);
+ // After an analysis the next displayed frame is usually ready; otherwise poll lightly.
+ setTimeout(recognize,analyzed?0:30);
 }
 const foundStatus=$('#found');
 const monitor=$('#hud-monitor');
@@ -280,8 +293,16 @@ const active=cameraStats?.test&&!cameraStats.test.done;
 $('#stream-stats').textContent=active?'설정 '+cameraStats.test.fps+'fps · 서버 '+cameraStats.receiveFps+'fps · 웹 도착 '+network.toFixed(1)+'fps · 해석 '+decoded.toFixed(1)+'fps · 표시 '+(frozen?'정지':shown.toFixed(1)+'fps'):'촬영 대기';
 if(rtcVideo){
  const fps=rtcFrames/Math.max(.001,(now-rtcMetricAt)/1000);
- $('#stream-stats').textContent='WebRTC · '+(frozen?'표시 정지':'웹 프레임 '+fps.toFixed(1)+'fps');
+ const text='WebRTC · '+(frozen?'표시 정지':'웹 프레임 '+fps.toFixed(1)+'fps');
+ $('#stream-stats').textContent=text;
  rtcFrames=0;rtcMetricAt=now;
+ // Received resolution and bitrate reveal WebRTC quality adaptation on the glasses.
+ const current=rtcVideo;
+ current.stats().then(s=>{
+  if(!s||rtcVideo!==current)return;
+  $('#stream-stats').textContent=text+' · 수신 '+s.width+'×'+s.height+(s.kbps!=null?' · '+(s.kbps/1000).toFixed(1)+'Mbps':'');
+  diagnostics.record('rtc_stats',s);
+ }).catch(()=>{});
 }
 
 },2000);

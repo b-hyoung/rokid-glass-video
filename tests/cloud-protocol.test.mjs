@@ -4,6 +4,7 @@ import {DatabaseSync} from 'node:sqlite';
 import {TargetStore,MAX_IMAGES} from '../cloud/target-store.mjs';
 import {GlassRoom} from '../cloud/worker.mjs';
 import {pack,unpack} from '../cloud/stream-protocol.mjs';
+import {DWELL_MS} from '../cloud/request-policy.mjs';
 function room(){
  const db=new DatabaseSync(':memory:');
  const storage={sql:{exec(query,...args){const statement=db.prepare(query);if(/^SELECT|RETURNING/i.test(query))return {toArray:()=>statement.all(...args)};statement.run(...args);return {toArray:()=>[]}}},transactionSync(fn){db.exec('BEGIN');try{const r=fn();db.exec('COMMIT');return r}catch(e){db.exec('ROLLBACK');throw e}}};
@@ -55,7 +56,7 @@ test('paused dwell resumes only for the same track within its lease',async()=>{
  assert.equal(status.focusMissing,true);
  assert.equal(status.focused,target.targetId);
  await report([bag]);
- assert.ok(r.state.progress>=progress&&r.state.progress<=progress+.06);
+ assert.ok(r.state.progress>=progress&&r.state.progress<=progress+150/DWELL_MS);
  assert.equal(r.state.focusMode,'advancing');
  await report([]);
  await report([{...bag,trackId:'track-b'}]);
@@ -86,7 +87,7 @@ test('alternating live and held results must accumulate only short live observat
    now+=200;await report(false);
   }
   assert.ok(r.state.progress>0,'every resumed result previously pinned progress back to zero');
-  assert.ok(r.state.progress<=.25,'missing time must not all become dwell');
+  assert.equal(Math.round(r.state.progress*DWELL_MS),600,'credit at most 150ms per resumed observation');
   assert.equal(r.commands.length,0);
   for(let i=0;i<20&&!r.commands.length;i++){
    const previous=r.state.progress;
@@ -97,6 +98,28 @@ test('alternating live and held results must accumulate only short live observat
   assert.equal(r.commands.at(-1)?.key,'e','intermittent confirmed observations eventually complete dwell');
  }finally{Date.now=original}
 });
+test('a continuously observed target plays at 1500ms but not before',async()=>{
+ const realNow=Date.now;
+ const started=300000;
+ let now=started;
+ Date.now=()=>now;
+ try{
+  const {r,request}=room();
+  const target=await request('/recognition/targets',{name:'Bag',key:'e',image:'data:image/jpeg;base64,/9j/'});
+  await request('/recognition/control?enabled=1',{},'POST');
+  const found=[{id:target.targetId,trackId:'stable',corners:[[.35,.35],[.65,.35],[.65,.65],[.35,.65]]}];
+  for(const elapsed of [0,300,600,900,1200,1499]){
+   now=started+elapsed;
+   await request('/recognition/detections',{epoch:r.epoch,at:now,found});
+   assert.equal(r.commands.length,0);
+  }
+  now=started+1500;
+  await request('/recognition/detections',{epoch:r.epoch,at:now,found});
+  assert.equal(r.commands.at(-1)?.key,'e');
+  assert.equal((await request('/recognition/status')).dwellMs,1500);
+ }finally{Date.now=realNow}
+});
+
 test('650ms recognition samples with one stable track complete dwell without resetting',async()=>{
  const original=Date.now;
  let now=300000;
@@ -612,4 +635,69 @@ test('state-channel detections use HTTP freshness, identity and playback protect
  const device=stateSocket();await r.events.connect(device,'device','glasses');
  await r.events.message(device,JSON.stringify({type:'detections',seq:1,data:{}}));assert.equal(device.messages.filter(m=>m.type==='result').length,0);
  await r.events.message(device,JSON.stringify({type:'ping',ping:9}));assert.ok(r.seen.has('glasses'));assert.equal(device.messages.find(m=>m.type==='pong').pong,9);
+});
+
+// Dwell credit follows frame time (bounded) rather than result arrival slices.
+async function dwellRoom(start){
+ let now=start;const original=Date.now;Date.now=()=>now;
+ const {r,request}=room();
+ const target=await request('/recognition/targets',{name:'Box',key:'e',image:'data:image/jpeg;base64,/9j/'});
+ await request('/recognition/control?enabled=1',{},'POST');
+ const found=[{id:target.targetId,trackId:'steady',corners:[[.35,.35],[.65,.35],[.65,.65],[.35,.65]]}];
+ const report=(at,extra={})=>request('/recognition/detections',{epoch:r.epoch,at,found,...extra});
+ return {r,report,id:target.targetId,set:t=>{now=t},restore:()=>{Date.now=original}};
+}
+test('900ms analysis cycles earn their frame time and play after 1500ms of frames',async()=>{
+ const t0=400000,{r,report,set,restore}=await dwellRoom(t0);
+ try{
+  await report(t0-500);
+  set(t0+900);await report(t0+400);
+  assert.ok(Math.abs(r.state.progress-900/DWELL_MS)<.01,'a 900ms cycle previously earned only 150ms');
+  assert.equal(r.commands.length,0);
+  set(t0+1800);await report(t0+1300);
+  assert.equal(r.commands.at(-1)?.key,'e');
+ }finally{restore()}
+});
+test('delivery delay without new frame time earns only the base 350ms slice',async()=>{
+ const t0=500000,{r,report,set,restore}=await dwellRoom(t0);
+ try{
+  await report(t0-50);
+  set(t0+700);await report(t0+50);
+  assert.ok(Math.abs(r.state.progress-350/DWELL_MS)<.01);
+ }finally{restore()}
+});
+test('frame credit is capped at 1000ms and longer gaps resume with 150ms',async()=>{
+ const t0=600000,{r,report,set,restore}=await dwellRoom(t0);
+ try{
+  await report(t0-100);
+  set(t0+1000);await report(t0+900);
+  assert.ok(Math.abs(r.state.progress-1000/DWELL_MS)<.01,'1000ms is still continuous');
+  const before=r.state.progress;
+  set(t0+2200);await report(t0+2100,{processMs:420});
+  assert.ok(r.state.progress>before&&r.state.progress<=before+150/DWELL_MS+.01,'a 1200ms gap is a resume');
+  assert.equal(r.state.analysisMs,420);
+  assert.equal(r.state.frameAgeMs,100);
+ }finally{restore()}
+});
+test('live boxes carry a clamped velocity to the glasses; held and invalid ones do not',async()=>{
+ const t0=700000,{r,report,id,set,restore}=await dwellRoom(t0);
+ try{
+  await report(t0-50,{found:[{id,trackId:'v',corners:[[.35,.35],[.65,.35],[.65,.65],[.35,.65]],velocity:[.4,-9]}]});
+  assert.deepEqual(r.state.detections[0].velocity,[.4,-3]);
+  const status=await (await r.fetch(new Request('https://example.test/recognition/status?hud=2'))).json();
+  assert.deepEqual(status.detections[0].velocity,[.4,-3],'the glasses status keeps the velocity');
+  set(t0+100);await report(t0+50,{found:[{id,trackId:'v',held:true,corners:[[.35,.35],[.65,.35],[.65,.65],[.35,.65]],velocity:[.4,0]}]});
+  assert.equal(r.state.detections[0].velocity,null);
+  set(t0+200);await report(t0+150,{found:[{id,trackId:'v',corners:[[.35,.35],[.65,.35],[.65,.65],[.35,.65]],velocity:['x',1]}]});
+  assert.equal(r.state.detections[0].velocity,null);
+ }finally{restore()}
+});
+test('WebRTC capture may use up to 8Mbps while relayed video stays capped at 4Mbps',async()=>{
+ const {r,request}=room();
+ await request('/cam/set?mode=video&fps=30&sec=0&kbps=6000&transport=webrtc');
+ assert.equal(r.test.kbps,6000);assert.equal(r.test.transport,'webrtc');
+ await request('/cam/set?mode=video&fps=30&sec=0&kbps=9000&transport=webrtc');
+ assert.equal(r.test.kbps,8000);
+ await request('/cam/set?mode=video&fps=30&sec=0&kbps=6000');
+ assert.equal(r.test.kbps,4000);assert.equal(r.test.transport,'websocket');
 });

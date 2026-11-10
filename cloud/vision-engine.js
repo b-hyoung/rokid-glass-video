@@ -5,6 +5,16 @@ import {TrackRecovery} from './track-recovery.mjs';
 import {clipFrameQuad} from './quad-geometry.mjs';
 
 const dispose=(...items)=>items.forEach(x=>x?.delete());
+// Box movement below this fraction of its size is treated as jitter.
+const JITTER_SHIFT=.03;
+// While a healthy track is under the aim, only that object is re-checked in a
+// crop around its box; a full-scene detection still runs at this interval.
+const FULL_DETECT_WHILE_AIMED_MS=2500;
+// Upper bound on the wait between searches, so discovery never stalls.
+const MAX_SEARCH_GAP_MS=3000;
+// How long a track lost in motion is re-checked near its predicted position.
+const REACQUIRE_MS=1000;
+const centerOf=corners=>[corners.reduce((n,p)=>n+p[0],0)/corners.length,corners.reduce((n,p)=>n+p[1],0)/corners.length];
 const area=p=>Math.abs(p.reduce((n,a,i)=>{const b=p[(i+1)%p.length];return n+a[0]*b[1]-b[0]*a[1]},0))/2;
 function validQuad(p){
   if(p.length!==4||!p.flat().every(x=>Number.isFinite(x)&&x>=0&&x<=1))return false;
@@ -16,7 +26,9 @@ function smoothQuad(previous,next){
   const xs=next.map(p=>p[0]),ys=next.map(p=>p[1]);
   const size=Math.max(Math.max(...xs)-Math.min(...xs),Math.max(...ys)-Math.min(...ys));
   const shift=Math.max(...next.map(([x,y],i)=>Math.hypot(x-previous[i][0],y-previous[i][1])));
-  if(shift>size*.18)return next;
+  // Average only sub-pixel-scale jitter; real motion is followed without the
+  // half-step lag that averaging adds.
+  if(shift>size*JITTER_SHIFT)return next;
   const mixed=next.map(([x,y],i)=>[(x+previous[i][0])/2,(y+previous[i][1])/2]);
   return validQuad(mixed)?mixed:next;
 }
@@ -88,7 +100,7 @@ class FlowTrack {
 
 export class VisionEngine {
   constructor(cv){this.cv=cv;this.matcher=new Matcher(cv);this.canvas=new OffscreenCanvas(1,1);this.ctx=this.canvas.getContext('2d',{willReadFrequently:true});this.tracks=new Map();this.regionEvidence=new RegionEvidence();this.pendingFlows=new Map();this.reset()}
-  reset(){this.previous?.delete();this.previous=null;for(const t of this.tracks.values())t.flow.close();this.tracks.clear();this.regionEvidence.clear();for(const flow of this.pendingFlows.values())flow.close();this.pendingFlows.clear();this.capture?.close();this.capture=null;this.signatures=[];this.lastSample=-Infinity;this.lastDetect=-Infinity;this.tile=0;this.photoScan=0;this.lastPhotoFirst=-Infinity;this.lastObjectFirst=-Infinity;this.standardSearch=0;this.deferAppearance=false;this.captureId=null;this.lost=false;this.previousAt=0}
+  reset(){this.previous?.delete();this.previous=null;for(const t of this.tracks.values())t.flow.close();this.tracks.clear();this.regionEvidence.clear();for(const flow of this.pendingFlows.values())flow.close();this.pendingFlows.clear();this.capture?.close();this.capture=null;this.signatures=[];this.lastSample=-Infinity;this.lastDetect=-Infinity;this.lastFullDetect=-Infinity;this.detectCost=0;this.tile=0;this.photoScan=0;this.lastPhotoFirst=-Infinity;this.lastObjectFirst=-Infinity;this.standardSearch=0;this.deferAppearance=false;this.captureId=null;this.lost=false;this.previousAt=0}
 
   detectScene(pixels,scanTile,at,options={}){
     this.deferAppearance=false;
@@ -122,6 +134,23 @@ export class VisionEngine {
     return [...best.values()];
   }
 
+  // Re-identify one tracked object in a crop around its box. Far cheaper than a
+  // full-frame search and enough to keep its identity fresh while it is aimed.
+  verifyRegion(pixels,id,corners,padding=.35){
+    const xs=corners.map(p=>p[0]*pixels.width),ys=corners.map(p=>p[1]*pixels.height);
+    const left=Math.min(...xs),right=Math.max(...xs),top=Math.min(...ys),bottom=Math.max(...ys);
+    const pad=padding*Math.max(right-left,bottom-top);
+    const x=Math.max(0,Math.floor(left-pad)),y=Math.max(0,Math.floor(top-pad));
+    const w=Math.min(pixels.width,Math.ceil(right+pad))-x,h=Math.min(pixels.height,Math.ceil(bottom+pad))-y;
+    if(w<48||h<48)return [];
+    const crop=this.ctx.getImageData(x,y,w,h);
+    const photoOnly=this.matcher.refs.some(ref=>ref.id===id&&ref.photoOnly);
+    return this.matcher.detect(crop,{targetIds:new Set([id]),photoSearch:photoOnly}).flatMap(match=>{
+      const quad=clipFrameQuad(match.corners.map(([u,v])=>[(x+u*w)/pixels.width,(y+v*h)/pixels.height]),pixels.width,pixels.height);
+      return quad&&validQuad(quad)?[{...match,corners:quad,verified:true}]:[];
+    });
+  }
+
   async process(bitmap,o={},confirmAppearance){
     this.deferAppearance=false;
     const began=performance.now(),cv=this.cv;this.canvas.width=bitmap.width;this.canvas.height=bitmap.height;this.ctx.drawImage(bitmap,0,0);bitmap.close();
@@ -148,15 +177,23 @@ export class VisionEngine {
             if(!steady)this.regionEvidence.pending.delete(id);
           }
         }
-        let dropped=false;
+        let dropped=false,lostNow=false;
         for(const [id,t] of this.tracks){
           const identityAge=o.at-t.identified;
           if(gap||identityAge>5000){t.flow.close();this.tracks.delete(id);dropped=true;continue}
           if(!t.held&&t.flow.update(this.previous,gray)){
+            const before=centerOf(t.corners),dt=o.at-t.observed;
             t.corners=smoothQuad(t.corners,t.flow.corners);
+            if(dt>0&&dt<=500){
+              // Normalized frame units per second, smoothed across frames.
+              const after=centerOf(t.corners),blend=Math.min(1,dt/200);
+              t.velocity=[0,1].map(i=>(1-blend)*(t.velocity?.[i]??0)+blend*(after[i]-before[i])*1000/dt);
+            }
             t.observed=o.at;
           }else{
-            t.held=true;
+            // A track lost while the view was moving stays hidden until re-identified.
+            if(!t.held){lostNow=true;t.lostWhileMoving=!steady;t.lostVelocity=t.velocity??[0,0];}
+            t.held=true;t.velocity=[0,0];
             t.recoveryCorners=t.recovery.locate(gray,t.corners);
             // Keep the identity briefly for re-acquisition. Visibility expires
             // separately, so a lost box is not drawn indefinitely.
@@ -166,10 +203,28 @@ export class VisionEngine {
           }
         }
         const recovering=dropped||[...this.tracks.values()].some(t=>t.held||o.at-t.identified>1800);
-        const interval=o.candidateSearchPending?200:this.pendingFlows.size?300:recovering?350:this.tracks.size?650:450;
-        if(o.at-this.lastDetect>=interval||o.mode==='verify'){
+        const baseInterval=o.candidateSearchPending?200:this.pendingFlows.size?300:recovering?350:this.tracks.size?650:450;
+        // A lost or missing object must not turn every frame into a full search:
+        // leave at least as much frame time as the last search took for light frames.
+        const interval=o.mode==='recognize'?Math.max(baseInterval,Math.min(MAX_SEARCH_GAP_MS,2*this.detectCost)):baseInterval;
+        const aimed=o.mode==='recognize'&&o.aimedTrackId?this.tracks.get(o.aimedTrackId):null;
+        const verifyAimed=!!aimed&&!aimed.held&&!recovering&&!this.pendingFlows.size&&
+          o.at-this.lastFullDetect<FULL_DETECT_WHILE_AIMED_MS;
+        // Publish a loss before searching: a long search in the same frame would keep
+        // the last live box on screen after the object has already gone.
+        const deferSearch=o.mode==='recognize'&&lostNow;
+        // Shortly after a track is lost in motion, re-check only where it should be now.
+        // Found: tracking continues at once. Gone: nothing is drawn and nothing lingers.
+        const lost=o.mode==='recognize'&&!verifyAimed?[...this.tracks].find(([,t])=>t.held&&t.lostWhileMoving&&o.at-t.observed<REACQUIRE_MS):null;
+        const searchDue=!deferSearch&&o.at-this.lastDetect>=interval||o.mode==='verify';
+        if(searchDue||lost){
+          const searchStarted=performance.now(),quick=!!lost&&o.mode!=='verify';
           let found,early;
-          if(o.mode==='recognize'&&confirmAppearance?.before){
+          if(quick){
+            const [id,t]=lost,dt=(o.at-t.observed)/1000,v=t.lostVelocity;
+            found=this.verifyRegion(pixels,id,t.corners.map(([x,y])=>[x+v[0]*dt,y+v[1]*dt]),.6);
+          }else if(verifyAimed)found=this.verifyRegion(pixels,o.aimedTrackId,aimed.corners);
+          else if(o.mode==='recognize'&&confirmAppearance?.before){
             found=this.detectScene(pixels,true,o.at,{skipStandard:true});
             if(!this.deferAppearance){
               early=await confirmAppearance.before(this.canvas);
@@ -178,8 +233,9 @@ export class VisionEngine {
               else found.push(...this.detectScene(pixels,true,o.at,{skipPhoto:true,reuseTile:true,skipIds:early?.passed,maxReferences:3}));
             }
           }else found=this.detectScene(pixels,o.mode==='recognize',o.at);
-          this.lastDetect=o.at;
-          const confirmed=await confirmAppearance?.(this.canvas,found,early);
+          if(!quick){if(!verifyAimed)this.lastFullDetect=o.at;this.lastDetect=o.at;}
+          // A crop re-check keeps the track's earlier appearance confirmation.
+          const confirmed=verifyAimed||quick?null:await confirmAppearance?.(this.canvas,found,early);
           for(const d of [...found,...(confirmed?.located??[])]){
             if(confirmed?.required.has(d.id)&&!confirmed.passed.has(d.id))continue;
             const previous=this.tracks.get(d.id);
@@ -204,15 +260,20 @@ export class VisionEngine {
             this.tracks.set(d.id,{flow,corners:smoothQuad(previous?.corners,d.corners),observed:o.at,identified:o.at,
               trackId:continuing?previous.trackId:crypto.randomUUID(),
               recovery:continuing&&!d.strong&&d.region?previous.recovery:new TrackRecovery(gray,d.corners),recoveryCorners:null,
-              held:false,inliers:d.inliers,appearanceConfirmed:confirmed?.passed.has(d.id)===true});
+              held:false,inliers:d.inliers,velocity:continuing?previous.velocity:[0,0],
+              appearanceConfirmed:confirmed?.passed.has(d.id)===true||d.verified===true&&previous?.appearanceConfirmed===true});
           }
+          if(!quick)this.detectCost=performance.now()-searchStarted;
         }
         result={sceneStable:steady,found:[...this.tracks]
-          .filter(([,t])=>!t.held||o.at-t.observed<=(steady?1200:350))
+          // A held box bridges a brief occlusion only while the camera is still; once the
+          // view moves its old position is wrong, so it is no longer reported.
+          .filter(([,t])=>!t.held||steady&&!t.lostWhileMoving&&o.at-t.observed<=1200)
           .map(([id,t])=>{
           const held=t.held||o.at-t.identified>1800;
           return {id,trackId:t.trackId,corners:t.corners,inliers:t.inliers,matchedAt:t.identified,held,
             tracked:t.identified!==o.at,appearanceConfirmed:t.appearanceConfirmed,
+            velocity:held?null:(t.velocity??[0,0]).map(v=>Math.round(v*1000)/1000),
             seed:held?null:trackingSeed(cv,gray,t.corners)};
         })};
       }

@@ -172,6 +172,8 @@ final class RtcCamera {
                     encoding.maxBitrateBps = kbps * 1000;
                     encoding.maxFramerate = fps;
                 }
+                // Recognition and the monitor need detail: under load drop frame rate, not resolution.
+                parameters.degradationPreference = RtpParameters.DegradationPreference.MAINTAIN_RESOLUTION;
                 sender.setParameters(parameters);
                 connection.createAnswer(new SdpStep(connection) {
                     @Override void afterCreate(SessionDescription description) {

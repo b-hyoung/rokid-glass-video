@@ -10,6 +10,12 @@ let pairedTargets=new Set();
 let aimMatch=null,lastAimAt=-Infinity;
 let lastLocateAt=-Infinity,lastSceneAt=-Infinity;
 function resetSearch(){aimMatch=null;lastAimAt=lastLocateAt=lastSceneAt=-Infinity}
+const AIMED_SCENE_SCAN_MS=3000,MISSING_SCENE_SCAN_MS=1000;
+function containsAim(corners,aim){
+  if(!corners)return false;
+  const xs=corners.map(p=>p[0]),ys=corners.map(p=>p[1]);
+  return aim.cx>=Math.min(...xs)&&aim.cx<=Math.max(...xs)&&aim.cy>=Math.min(...ys)&&aim.cy<=Math.max(...ys);
+}
 onmessage=({data:d})=>{sequence=sequence.then(async()=>{
   try{const engine=await ready, appearance=await appearanceReady;let result;if(d.type==='references'){await engine.matcher.references(d.targets);appearance.setReferences(d.targets);pairedTargets=new Set(d.targets.filter(target=>target.appearance).map(target=>target.id));if(pairedTargets.size){await appearance.session();for(const ref of appearance.refs)await appearance.photoEmbeddings(ref);}engine.reset();resetSearch();result={count:engine.matcher.refs.length}}
     else if(d.type==='reset'){engine.reset();resetSearch();result={ok:true}}
@@ -59,7 +65,12 @@ onmessage=({data:d})=>{sequence=sequence.then(async()=>{
         confirm.before=async canvas=>{
           ranLocationSearch=true;lastLocateAt=at;
           const missing=[...pairedTargets].some(id=>!engine.tracks.has(id)||engine.tracks.get(id).held);
-          const scanScene=missing||at-lastSceneAt>=1800;
+          // A full-scene vector search costs ~1s. While a live track sits under
+          // the aim (the user is dwelling on it), search for other missing
+          // targets only occasionally so the aimed track keeps fresh results.
+          const aimed=!!aim&&[...engine.tracks.values()].some(track=>!track.held&&containsAim(track.corners,aim));
+          // A missing (or just lost) object is searched at most once per second, not every pass.
+          const scanScene=at-lastSceneAt>=(aimed?AIMED_SCENE_SCAN_MS:missing?MISSING_SCENE_SCAN_MS:1800);
           if(scanScene)lastSceneAt=at;
           const hints=new Map([...engine.regionEvidence.pending].map(([id,entry])=>[id,entry.corners])),flowed=new Set(engine.pendingFlows.keys());
           for(const [id,track] of engine.tracks)if(!hints.has(id)){
@@ -70,8 +81,12 @@ onmessage=({data:d})=>{sequence=sequence.then(async()=>{
           catch(error){appearanceError=error.message;return {located:[],required:pairedTargets,passed:new Set()}}
         };
       }
-      const candidateSearchPending=d.options.mode==='recognize'&&[...pairedTargets].some(id=>!engine.tracks.has(id)||engine.tracks.get(id).held);
-      result=await engine.process(d.bitmap,{...d.options,candidateSearchPending},confirm);
+      // Missing vector targets normally force a detection every 200ms; while a
+      // live track is under the aim, keep the regular tracking cadence instead.
+      const aimedEntry=aim?[...engine.tracks.entries()].find(([,track])=>!track.held&&containsAim(track.corners,aim)):null;
+      const aimedTrack=!!aimedEntry;
+      const candidateSearchPending=d.options.mode==='recognize'&&!aimedTrack&&[...pairedTargets].some(id=>!engine.tracks.has(id)||engine.tracks.get(id).held);
+      result=await engine.process(d.bitmap,{...d.options,candidateSearchPending,aimedTrackId:aimedEntry?.[0]},confirm);
       if(confirm&&aim&&pairedTargets.size&&!engine.deferAppearance){
         for(const target of result.found)localized.add(target.id);
         const aimLocated=result.found.some(d=>!d.held&&aim.cx>=Math.min(...d.corners.map(p=>p[0]))&&aim.cx<=Math.max(...d.corners.map(p=>p[0]))&&aim.cy>=Math.min(...d.corners.map(p=>p[1]))&&aim.cy<=Math.max(...d.corners.map(p=>p[1])));

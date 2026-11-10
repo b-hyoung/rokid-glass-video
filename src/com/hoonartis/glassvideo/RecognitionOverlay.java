@@ -17,7 +17,7 @@ final class RecognitionOverlay extends View {
     private final DashPathEffect targetDash = new DashPathEffect(new float[]{8,5},0);
     private static final int MAX_TARGETS = 12;
     private JSONObject state;
-    private long guideUntil,stateUntil,stateReceivedAt,stateAge;
+    private long guideUntil,stateUntil,stateReceivedAt,stateAge,frameAge;
     private String animatedFocus = "";
     private String animatedTrack = "";
     private long animatedFocusStart, lastProgressFrame;
@@ -45,6 +45,8 @@ final class RecognitionOverlay extends View {
     void update(JSONObject value,long transitMs) {
         state=value;guideUntil=0;stateReceivedAt=SystemClock.elapsedRealtime();
         stateAge=value==null?0:Math.max(0,value.optLong("serverNow")-value.optLong("at")+transitMs);
+        // Age of the analyzed camera frame on arrival; drives motion compensation.
+        frameAge=value==null?0:Math.max(0,value.optLong("serverNow")-value.optLong("frameAt",value.optLong("at"))+transitMs);
         stateUntil=value==null?0:stateReceivedAt+Math.max(0,2200-stateAge);
         JSONObject guide=value==null?null:value.optJSONObject("guide");
         if(guide!=null&&guide.optBoolean("enabled"))guideUntil=SystemClock.elapsedRealtime()+Math.max(0,Math.min(5000,guide.optLong("expiresAt")-value.optLong("serverNow")-transitMs));
@@ -145,11 +147,17 @@ final class RecognitionOverlay extends View {
             offsetY=number(hud,"cy",.5f)-number(camera,"cy",.5f)*scaleY;
         }
         java.util.Set<String> drawn=new java.util.HashSet<>();
+        boolean leading=false;
         for (int i=0; i<detections.length()&&shown.length()<MAX_TARGETS; i++) {
             JSONObject d=detections.optJSONObject(i); if (d==null) continue;
             String id=d.optString("id");
             if(drawn.contains(id))continue;
             JSONArray points=d.optJSONArray("corners"); if (points==null || points.length()!=4) continue;
+            JSONArray velocity=server!=null&&!d.optBoolean("held")?d.optJSONArray("velocity"):null;
+            long age=frameAge+now-stateReceivedAt;
+            double[] lead=velocity!=null&&velocity.length()==2
+                    ?BoxMotion.offset(velocity.optDouble(0),velocity.optDouble(1),age):new double[]{0,0};
+            if((lead[0]!=0||lead[1]!=0)&&age<BoxMotion.MAX_LEAD_MS)leading=true;
             float sx=0,sy=0,left=Float.POSITIVE_INFINITY,right=Float.NEGATIVE_INFINITY;
             float top=Float.POSITIVE_INFINITY,bottom=Float.NEGATIVE_INFINITY;
             boolean ok=true;
@@ -158,7 +166,7 @@ final class RecognitionOverlay extends View {
                 if(point==null) {ok=false;break;}
                 float px=(float)point.optDouble(0),py=(float)point.optDouble(1);
                 if(!Float.isFinite(px)||!Float.isFinite(py)){ok=false;break;}
-                px=offsetX+clamp01(px)*scaleX;py=offsetY+clamp01(py)*scaleY;
+                px=offsetX+clamp01(px+(float)lead[0])*scaleX;py=offsetY+clamp01(py+(float)lead[1])*scaleY;
                 sx+=px;sy+=py;
                 left=Math.min(left,px);right=Math.max(right,px);
                 top=Math.min(top,py);bottom=Math.max(bottom,py);
@@ -202,6 +210,8 @@ final class RecognitionOverlay extends View {
                 break;
             }
         }
+        // Keep redrawing while a box is still being led along its velocity.
+        if(leading)postInvalidateOnAnimation();
         reportHud("recognition",shown);
     }
 
