@@ -98,7 +98,7 @@ test('alternating live and held results must accumulate only short live observat
   assert.equal(r.commands.at(-1)?.key,'e','intermittent confirmed observations eventually complete dwell');
  }finally{Date.now=original}
 });
-test('a continuously observed target plays at 1500ms but not before',async()=>{
+test('a continuously observed target plays at DWELL_MS but not before',async()=>{
  const realNow=Date.now;
  const started=300000;
  let now=started;
@@ -108,15 +108,18 @@ test('a continuously observed target plays at 1500ms but not before',async()=>{
   const target=await request('/recognition/targets',{name:'Bag',key:'e',image:'data:image/jpeg;base64,/9j/'});
   await request('/recognition/control?enabled=1',{},'POST');
   const found=[{id:target.targetId,trackId:'stable',corners:[[.35,.35],[.65,.35],[.65,.65],[.35,.65]]}];
-  for(const elapsed of [0,300,600,900,1200,1499]){
+  for(let elapsed=0;elapsed<DWELL_MS;elapsed+=300){
    now=started+elapsed;
    await request('/recognition/detections',{epoch:r.epoch,at:now,found});
    assert.equal(r.commands.length,0);
   }
-  now=started+1500;
+  now=started+DWELL_MS-1;
+  await request('/recognition/detections',{epoch:r.epoch,at:now,found});
+  assert.equal(r.commands.length,0);
+  now=started+DWELL_MS;
   await request('/recognition/detections',{epoch:r.epoch,at:now,found});
   assert.equal(r.commands.at(-1)?.key,'e');
-  assert.equal((await request('/recognition/status')).dwellMs,1500);
+  assert.equal((await request('/recognition/status')).dwellMs,DWELL_MS);
  }finally{Date.now=realNow}
 });
 
@@ -176,12 +179,12 @@ test('WebRTC capture routes signaling only within the active session and leaves 
 test('two visible targets, center dwell, switch, stale result and deletion',async()=>{const {r,request}=room();const image='data:image/jpeg;base64,/9j/';await request('/recognition/targets',{name:'판넬',key:'e',image});await request('/recognition/targets',{name:'VR',key:'v',image});let status=await request('/recognition/status');const [a,b]=status.targets;
 await request('/recognition/control?enabled=1',{},'POST');status=await request('/recognition/status');const center=[[.3,.3],[.7,.3],[.7,.7],[.3,.7]],side=[[.05,.1],[.2,.1],[.2,.3],[.05,.3]];
 let found=[{id:a.id,corners:center,inliers:25},{id:b.id,corners:side,inliers:20}];await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found});assert.equal(r.state.detections.length,2);assert.equal(r.state.focused,a.id);assert.equal(r.commands.length,0);
-r.focusAt-=2600;await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found});assert.equal(r.commands.at(-1).key,'e');const n=r.commands.length;await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found});assert.equal(r.commands.length,n);
-found=[{id:a.id,corners:side,inliers:25},{id:b.id,corners:center,inliers:20}];await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found});r.focusAt-=2600;await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found});assert.equal(r.commands.at(-1).key,'e');assert.equal(r.commands.length,n);
+r.focusAt-=DWELL_MS+1100;await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found});assert.equal(r.commands.at(-1).key,'e');const n=r.commands.length;await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found});assert.equal(r.commands.length,n);
+found=[{id:a.id,corners:side,inliers:25},{id:b.id,corners:center,inliers:20}];await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found});r.focusAt-=DWELL_MS+1100;await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found});assert.equal(r.commands.at(-1).key,'e');assert.equal(r.commands.length,n);
 const playing=r.playback.current();await request('/recognition/playback',{id:playing.id,event:'stopped'});
-await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found});r.focusAt-=2600;await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found});assert.equal(r.commands.length,0);
+await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found});r.focusAt-=DWELL_MS+1100;await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found});assert.equal(r.commands.length,0);
 await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found:[]});
-await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found});r.focusAt-=2600;await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found});assert.equal(r.commands.at(-1).key,'v');
+await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found});r.focusAt-=DWELL_MS+1100;await request('/recognition/detections',{epoch:status.epoch,at:Date.now(),found});assert.equal(r.commands.at(-1).key,'v');
 assert.equal((await request('/recognition/detections',{epoch:status.epoch,at:Date.now()-5000,found})).stale,true);
 await request('/recognition/targets?id='+a.id,null,'DELETE');assert.equal((await request('/recognition/status')).targets.length,1);assert.equal(r.state.detections.length,0);
 });
@@ -215,7 +218,7 @@ test('two matched views of one object keep one box and one playback identity',as
  await request('/recognition/control?enabled=1',{},'POST');const epoch=r.epoch,corners=[[.3,.3],[.7,.3],[.7,.7],[.3,.7]];
  const post=found=>request('/recognition/detections',{at:Date.now(),epoch,found});
  await post([{id:a.targetId,corners,inliers:12},{id:a.targetId,corners,inliers:24}]);assert.equal(r.state.detections.length,1);assert.equal(r.state.detections[0].inliers,24);
- r.focusAt-=2600;await post([{id:a.targetId,corners,inliers:18}]);assert.equal(r.commands.length,1);
+ r.focusAt-=DWELL_MS+1100;await post([{id:a.targetId,corners,inliers:18}]);assert.equal(r.commands.length,1);
  await post([{id:a.targetId,corners,inliers:35}]);assert.equal(r.commands.length,1);assert.equal(r.state.locked,a.targetId);
 });
 
@@ -340,7 +343,7 @@ test('guide suppresses playback and calibrated camera center drives dwell after 
  assert.match((await request('/recognition/control?enabled=1',{})).error,/가이드/);
  assert.equal((await request('/recognition/detections',{at:Date.now(),epoch:r.epoch,found:[]})).stale,true);
  await request('/recognition/guide',{owner:'a',enabled:false});await request('/recognition/control?enabled=1',{});
- const found=[{id:target.targetId,inliers:20,corners:[[.65,.2],[.85,.2],[.85,.4],[.65,.4]]}];await request('/recognition/detections',{at:Date.now(),epoch:r.epoch,found});assert.equal(r.state.focused,target.targetId);r.focusAt-=2600;await request('/recognition/detections',{at:Date.now(),epoch:r.epoch,found});assert.equal(r.commands.at(-1).key,'e');
+ const found=[{id:target.targetId,inliers:20,corners:[[.65,.2],[.85,.2],[.85,.4],[.65,.4]]}];await request('/recognition/detections',{at:Date.now(),epoch:r.epoch,found});assert.equal(r.state.focused,target.targetId);r.focusAt-=DWELL_MS+1100;await request('/recognition/detections',{at:Date.now(),epoch:r.epoch,found});assert.equal(r.commands.at(-1).key,'e');
 });
 
 test('video batches are atomic, retry-safe, capped and preserve original images',async()=>{
@@ -381,7 +384,7 @@ test('external photos register without glasses or vectors and retry without dupl
 test('optical flow without a recent identity match cannot trigger playback',async()=>{
  const {r,request}=room(),image='data:image/jpeg;base64,/9j/';const target=await request('/recognition/targets',{name:'상자',key:'e',image});await request('/recognition/control?enabled=1',{});
  const detection={id:target.targetId,inliers:20,corners:[[.3,.3],[.7,.3],[.7,.7],[.3,.7]],matchedAt:Date.now()-1400};
- await request('/recognition/detections',{at:Date.now(),epoch:r.epoch,found:[detection]});r.focusAt-=2600;
+ await request('/recognition/detections',{at:Date.now(),epoch:r.epoch,found:[detection]});r.focusAt-=DWELL_MS+1100;
  await request('/recognition/detections',{at:Date.now(),epoch:r.epoch,found:[detection]});assert.equal(r.commands.length,0);
  await request('/recognition/detections',{at:Date.now(),epoch:r.epoch,found:[{...detection,matchedAt:Date.now()}]});assert.equal(r.commands.at(-1).key,'e');
 });
@@ -425,10 +428,10 @@ test('loading and loop playback stay locked; stale completions cannot unlock a m
 test('concurrent dwell requests issue one video and a stop during video lookup cancels autoplay',async()=>{
  const {r,request}=room();const t=await request('/recognition/targets',{name:'상자',key:'e',image:'data:image/jpeg;base64,/9j/'});await request('/recognition/control?enabled=1',{});
  const payload=()=>({epoch:r.epoch,at:Date.now(),found:[{id:t.targetId,corners:[[.3,.3],[.7,.3],[.7,.7],[.3,.7]],inliers:25}]});
- await request('/recognition/detections',payload());r.focusAt-=2600;
+ await request('/recognition/detections',payload());r.focusAt-=DWELL_MS+1100;
  await Promise.all([request('/recognition/detections',payload()),request('/recognition/detections',payload())]);assert.equal(r.commands.filter(x=>x.cmd==='play').length,1);
  await request('/stop');await request('/recognition/detections',{epoch:r.epoch,at:Date.now(),found:[]});r.locked=null;
- await request('/recognition/detections',payload());r.focusAt-=2600;
+ await request('/recognition/detections',payload());r.focusAt-=DWELL_MS+1100;
  let release;r.env.ASSETS.fetch=()=>new Promise(resolve=>{release=()=>resolve(Response.json({e:{title:'영상',file:'e.mp4'}}))});
  const pending=request('/recognition/detections',payload());while(!release)await new Promise(resolve=>setImmediate(resolve));
  await request('/stop');release();await pending;assert.equal(r.commands.filter(x=>x.cmd==='play').length,0);
@@ -518,7 +521,7 @@ test('photo and vector agreement marks off-center targets and requires centered 
  assert.equal(r.state.detections.length,2);
  assert.deepEqual(r.state.detections[0].bounds,{left:.45,right:.85,top:.45,bottom:.85});
  assert.equal(r.state.focused,combined.targetId);
- r.focusAt -= 1000;
+ r.focusAt -= DWELL_MS*2/3;
  await combinedDetection([track]);
  assert.equal(r.state.focused,combined.targetId);
  assert.ok(r.state.progress>=.4);
@@ -552,7 +555,7 @@ test('photo and vector agreement marks off-center targets and requires centered 
  assert.equal(r.state.focused,null);
  assert.equal(r.commands.length,0);
  await combinedDetection([track]);
- r.focusAt -= 2600;
+ r.focusAt -= DWELL_MS+1100;
  await combinedDetection([track]);
  assert.equal(r.commands.at(-1).key,'e');
  await request('/recognition/vectors?targetId='+target.targetId,null,'DELETE');
@@ -593,11 +596,11 @@ test('confirmed aim fallback never invents a location or overrides known off-cen
  const localized={...approximate,approximate:false};
  await report([localized]);
  assert.equal(r.state.focused,target.targetId);
- r.focusAt-=2600;
+ r.focusAt-=DWELL_MS+1100;
  await report();
  assert.equal(r.commands.length,0);
  await report([localized]);
- r.focusAt-=2600;
+ r.focusAt-=DWELL_MS+1100;
  await report([localized]);
  assert.equal(r.commands.at(-1).key,'e');
 });
@@ -629,7 +632,7 @@ test('state-channel detections use HTTP freshness, identity and playback protect
  await request('/recognition/control?enabled=1',{});await r.events.connect(ws,'viewer','pc');
  const submit=async(seq,override={})=>{await r.events.message(ws,JSON.stringify({type:'detections',seq,data:{epoch:r.epoch,at:Date.now(),found:[{id:t.targetId,corners:[[.3,.3],[.7,.3],[.7,.7],[.3,.7]]}],...override}}));return ws.messages.findLast(m=>m.type==='result')?.result};
  assert.equal((await submit(1)).ok,true);assert.equal(r.focus,t.targetId);
- r.focusAt-=2600;assert.equal((await submit(2)).ok,true);assert.equal(r.commands.filter(m=>m.cmd==='play').length,1);
+ r.focusAt-=DWELL_MS+1100;assert.equal((await submit(2)).ok,true);assert.equal(r.commands.filter(m=>m.cmd==='play').length,1);
  const stale=await submit(3,{epoch:r.epoch-1});assert.equal(stale.stale,true);
  await submit(3);assert.equal(r.commands.filter(m=>m.cmd==='play').length,1);
  const device=stateSocket();await r.events.connect(device,'device','glasses');
@@ -647,15 +650,17 @@ async function dwellRoom(start){
  const report=(at,extra={})=>request('/recognition/detections',{epoch:r.epoch,at,found,...extra});
  return {r,report,id:target.targetId,set:t=>{now=t},restore:()=>{Date.now=original}};
 }
-test('900ms analysis cycles earn their frame time and play after 1500ms of frames',async()=>{
+test('900ms analysis cycles earn their frame time and play after DWELL_MS of frames',async()=>{
  const t0=400000,{r,report,set,restore}=await dwellRoom(t0);
  try{
   await report(t0-500);
   set(t0+900);await report(t0+400);
   assert.ok(Math.abs(r.state.progress-900/DWELL_MS)<.01,'a 900ms cycle previously earned only 150ms');
   assert.equal(r.commands.length,0);
-  set(t0+1800);await report(t0+1300);
+  let cycles=1;
+  while(!r.commands.length&&cycles<10){cycles++;set(t0+900*cycles);await report(t0-500+900*cycles)}
   assert.equal(r.commands.at(-1)?.key,'e');
+  assert.equal(cycles,Math.ceil(DWELL_MS/900),'plays on the first cycle that reaches DWELL_MS of frames');
  }finally{restore()}
 });
 test('delivery delay without new frame time earns only the base 350ms slice',async()=>{

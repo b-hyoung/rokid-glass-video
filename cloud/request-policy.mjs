@@ -1,5 +1,5 @@
 export const json=(body,status=200)=>Response.json(body,{status,headers:{'Cache-Control':'no-store'}});
-export const DWELL_MS=1500;
+export const DWELL_MS=2500;
 export const FOCUS_RESUME_MS=2500;
 export const DISPLAY_HOLD_MS=850;
 // Longest frame-to-frame interval that still counts as one continuous

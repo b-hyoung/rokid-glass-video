@@ -19,8 +19,7 @@ final class RecognitionOverlay extends View {
     private JSONObject state;
     private long guideUntil,stateUntil,stateReceivedAt,stateAge,frameAge;
     private String animatedFocus = "";
-    private String animatedTrack = "";
-    private long animatedFocusStart, lastProgressFrame;
+    private final DwellRing ring = new DwellRing();
     private float displayedProgress;
     private LocalTracking tracking;
     private HudChannel hudChannel;
@@ -103,27 +102,18 @@ final class RecognitionOverlay extends View {
         boolean activeFocus = DwellDisplay.visible(expires,serverNow,now-stateReceivedAt,
                 !focused.isEmpty(),focused.equals(state.optString("locked")));
         boolean advancing=activeFocus&&!state.optBoolean("focusMissing")&&stateAge+now-stateReceivedAt<750;
-        double serverProgress = activeFocus ? state.optDouble("progress", 0) : 0;
-        float goal = (float)Math.max(0, Math.min(.99, serverProgress));
-        String focusTrack=state.optString("focusTrackId");
-        boolean newFocus = activeFocus && (!focused.equals(animatedFocus) || !focusTrack.equals(animatedTrack) || focusStart != animatedFocusStart);
-        if (newFocus) {
-            displayedProgress = 0;
-            lastProgressFrame = now;
-        }
-        long frameMs = Math.min(50, now - lastProgressFrame);
-        displayedProgress += (goal - displayedProgress) * (float)(1 - Math.exp(-frameMs / 65.0));
-        if (Math.abs(goal - displayedProgress) < .001f) displayedProgress = goal;
-        lastProgressFrame = now;
+        String locked=state.isNull("locked")?"":state.optString("locked");
+        boolean completed=!locked.isEmpty()&&(locked.equals(focused)||ring.focus().startsWith(locked+"|"));
+        // A new attempt on the same object (new track or restart) starts the ring over.
+        String focusKey=activeFocus?focused+"|"+state.optString("focusTrackId")+"|"+focusStart:"";
+        if(completed)focusKey=ring.focus();
+        displayedProgress=ring.step(now,focusKey,activeFocus?state.optDouble("progress",0):0,advancing,
+                stateAge+now-stateReceivedAt,state.optLong("dwellMs",2500),completed);
         animatedFocus = activeFocus ? focused : "";
-        animatedTrack = activeFocus ? focusTrack : "";
-        animatedFocusStart = focusStart;
-        c.drawArc(x-20,y-20,x+20,y+20,-90,displayedProgress*360,false,paint);
-        if (displayedProgress != goal) {
-            postInvalidateOnAnimation();
-        } else {
-            postInvalidateDelayed(100);
-        }
+        if(displayedProgress>=1)c.drawCircle(x,y,20,paint);
+        else if(displayedProgress>0)c.drawArc(x-20,y-20,x+20,y+20,-90,displayedProgress*360,false,paint);
+        if (displayedProgress > 0) postInvalidateOnAnimation();
+        else postInvalidateDelayed(100);
         JSONArray detections=new JSONArray(),shown=new JSONArray();
         boolean local=tracking!=null&&tracking.available();
         JSONArray server=now<stateUntil?state.optJSONArray("detections"):null;

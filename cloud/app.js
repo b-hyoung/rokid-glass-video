@@ -12,10 +12,12 @@ import {RtcVideo} from './rtc-video.js';
 import {loadRuntimeConfig,applyRuntimeConfig} from './runtime-config.js';
 import {api} from './api-client.js';
 import {StateClient,RetryDelay} from './state-client.js';
+import {DwellRing} from './dwell-ring.mjs';
 const runtime=await loadRuntimeConfig();
 applyRuntimeConfig(runtime);
 const $=s=>document.querySelector(s),screen=$('#screen'),g=screen.getContext('2d'),frame=document.createElement('canvas'),fg=frame.getContext('2d');
 let lastSnapshot=null;
+const dwellRing=new DwellRing();
 let frozen=false,selected=null,drag=null,frameAt=0,frameCount=0,matchedFrame=0,cvReady=false,matcher=new VisionClient(),registration,version=0,loading=false,state={enabled:false,detections:[]},message='',socket;
 const showError=e=>{message=e.message||String(e);$('#capture-note').textContent=message};
 const timing=new LiveTiming();
@@ -252,13 +254,17 @@ function draw(now){
     if(selected&&!displayPlayback){
       g.strokeStyle='#68ff8a';g.lineWidth=2;g.strokeRect(selected.x,selected.y,selected.w,selected.h);
     }
+    const completed=!!state.locked&&(state.locked===state.focused||state.locked===dwellRing.focus);
+    const since=timing.age(state.at,now)??0;
+    const ring=dwellRing.step(now,{focus:completed?state.locked:showFocus?state.focused:'',progress:state.progress,
+      advancing:state.focusMode==='advancing'&&!state.focusMissing&&since<750,sinceMs:since,dwellMs:state.dwellMs||2500,completed});
     if(!registration.enabled&&!displayPlayback){
       const aim=state.guide?.calibrated?state.guide.camera:{cx:.5,cy:.5};
       const x=screen.width*aim.cx,y=screen.height*aim.cy;
       g.strokeStyle='#68ff8a';g.lineWidth=2;g.beginPath();
       g.arc(x,y,20,0,Math.PI*2);g.moveTo(x-6,y);g.lineTo(x+6,y);g.moveTo(x,y-6);g.lineTo(x,y+6);g.stroke();
       g.lineWidth=5;g.beginPath();
-      g.arc(x,y,26,-Math.PI/2,-Math.PI/2+Math.PI*2*(showFocus?state.progress||0:0));g.stroke();
+      if(ring>=1)g.arc(x,y,26,0,Math.PI*2);else g.arc(x,y,26,-Math.PI/2,-Math.PI/2+Math.PI*2*ring);g.stroke();
     }
   }
   requestAnimationFrame(draw);

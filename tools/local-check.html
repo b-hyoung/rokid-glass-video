@@ -10,7 +10,7 @@
 <label for="rotation">영상 방향</label><select id="rotation"><option value="0">그대로</option><option value="90">시계 방향 90°</option><option value="180">180°</option><option value="270">시계 방향 270°</option></select>
 <div class="row"><button id="crop" type="button">영역 선택</button><button id="full" type="button">전체 화면</button></div><p id="crop-state" class="hint">전체 화면 분석</p><p class="hint">모니터링 화면을 녹화한 파일이라면 ‘영역 선택’을 누르고 오른쪽에서 카메라 영상 부분을 드래그하세요.</p>
 <div class="row"><button id="start" class="primary" type="button" disabled>테스트 시작</button><button id="stop" type="button" disabled>중지</button></div><p id="status" role="status">파일을 선택하세요.</p></section>
-<section><h2>연결 영상 미리보기</h2><p class="hint">조준점을 인식 영역 안에 1.5초 유지하면 PC에서 재생합니다. 파일 테스트는 안경 실시간 연결과 별도로 실행됩니다.</p><video id="player" controls muted playsinline hidden></video><button id="stop-player" type="button" hidden>미리보기 종료</button><p id="playback-status" class="hint" role="status">재생 대기</p></section>
+<section><h2>연결 영상 미리보기</h2><p class="hint">조준점을 인식 영역 안에 2.5초 유지하면 PC에서 재생합니다. 파일 테스트는 안경 실시간 연결과 별도로 실행됩니다.</p><video id="player" controls muted playsinline hidden></video><button id="stop-player" type="button" hidden>미리보기 종료</button><p id="playback-status" class="hint" role="status">재생 대기</p></section>
 </aside><div>
 <section><h2>인식 화면</h2><div class="stage"><canvas id="screen" width="960" height="540" aria-label="선택한 사진 또는 녹화의 인식 결과"></canvas></div><p id="metrics" class="hint metrics">분석 대기</p><progress id="progress" max="1" value="0" aria-label="연결 영상 재생 진행률"></progress><p id="focus" class="hint">조준 대기</p><ul id="results" aria-label="인식 결과"></ul></section>
 </div></main><script type="module" src="/local-check.js"></script></body></html>

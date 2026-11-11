@@ -50,6 +50,17 @@ public class NativeBehaviorTest {
         double[] capped=BoxMotion.offset(3,0,250);check(Math.abs(capped[0]-BoxMotion.MAX_SHIFT)<1e-9,"lead distance is capped");
         check(BoxMotion.offset(.01,0,200)[0]==0,"slow drift is not extrapolated");
         check(BoxMotion.offset(Double.NaN,0,200)[0]==0&&BoxMotion.offset(.4,0,-5)[0]==0,"invalid velocity or age is ignored");
-        System.out.printf(Locale.ROOT,"PASS: 2-object motion, delayed anchor, loss, expiry, exposure, rotation/strides, playback gate and box lead; %.1f ms JVM total%n",(System.nanoTime()-start)/1e6);
+        // Server results every 500ms of a 3000ms dwell; the ring is drawn every 16ms.
+        DwellRing ring=new DwellRing();float last=0,maxStep=0;boolean monotonic=true;
+        for(long t=0;t<3000;t+=16){
+            long sample=t/500*500;float v=ring.step(t,"a|1|0",sample/3000.0,true,t-sample,3000,false);
+            if(v<last-1e-6)monotonic=false;if(t>100)maxStep=Math.max(maxStep,v-last);last=v;
+        }
+        check(monotonic&&maxStep<.02f,"dwell ring rises smoothly between 500ms results");
+        check(last<=DwellRing.PENDING_CAP+1e-6&&last>.9f,"dwell ring waits just short of full until playback is confirmed");
+        float done=0;for(long t=3000;t<3300;t+=16)done=ring.step(t,"a|1|0",1,false,0,3000,true);
+        check(done==1,"confirmed playback closes the dwell ring completely");
+        check(ring.step(3600,"",0,false,0,3000,false)==0,"the closed ring clears after its short hold");
+        System.out.printf(Locale.ROOT,"PASS: 2-object motion, delayed anchor, loss, expiry, exposure, rotation/strides, playback gate, box lead and dwell ring; %.1f ms JVM total%n",(System.nanoTime()-start)/1e6);
     }
 }

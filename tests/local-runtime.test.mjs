@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {DatabaseSync} from 'node:sqlite';
 import localWorker,{LocalGlassRoom,LocalPreviewRoom,localTargets,videoRange} from '../tools/local-worker.mjs';
+import {DWELL_MS} from '../cloud/request-policy.mjs';
 
 const videos={e:{title:'마주봄',file:'majubom_box.mp4'}},image='data:image/jpeg;base64,/9j/';
 const snapshot={targets:[{id:'saved-photo-id',name:'등록 사진',key:'e',images:[{image,capture:{source:'photo',filename:'사진.jpg'}}]}]};
@@ -67,7 +68,7 @@ test('recorded-file dwell sends playback only to the preview room and can restar
   for(let run=0;run<2;run++){
     await request('/preview/local/reset',{});await request('/preview/recognition/control?enabled=1',{});
     await request('/preview/recognition/detections',{epoch:preview.epoch,at:Date.now(),found});
-    preview.focusAt-=2600;
+    preview.focusAt-=DWELL_MS+1100;
     await request('/preview/recognition/detections',{epoch:preview.epoch,at:Date.now(),found});
     assert.equal(preview.commands.filter(c=>c.cmd==='play').length,1);
     assert.equal(preview.playback.current().media.url,'/v/majubom_box.mp4');
